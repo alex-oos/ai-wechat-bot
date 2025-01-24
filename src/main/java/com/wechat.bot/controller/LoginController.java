@@ -42,7 +42,6 @@ public class LoginController {
         //String qrImgBase64 = jsonObject1.getString("qrImgBase64");
         String pngPath = "src/main/resources/static/login.png";
         generateQRCodeBase64(qrData, 10, 15, pngPath);
-        String captchCode = "123456";
 
         /**
          * 4、确认登陆
@@ -51,9 +50,13 @@ public class LoginController {
          * @param uuid       取码返回的uuid
          * @param captchCode 登录验证码（必须同省登录才能避免此问题，也能使账号更加稳定）
          */
-        JSONObject jsonObject = LoginApi.checkQr(appId, uuid, captchCode);
-    }
+        JSONObject jsonObject = LoginApi.checkQr(appId, uuid, null);
 
+        //设置消息回调地址
+        LoginApi.setCallback(token, "http://127.0.0.1:8080/v2/api/callback/collect");
+
+
+    }
 
 
 }
