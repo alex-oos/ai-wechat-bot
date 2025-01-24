@@ -1,6 +1,7 @@
 package com.wechat.bot.util;
 
 import com.alibaba.fastjson2.JSONObject;
+import com.wechat.bot.config.UserInfoConfig;
 import okhttp3.*;
 
 import javax.net.ssl.SSLContext;
@@ -17,9 +18,11 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class OkhttpUtil {
-
-    private final static String baseUrl = "http://172.17.0.3:2531/v2/api";
-    public static String token = "";
+    // docker 容器的ip地址，也可以使用其他的，写一个默认的今后再也不用修改了
+    //private final static String baseUrl = "http://172.17.0.3:2531/v2/api";
+    //默认地址，目前windwos 上可行
+    private final static String baseUrl = "http://host.docker.internal:2531/v2/api";
+    private final static String token = "";
 
     public static OkHttpClient okHttpClient() {
 
@@ -74,8 +77,11 @@ public class OkhttpUtil {
     public static JSONObject postJSON(String route, JSONObject param) {
 
         Map<String, Object> header = new HashMap<>();
-        if (token != null) {
-            header.put("X-GEWE-TOKEN", token);
+        //if (UserInfoConfig.TOKEN!=null){
+        //
+        //}
+        if (UserInfoConfig.TOKEN != null) {
+            header.put("X-GEWE-TOKEN", UserInfoConfig.TOKEN);
         }
         try {
             if (baseUrl == null || "".equals(baseUrl)) {

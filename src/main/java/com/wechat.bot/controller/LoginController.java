@@ -3,6 +3,7 @@ package com.wechat.bot.controller;
 import com.alibaba.fastjson2.JSONObject;
 
 
+import com.wechat.bot.config.UserInfoConfig;
 import com.wechat.bot.service.LoginApi;
 import com.wechat.bot.util.OkhttpUtil;
 import jakarta.annotation.PostConstruct;
@@ -26,15 +27,15 @@ public class LoginController {
         JSONObject response = LoginApi.getToken();
         String token = response.getString("data");
         System.out.println(token);
-        OkhttpUtil.token = token;
+        UserInfoConfig.TOKEN = token;
         /**
          *3、 获取登录二维码
          * @param appId   设备id 首次登录传空，后续登录传返回的appid
          */
-        String appId = "";
-        JSONObject qr = LoginApi.getQr(appId);
+        //String appId = "";
+        JSONObject qr = LoginApi.getQr(UserInfoConfig.APP_ID);
         JSONObject jsonObject1 = qr.getJSONObject("data");
-        appId = jsonObject1.getString("appId");
+        UserInfoConfig.APP_ID = jsonObject1.getString("appId");
         String uuid = jsonObject1.getString("uuid");
         String qrData = jsonObject1.getString("qrData");
         System.out.println("请访问下面地址：登录也可以");
@@ -50,10 +51,12 @@ public class LoginController {
          * @param uuid       取码返回的uuid
          * @param captchCode 登录验证码（必须同省登录才能避免此问题，也能使账号更加稳定）
          */
-        JSONObject jsonObject = LoginApi.checkQr(appId, uuid, null);
+        JSONObject jsonObject = LoginApi.checkQr(UserInfoConfig.APP_ID, uuid, null);
+
+        //jsonObject.get("")
 
         //设置消息回调地址
-        LoginApi.setCallback(token, "http://127.0.0.1:8080/v2/api/callback/collect");
+        //LoginApi.setCallback(token, "http://127.0.0.1:8080/v2/api/callback/collect");
 
 
     }
