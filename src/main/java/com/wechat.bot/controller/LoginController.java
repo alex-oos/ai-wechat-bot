@@ -2,6 +2,7 @@ package com.wechat.bot.controller;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.wechat.bot.config.UserInfoConfig;
+import com.wechat.bot.service.ContactApi;
 import com.wechat.bot.service.LoginApi;
 import com.wechat.bot.util.FileUtil;
 import jakarta.annotation.PostConstruct;
@@ -60,6 +61,12 @@ public class LoginController {
 
         //设置消息回调地址
         //LoginApi.setCallback(token, "http://127.0.0.1:8080/v2/api/callback/collect");
+
+        //获取通讯录列表
+        JSONObject jsonObject2 = ContactApi.fetchContactsList(userInfoConfig.getAppId());
+
+        //TODO() 将用户数据放到内存中
+
 
 
     }

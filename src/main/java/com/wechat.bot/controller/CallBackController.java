@@ -1,7 +1,8 @@
 package com.wechat.bot.controller;
 
 import com.alibaba.fastjson2.JSONObject;
-import org.springframework.web.bind.annotation.GetMapping;
+import jakarta.annotation.Resource;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -14,13 +15,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/v2/api")
 public class CallBackController {
 
+    @Resource
+    private JSONObject response;
 
-    @GetMapping("/callback/collect")
+    @PostMapping("/callback/collect")
     public JSONObject collect() {
 
-        JSONObject response = new JSONObject();
-        response.put("ret", 200);
-        response.put("msg", "操作成功");
         return response;
     }
 
