@@ -18,47 +18,40 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class OkhttpUtil {
+
     // docker 容器的ip地址，也可以使用其他的，写一个默认的今后再也不用修改了
     //private final static String baseUrl = "http://172.17.0.3:2531/v2/api";
-    //默认地址，目前windwos 上可行
+    //默认地址，host.docker.internal
     private final static String baseUrl = "http://host.docker.internal:2531/v2/api";
-    private final static String token = "";
+    private static String token = "";
 
     public static OkHttpClient okHttpClient() {
 
         TrustManager[] trustManagers = buildTrustManagers();
 
-        return new OkHttpClient.Builder()
-                .connectTimeout(60, TimeUnit.SECONDS)
-                .readTimeout(60, TimeUnit.SECONDS)
-                .writeTimeout(60, TimeUnit.SECONDS)
-                .sslSocketFactory(createSSLSocketFactory(trustManagers), (X509TrustManager) trustManagers[0])
-                .hostnameVerifier((hostName, sessino) -> true)
-                .retryOnConnectionFailure(false)//是否开启缓存
+        return new OkHttpClient.Builder().connectTimeout(60, TimeUnit.SECONDS).readTimeout(60, TimeUnit.SECONDS).writeTimeout(60, TimeUnit.SECONDS).sslSocketFactory(createSSLSocketFactory(trustManagers), (X509TrustManager) trustManagers[0]).hostnameVerifier((hostName, sessino) -> true).retryOnConnectionFailure(false)//是否开启缓存
                 .build();
     }
 
     private static TrustManager[] buildTrustManagers() {
 
-        return new TrustManager[]{
-                new X509TrustManager() {
-                    @Override
-                    public void checkClientTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
+        return new TrustManager[]{new X509TrustManager() {
+            @Override
+            public void checkClientTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
 
-                    }
+            }
 
-                    @Override
-                    public void checkServerTrusted(X509Certificate[] chain, String authType) {
+            @Override
+            public void checkServerTrusted(X509Certificate[] chain, String authType) {
 
-                    }
+            }
 
-                    @Override
-                    public X509Certificate[] getAcceptedIssuers() {
+            @Override
+            public X509Certificate[] getAcceptedIssuers() {
 
-                        return new X509Certificate[]{};
-                    }
-                }
-        };
+                return new X509Certificate[]{};
+            }
+        }};
     }
 
     private static SSLSocketFactory createSSLSocketFactory(TrustManager[] trustAllCerts) {
@@ -76,12 +69,18 @@ public class OkhttpUtil {
 
     public static JSONObject postJSON(String route, JSONObject param) {
 
-        Map<String, Object> header = new HashMap<>();
-        //if (UserInfoConfig.TOKEN!=null){
-        //
-        //}
-        if (UserInfoConfig.TOKEN != null) {
-            header.put("X-GEWE-TOKEN", UserInfoConfig.TOKEN);
+        //读取文件，看看文件中是否有值，如果文件中有值，直接覆盖
+        if (token == null) {
+            UserInfoConfig userInfoConfig = FileUtil.readFile("src/main/resources/static/config.json");
+            String token1 = userInfoConfig.getToken();
+            if (!token1.isEmpty()) {
+                token = token1;
+            }
+        }
+
+        Map<String, Object> header = new HashMap<>();//if (UserInfoConfig.TOKEN!=null){
+        if (token != null) {
+            header.put("X-GEWE-TOKEN", token);
         }
         try {
             if (baseUrl == null || "".equals(baseUrl)) {
