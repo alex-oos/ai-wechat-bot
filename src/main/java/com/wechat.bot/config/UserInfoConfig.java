@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.context.annotation.Bean;
 
 /**
@@ -16,7 +17,7 @@ import org.springframework.context.annotation.Bean;
 @NoArgsConstructor
 @Data
 @Builder
-//@Configurable
+@Configurable
 public class UserInfoConfig {
 
     /**
