@@ -1,4 +1,4 @@
-package com.wechat.bot.entity.message;
+package com.wechat.bot.entity.message.reply;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,22 +7,21 @@ import lombok.NoArgsConstructor;
 
 /**
  * @author Alex
- * @since 2025/1/26 17:43
+ * @since 2025/1/27 00:08
  * <p></p>
  */
-@Builder
-@NoArgsConstructor()
-@AllArgsConstructor
 @Data
-public class SendMessage {
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class ReplyTextMessage {
 
     private String appId;
 
     private String toWxid;
 
-    private String fromWxid;
+    private String ats;
 
     private String content;
-
 
 }

@@ -1,14 +1,22 @@
 package com.wechat.bot.bot.service.impl;
 
 import com.alibaba.fastjson2.JSONObject;
+import com.wechat.bot.ali.service.impl.AliService;
 import com.wechat.bot.bot.service.CallBackService;
+import com.wechat.bot.contant.MsgTypeEnum;
+import com.wechat.bot.entity.message.reply.ReplyTextMessage;
 import com.wechat.bot.gewechat.service.MessageApi;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * @author Alex
@@ -19,8 +27,15 @@ import java.util.List;
 @Service
 public class CallBackServiceImpl implements CallBackService {
 
+    @Resource
+    private AliService aliService;
+
+    //@Resource(name = "common")
+    @Resource
+    private ThreadPoolTaskExecutor executor;
+
     @Override
-    public Boolean filterUser(String fromUsername, String toUserName, String msgSource, String content) {
+    public Boolean filterOther(String fromUsername, String toUserName, String msgSource, String content) {
         /**
          *   """检查消息是否来自非用户账号（如公众号、腾讯游戏、微信团队等）
          *
@@ -36,7 +51,6 @@ public class CallBackServiceImpl implements CallBackService {
          *             1. 检查MsgSource中是否包含特定标签
          *             2. 检查发送者ID是否为特殊账号或以特定前缀开头
          */
-
 
         //TODO(当前bug，总是莫名奇妙向其他群发消息，目前仍然未解决)
         ArrayList<String> list1 = new ArrayList<>();
@@ -60,6 +74,74 @@ public class CallBackServiceImpl implements CallBackService {
         }
         return false;
 
+
+    }
+
+    //@Async
+    @Override
+    public void replyTextMsg(String receiveMsg, ReplyTextMessage replyTextMessage) {
+
+        CompletableFuture.supplyAsync(() -> {
+            log.info("请求阿里云");
+            return aliService.textToText(receiveMsg);
+        }, executor).thenApplyAsync((res) -> {
+            res.forEach(msg -> {
+                log.info("请求gewechat服务：{}", msg);
+                replyTextMessage.setContent(msg);
+                MessageApi.postText(replyTextMessage);
+            });
+
+            return res.listIterator();
+        }, executor);
+
+        //List<String> msgList = aliService.textToText(receiveMsg);
+        //
+        //msgList.forEach(msg -> {
+        //    replyTextMessage.setContent(msg);
+        //    MessageApi.postText(replyTextMessage);
+        //});
+        log.info("回复消息：{}", replyTextMessage);
+    }
+
+    @Async
+    @Override
+    public void receiveMsg(JSONObject requestBody) {
+
+        String appid = requestBody.getString("Appid");
+        String wxid = requestBody.getString("Wxid");
+        JSONObject data = requestBody.getJSONObject("Data");
+        String fromUsername = data.getJSONObject("FromUserName").getString("string");
+        String toUserName = data.getJSONObject("ToUserName").getString("string");
+        String receiveMsg = data.getJSONObject("Content").getString("string");
+        String msgSource = data.getString("MsgSource");
+        Integer msgType = data.getInteger("MsgType");
+
+        // 防止给自己发消息
+        if (wxid.equals(fromUsername)) {
+            return;
+        }
+        // 过滤
+        Boolean isFilter = this.filterOther(fromUsername, toUserName, msgSource, receiveMsg);
+        if (isFilter) {
+            return;
+        }
+
+        // 判断类型
+        switch (MsgTypeEnum.getMsgTypeEnum(msgType)) {
+            case TEXT:
+                ReplyTextMessage replyTextMessage = ReplyTextMessage.builder().appId(appid).toWxid(toUserName).toWxid(fromUsername).build();
+                this.replyTextMsg(receiveMsg, replyTextMessage);
+                break;
+            case IMAGE:
+
+                break;
+            case VOICE:
+                break;
+            case VIDEO:
+                break;
+            default:
+                break;
+        }
 
     }
 

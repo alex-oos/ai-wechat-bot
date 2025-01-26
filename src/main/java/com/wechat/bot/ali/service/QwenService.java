@@ -3,6 +3,7 @@ package com.wechat.bot.ali.service;
 import com.alibaba.dashscope.aigc.generation.GenerationOutput;
 import com.wechat.bot.ali.config.QwenConfig;
 import com.wechat.bot.ali.service.impl.AliService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,15 +31,13 @@ import com.alibaba.dashscope.utils.JsonUtils;
  * <p></p>
  */
 
+@Slf4j
 @Service
 public class QwenService implements AliService {
 
     @Autowired
     private QwenConfig qwenConfig;
 
-    public static void main(String[] args) {
-
-    }
 
     @Override
     public GenerationResult callWithMessage(String content) throws ApiException, NoApiKeyException, InputRequiredException {
@@ -69,13 +68,14 @@ public class QwenService implements AliService {
             List<GenerationOutput.Choice> choices = result.getOutput().getChoices();
             ArrayList<String> messageList = new ArrayList<>();
             for (GenerationOutput.Choice choice : choices) {
-                System.out.println(choice.getMessage().getContent());
+                //System.out.println(choice.getMessage().getContent());
                 messageList.add(choice.getMessage().getContent());
             }
             //System.out.println(JsonUtils.toJson(result));
             return messageList;
         } catch (ApiException | NoApiKeyException | InputRequiredException e) {
             // 使用日志框架记录异常信息
+            //log.error(e.getMessage());
             System.err.println("An error occurred while calling the generation service: " + e.getMessage());
         }
         return null;

@@ -9,6 +9,7 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -20,14 +21,13 @@ import java.util.concurrent.TimeUnit;
 public class OkhttpUtil {
 
     // docker 容器的ip地址，也可以使用其他的，写一个默认的今后再也不用修改了
-    //private final static String baseUrl = "http://172.17.0.3:2531/v2/api";
-    //默认地址，host.docker.internal
-    private final static String baseUrl = "http://host.docker.internal:2531/v2/api";
+    private static String baseUrl = ":2531/v2/api";
 
     private static String token = "";
 
     static {
         try {
+            baseUrl = "http://" + IpUtil.getIp() + baseUrl;
             SystemConfig systemConfig = FileUtil.readFile();
             if (systemConfig.getToken() != null) {
                 token = systemConfig.getToken();
@@ -103,7 +103,8 @@ public class OkhttpUtil {
             if (jsonObject.getInteger("ret") == 200) {
                 return jsonObject;
             } else {
-                throw new RuntimeException(res);
+                return jsonObject;
+                //throw new RuntimeException(res);
             }
         } catch (Exception e) {
             System.out.println("url=" + baseUrl + route);

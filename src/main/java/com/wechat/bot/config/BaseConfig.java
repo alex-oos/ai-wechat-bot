@@ -4,10 +4,12 @@ import com.alibaba.fastjson2.JSONObject;
 import com.wechat.bot.gewechat.service.LoginApi;
 import com.wechat.bot.util.FileUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -19,7 +21,7 @@ import javax.annotation.Resource;
  */
 @Slf4j
 @Component
-public class SystemInfo {
+public class BaseConfig {
 
 
     @Resource
@@ -37,15 +39,19 @@ public class SystemInfo {
         /**
          * 1.获取token
          */
-        while (true) {
+        int totalCount = 10;
+        int retryCount = 0;
+        while (retryCount < totalCount) {
             JSONObject response = LoginApi.getToken();
             if (response.getInteger("ret") == 200) {
                 String token = response.getString("data");
                 if (token != null) {
                     systemConfig.setToken(token);
                     FileUtil.writeFile(systemConfig);
+                    break;
+
                 }
-                break;
+                retryCount++;
             }
         }
 
@@ -53,21 +59,29 @@ public class SystemInfo {
          *3、 获取登录二维码
          * @param appId   设备id 首次登录传空，后续登录传返回的appid
          */
-        String appId;
-        String uuid;
-        while (true) {
+        String appId = "";
+        String uuid = "";
+        retryCount = 0;
+        while (retryCount <= totalCount) {
             appId = "";
             JSONObject response = LoginApi.getQr("");
             if (response.getInteger("ret") == 200) {
-                JSONObject jsonObject1 = response.getJSONObject("data");
-                uuid = jsonObject1.getString("uuid");
-                String qrData = jsonObject1.getString("qrData");
+                JSONObject data = response.getJSONObject("data");
+                appId = data.getString("appId");
+                uuid = data.getString("uuid");
+                String qrData = data.getString("qrData");
                 System.out.println("请访问下面地址：登录也可以");
                 System.out.println("https://api.qrserver.com/v1/create-qr-code/?data=" + qrData);
+                try {
+                    TimeUnit.SECONDS.sleep(20);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
                 systemConfig.setAppId(appId);
                 FileUtil.writeFile(systemConfig);
                 break;
             }
+            retryCount++;
         }
 
         /**
@@ -89,8 +103,9 @@ public class SystemInfo {
 
     }
 
+
     @PostConstruct
-    public void start() {
+    public void init() {
 
         login();
 
