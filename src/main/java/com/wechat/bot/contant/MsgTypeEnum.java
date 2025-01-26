@@ -13,22 +13,24 @@ import lombok.Setter;
 @AllArgsConstructor
 public enum MsgTypeEnum {
 
-    TEXT(1, "text"),
-    IMAGE(2, "image"),
-    VOICE(3, "voice"),
-    VIDEO(4, "video"),
-    EMOJI(5, "emoji"),
-    APPMSG(6, "appmsg"),
-    MINIAPP(7, "miniapp"),
-    FILE(8, "file"),
-    FORWARD(9, "forward"),
-    LINK(10, "link"),
-    NAME_CARD(11, "namecard"),
-    UNKNOWN(12, "unknown");
+    TEXT(1, "text", "文本消息"),
+    IMAGE(3, "image", "图片消息"),
+    VOICE(34, "voice", "语音消息"),
+    VIDEO(43, "video", "视频消息"),
+    EMOJI(47, "emoji", null),
+    APPMSG(49, "appmsg", null),
+    MINIAPP(7, "miniapp", null),
+    FILE(8, "file", null),
+    FORWARD(9, "forward", null),
+    LINK(10, "link", null),
+    NAME_CARD(11, "namecard", null),
+    UNKNOWN(12, "unknown", null);
 
     private final Integer msgType;
 
     private final String type;
+
+    private final String desc;
 
 
     public static MsgTypeEnum getMsgTypeEnum(Integer msgType) {
