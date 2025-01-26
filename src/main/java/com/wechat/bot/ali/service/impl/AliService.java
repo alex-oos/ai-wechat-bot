@@ -4,6 +4,7 @@ import com.alibaba.dashscope.aigc.generation.GenerationResult;
 import com.alibaba.dashscope.exception.ApiException;
 import com.alibaba.dashscope.exception.InputRequiredException;
 import com.alibaba.dashscope.exception.NoApiKeyException;
+import com.wechat.bot.ali.service.AIService;
 
 import java.util.List;
 
@@ -12,9 +13,9 @@ import java.util.List;
  * @since 2025/1/26 18:03
  * <p></p>
  */
-public interface AliService {
+public interface AliService extends AIService {
 
-     List<String> textToText(String content);
+    List<String> textToText(String content);
 
     GenerationResult callWithMessage(String content) throws ApiException, NoApiKeyException, InputRequiredException;
 

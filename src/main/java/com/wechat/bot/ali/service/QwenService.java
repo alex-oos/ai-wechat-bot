@@ -33,7 +33,7 @@ import com.alibaba.dashscope.utils.JsonUtils;
 
 @Slf4j
 @Service
-public class QwenService implements AliService {
+public class QwenService implements AliService  {
 
     @Autowired
     private QwenConfig qwenConfig;
@@ -79,6 +79,42 @@ public class QwenService implements AliService {
             System.err.println("An error occurred while calling the generation service: " + e.getMessage());
         }
         return null;
+    }
+
+    @Override
+    public String textToImage(String content) {
+
+        return "";
+    }
+
+    @Override
+    public String imageToText(String content) {
+
+        return "";
+    }
+
+    @Override
+    public String imageToImage(String content) {
+
+        return "";
+    }
+
+    @Override
+    public String imageToImage(String content, String style) {
+
+        return "";
+    }
+
+    @Override
+    public String imageToImage(String content, String style, String prompt) {
+
+        return "";
+    }
+
+    @Override
+    public String imageToImage(String content, String style, String prompt, String negativePrompt) {
+
+        return "";
     }
 
 
