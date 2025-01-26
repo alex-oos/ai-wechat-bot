@@ -49,6 +49,7 @@ public class CallBackController {
             String content = data.getJSONObject("Content").getString("string");
             String msgSource = data.getString("MsgSource");
 
+
             Boolean isFilter = callBackService.filterUser(fromUsername, toUserName, msgSource, content);
             if (isFilter) {
                 return;

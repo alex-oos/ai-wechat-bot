@@ -37,6 +37,8 @@ public class CallBackServiceImpl implements CallBackService {
          *             2. 检查发送者ID是否为特殊账号或以特定前缀开头
          */
 
+
+        //TODO(当前bug，总是莫名奇妙向其他群发消息，目前仍然未解决)
         ArrayList<String> list1 = new ArrayList<>();
         Collections.addAll(list1, "Tencent-Games", "weixin");
         if (list1.contains(fromUsername) || fromUsername.startsWith("gh_")) {
