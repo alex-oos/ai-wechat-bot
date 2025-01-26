@@ -1,8 +1,11 @@
 package com.wechat.bot.task;
 
-import jakarta.annotation.Resource;
+import com.wechat.bot.config.SystemConfig;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
 
 /**
  * @author Alex
@@ -12,18 +15,21 @@ import org.springframework.stereotype.Component;
  * 启动的时候，先获取消息，然后进行回复
  * </p>
  */
+@Slf4j
 @Component
-public class BackGroudCommandLineRunner implements CommandLineRunner {
+public class TaskProcessorRunner implements CommandLineRunner {
 
     @Resource
     private TaskProcessor taskProcessor;
 
+    @Resource
+    private SystemConfig systemConfig;
+
     @Override
     public void run(String... strings) throws Exception {
 
-        //获取消息，将消息放到队列之中，然后一个一个进行执行
-        taskProcessor.consumeTask();
-        // 然后再一个一个回复消息即可
+
+        taskProcessor.processTasks(); // 启动任务处理器
 
 
     }

@@ -1,0 +1,47 @@
+package com.wechat.bot.task;
+
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
+
+/**
+ * @author Alex
+ * @since 2025/1/25 19:02
+ * <p></p>
+ */
+@Component
+public class TaskProcessor {
+
+    @Resource
+    private MessageQueue taskQueue;
+
+    @Resource
+    private ThreadPoolTaskExecutor threadPool;
+
+
+    public void processTasks() {
+        // 1. 每个线程的线程任务死循环
+        // 2, 这里触发的是提交任务到线程池中执行
+        //3. 控制一下,提交多少个任务到线程池中
+        int consumerThreadCount = 10;
+
+        for (int i = 0; i < consumerThreadCount; i++) {
+            threadPool.execute(() -> {
+                while (true) {
+                    try {
+                        Task task = taskQueue.dequeue();
+                        task.run();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+
+        }
+
+
+    }
+
+
+}

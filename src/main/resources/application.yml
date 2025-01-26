@@ -1,3 +1,6 @@
 spring:
   application:
-      name: webchat-bot-server
+    name: webchat-bot-server
+
+server:
+  port: 9919

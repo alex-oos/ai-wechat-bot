@@ -1,7 +1,7 @@
 package com.wechat.bot.util;
 
 import com.alibaba.fastjson2.JSONObject;
-import com.wechat.bot.config.UserInfoConfig;
+import com.wechat.bot.config.SystemConfig;
 import okhttp3.*;
 
 import javax.net.ssl.SSLContext;
@@ -23,7 +23,19 @@ public class OkhttpUtil {
     //private final static String baseUrl = "http://172.17.0.3:2531/v2/api";
     //默认地址，host.docker.internal
     private final static String baseUrl = "http://host.docker.internal:2531/v2/api";
+
     private static String token = "";
+
+    static {
+        try {
+            SystemConfig systemConfig = FileUtil.readFile();
+            if (systemConfig.getToken() != null) {
+                token = systemConfig.getToken();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     public static OkHttpClient okHttpClient() {
 
@@ -70,11 +82,10 @@ public class OkhttpUtil {
     public static JSONObject postJSON(String route, JSONObject param) {
 
         //读取文件，看看文件中是否有值，如果文件中有值，直接覆盖
-        if (token == null) {
-            UserInfoConfig userInfoConfig = FileUtil.readFile("src/main/resources/static/config.json");
-            String token1 = userInfoConfig.getToken();
-            if (!token1.isEmpty()) {
-                token = token1;
+        if (token == null || token.isEmpty()) {
+            SystemConfig systemConfig = FileUtil.readFile();
+            if (systemConfig.getToken() != null) {
+                token = systemConfig.getToken();
             }
         }
 

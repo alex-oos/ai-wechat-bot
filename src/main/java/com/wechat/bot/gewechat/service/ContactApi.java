@@ -1,4 +1,4 @@
-package com.wechat.bot.service;
+package com.wechat.bot.gewechat.service;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.wechat.bot.util.OkhttpUtil;
