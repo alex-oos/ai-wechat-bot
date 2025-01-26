@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
  */
 @Slf4j
 @Component
-public class CallBackUrlRunner implements ApplicationRunner {
+public class CallBackUrlConfig implements ApplicationRunner {
 
     @Autowired
     private SystemConfig systemConfig;
