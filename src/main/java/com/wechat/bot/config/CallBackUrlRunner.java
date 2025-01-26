@@ -3,11 +3,11 @@ package com.wechat.bot.config;
 import com.alibaba.fastjson2.JSONObject;
 import com.wechat.bot.gewechat.service.LoginApi;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
 
 /**
  * @author Alex
@@ -20,7 +20,7 @@ import javax.annotation.Resource;
 @Component
 public class CallBackUrlRunner implements ApplicationRunner {
 
-    @Resource
+    @Autowired
     private SystemConfig systemConfig;
 
 

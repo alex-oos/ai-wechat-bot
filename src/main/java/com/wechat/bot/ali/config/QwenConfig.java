@@ -5,7 +5,6 @@ import lombok.Data;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 
 /**
  * @author Alex

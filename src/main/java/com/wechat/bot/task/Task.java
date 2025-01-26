@@ -16,12 +16,12 @@ import lombok.NoArgsConstructor;
 @Data
 public class Task {
 
-    private String taskName;
+    private Runnable runnable;
 
 
     public void run() {
-        // 任务参数是什么？如何更新
-        System.out.println("执行任务");
+
+        runnable.run();
 
     }
 

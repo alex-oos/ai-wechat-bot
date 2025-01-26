@@ -1,15 +1,8 @@
 package com.wechat.bot.config;
 
-import com.wechat.bot.util.FileUtil;
 import lombok.*;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.json.JsonParserFactory;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
+
 
 /**
  * @author Alex

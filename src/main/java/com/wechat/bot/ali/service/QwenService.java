@@ -1,12 +1,17 @@
 package com.wechat.bot.ali.service;
 
+import com.alibaba.dashscope.aigc.generation.GenerationOutput;
 import com.wechat.bot.ali.config.QwenConfig;
 import com.wechat.bot.ali.service.impl.AliService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+
+import java.lang.System;
+import java.util.List;
 
 import com.alibaba.dashscope.aigc.generation.Generation;
 import com.alibaba.dashscope.aigc.generation.GenerationParam;
@@ -18,6 +23,7 @@ import com.alibaba.dashscope.exception.InputRequiredException;
 import com.alibaba.dashscope.exception.NoApiKeyException;
 import com.alibaba.dashscope.utils.JsonUtils;
 
+
 /**
  * @author Alex
  * @since 2025/1/26 17:58
@@ -27,8 +33,12 @@ import com.alibaba.dashscope.utils.JsonUtils;
 @Service
 public class QwenService implements AliService {
 
-    @Resource
+    @Autowired
     private QwenConfig qwenConfig;
+
+    public static void main(String[] args) {
+
+    }
 
     @Override
     public GenerationResult callWithMessage(String content) throws ApiException, NoApiKeyException, InputRequiredException {
@@ -36,7 +46,7 @@ public class QwenService implements AliService {
         Generation gen = new Generation();
         Message systemMsg = Message.builder()
                 .role(Role.SYSTEM.getValue())
-                .content("You are a helpful assistant.")
+                .content("你是一个AI助理")
                 .build();
         Message userMsg = Message.builder()
                 .role(Role.USER.getValue())
@@ -51,14 +61,19 @@ public class QwenService implements AliService {
         return gen.call(param);
     }
 
-
     @Override
-    public String textToText(String content) {
+    public List<String> textToText(String content) {
 
         try {
             GenerationResult result = callWithMessage(content);
-            System.out.println(JsonUtils.toJson(result));
-            return result.getRequestId();
+            List<GenerationOutput.Choice> choices = result.getOutput().getChoices();
+            ArrayList<String> messageList = new ArrayList<>();
+            for (GenerationOutput.Choice choice : choices) {
+                System.out.println(choice.getMessage().getContent());
+                messageList.add(choice.getMessage().getContent());
+            }
+            //System.out.println(JsonUtils.toJson(result));
+            return messageList;
         } catch (ApiException | NoApiKeyException | InputRequiredException e) {
             // 使用日志框架记录异常信息
             System.err.println("An error occurred while calling the generation service: " + e.getMessage());

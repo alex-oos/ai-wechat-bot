@@ -12,7 +12,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 
 @Component
-public class MessageQueue {
+public class TaskQueue {
 
     private final BlockingQueue<Task> queue = new LinkedBlockingQueue<>();
 

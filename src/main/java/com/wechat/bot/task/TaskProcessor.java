@@ -14,7 +14,7 @@ import javax.annotation.Resource;
 public class TaskProcessor {
 
     @Resource
-    private MessageQueue taskQueue;
+    private TaskQueue taskQueue;
 
     @Resource
     private ThreadPoolTaskExecutor threadPool;
@@ -24,7 +24,7 @@ public class TaskProcessor {
         // 1. 每个线程的线程任务死循环
         // 2, 这里触发的是提交任务到线程池中执行
         //3. 控制一下,提交多少个任务到线程池中
-        int consumerThreadCount = 10;
+        int consumerThreadCount = 5;
 
         for (int i = 0; i < consumerThreadCount; i++) {
             threadPool.execute(() -> {
