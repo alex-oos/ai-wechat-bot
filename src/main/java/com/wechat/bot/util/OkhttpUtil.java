@@ -2,6 +2,7 @@ package com.wechat.bot.util;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.wechat.bot.config.SystemConfig;
+import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 
 import javax.net.ssl.SSLContext;
@@ -9,7 +10,6 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -18,6 +18,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 public class OkhttpUtil {
 
     // docker 容器的ip地址，也可以使用其他的，写一个默认的今后再也不用修改了
@@ -109,9 +110,9 @@ public class OkhttpUtil {
             if (jsonObject.getInteger("ret") == 200) {
                 return jsonObject;
             } else {
+                log.error("请求失败，响应为：{}", res);
                 token = "";
                 return jsonObject;
-                //throw new RuntimeException(res);
             }
         } catch (Exception e) {
             System.out.println("url=" + baseUrl + route);
