@@ -1,7 +1,7 @@
 package com.wechat.bot.bot.service.impl;
 
 import com.alibaba.fastjson2.JSONObject;
-import com.wechat.bot.ali.service.impl.AliService;
+import com.wechat.bot.ai.ali.service.impl.AliService;
 import com.wechat.bot.bot.service.CallBackService;
 import com.wechat.bot.contant.MsgTypeEnum;
 import com.wechat.bot.entity.message.reply.ReplyTextMessage;
@@ -9,7 +9,6 @@ import com.wechat.bot.gewechat.service.MessageApi;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;

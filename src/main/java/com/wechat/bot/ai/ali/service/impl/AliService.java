@@ -1,10 +1,10 @@
-package com.wechat.bot.ali.service.impl;
+package com.wechat.bot.ai.ali.service.impl;
 
 import com.alibaba.dashscope.aigc.generation.GenerationResult;
 import com.alibaba.dashscope.exception.ApiException;
 import com.alibaba.dashscope.exception.InputRequiredException;
 import com.alibaba.dashscope.exception.NoApiKeyException;
-import com.wechat.bot.ali.service.AIService;
+import com.wechat.bot.ai.service.AIService;
 
 import java.util.List;
 

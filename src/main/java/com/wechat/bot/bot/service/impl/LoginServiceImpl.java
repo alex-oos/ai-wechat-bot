@@ -1,28 +1,25 @@
-package com.wechat.bot.config;
+package com.wechat.bot.bot.service.impl;
 
 import com.alibaba.fastjson2.JSONObject;
+import com.wechat.bot.bot.service.LoginService;
+import com.wechat.bot.config.SystemConfig;
 import com.wechat.bot.gewechat.service.LoginApi;
 import com.wechat.bot.util.FileUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Bean;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.util.concurrent.TimeUnit;
 
-
 /**
  * @author Alex
- * @since 2025/1/24 11:17
- * <p>
- * 项目启动需要初始化的配置
- * </p>
+ * @since 2025/1/27 12:01
+ * <p></p>
  */
 @Slf4j
-@Component
-public class BaseConfig {
-
+@Service
+public class LoginServiceImpl implements LoginService {
 
     @Resource
     SystemConfig systemConfig;
@@ -32,6 +29,7 @@ public class BaseConfig {
         //检查设施是否在线
         JSONObject checkOnline = LoginApi.checkOnline(systemConfig.getAppId());
         if (checkOnline.getInteger("ret") == 200) {
+            log.info("{}", checkOnline);
             log.info("AppId : {} 已在线，无需登录", systemConfig.getAppId());
             return;
         }
@@ -110,6 +108,5 @@ public class BaseConfig {
         login();
 
     }
-
 
 }

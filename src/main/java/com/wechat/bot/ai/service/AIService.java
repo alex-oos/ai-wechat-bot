@@ -1,4 +1,4 @@
-package com.wechat.bot.ali.service;
+package com.wechat.bot.ai.service;
 
 import java.util.List;
 
