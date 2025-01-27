@@ -31,3 +31,29 @@ VALUES (1, '老板', 40, 'boss@baomidou.com', NULL, '2021-03-28 13:12:40'),
        (5, '王猪蛋', 40, 'zd@baomidou.com', 2, '2021-03-28 13:12:40'),
        (6, '王软蛋', 40, 'rd@baomidou.com', 2, '2021-03-28 13:12:40'),
        (7, '王铁蛋', 40, 'td@baomidou.com', 2, '2021-03-28 13:12:40');
+
+
+CREATE TABLE "friends"
+(
+  "id"          INTEGER PRIMARY KEY NOT NULL,
+  "userName" TEXT NOT NULL,
+  "nickName" TEXT DEFAULT NULL,
+  "pyInitial" TEXT DEFAULT NULL,
+  "quanPin" TEXT DEFAULT NULL,
+  "sex" integer DEFAULT NULL,
+  "remark" TEXT ,
+  "remarkPyInitial" TEXT ,
+  "remarkQuanPin" TEXT,
+  "signature" TEXT DEFAULT '1',
+  "alias" TEXT DEFAULT '0',
+  "snsBgImg" TEXT,
+  "country" TEXT,
+  "bigHeadImgUrl" TEXT,
+  "smallHeadImgUrl" TEXT,
+  "description" TEXT,
+  "cardImgUrl" TEXT,
+  "labelList" TEXT,
+  "province" TEXT,
+  "city" TEXT,
+  "phoneNumList" TEXT,
+);
