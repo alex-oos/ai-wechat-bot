@@ -24,15 +24,15 @@ public class OkhttpUtil {
     // docker 容器的ip地址，也可以使用其他的，写一个默认的今后再也不用修改了
     private static String baseUrl = ":2531/v2/api";
 
-    private static String token = "";
+    public static String token = "";
 
     static {
         try {
             baseUrl = "http://" + IpUtil.getIp() + baseUrl;
-            SystemConfig systemConfig = FileUtil.readFile();
-            if (systemConfig.getToken() != null) {
-                token = systemConfig.getToken();
-            }
+            //SystemConfig systemConfig = FileUtil.readFile();
+            //if (systemConfig.getToken() != null) {
+            //    token = systemConfig.getToken();
+            //}
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -89,12 +89,12 @@ public class OkhttpUtil {
     public static JSONObject postJSON(String route, JSONObject param) {
 
         //读取文件，看看文件中是否有值，如果文件中有值，直接覆盖
-        if (token == null || token.isEmpty()) {
-            SystemConfig systemConfig = FileUtil.readFile();
-            if (systemConfig != null && systemConfig.getToken() != null) {
-                token = systemConfig.getToken();
-            }
-        }
+        //if (token == null || token.isEmpty()) {
+        //    SystemConfig systemConfig = FileUtil.readFile();
+        //    if (systemConfig != null && systemConfig.getToken() != null) {
+        //        token = systemConfig.getToken();
+        //    }
+        //}
 
         Map<String, Object> header = new HashMap<>();//if (UserInfoConfig.TOKEN!=null){
         if (token != null) {

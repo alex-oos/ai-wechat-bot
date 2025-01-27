@@ -22,11 +22,7 @@ import javax.annotation.Resource;
 @RequestMapping("/v2/api")
 public class CallBackController {
 
-/*     @Resource
-    private TaskQueue messageQueue; */
 
-    @Resource
-    private SystemConfig systemConfig;
 
     @Resource
     private AliService aliService;

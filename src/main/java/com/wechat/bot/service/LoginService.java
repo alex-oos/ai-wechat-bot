@@ -1,5 +1,7 @@
 package com.wechat.bot.service;
 
+import java.util.Map;
+
 /**
  * @author Alex
  * @since 2025/1/27 12:01
@@ -16,7 +18,7 @@ public interface LoginService {
     /**
      * 3、 获取登录二维码
      */
-    String getqr();
+    Map<String, String> getqr();
 
     void getToken();
 
@@ -25,6 +27,6 @@ public interface LoginService {
      *
      * @param uuid 取码返回的uuid
      */
-    void checkQr(String uuid);
+    void checkQr(Map<String, String> map);
 
 }
