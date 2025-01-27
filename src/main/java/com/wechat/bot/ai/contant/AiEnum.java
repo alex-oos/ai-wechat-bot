@@ -1,9 +1,7 @@
 package com.wechat.bot.ai.contant;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.Getter;
-import lombok.Setter;
 
 /**
  * @author Alex
@@ -18,15 +16,25 @@ public enum AiEnum {
     ALI(1, "ali");
 
 
-    private int id;
+    private final int id;
 
-    private String desc;
+    private final String name;
 
 
     public static AiEnum getById(int id) {
 
         for (AiEnum aiEnum : AiEnum.values()) {
             if (aiEnum.getId() == id) {
+                return aiEnum;
+            }
+        }
+        return null;
+    }
+
+    public static AiEnum getByName(String name) {
+
+        for (AiEnum aiEnum : AiEnum.values()) {
+            if (aiEnum.getName().equals(name)) {
                 return aiEnum;
             }
         }

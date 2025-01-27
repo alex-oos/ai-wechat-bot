@@ -1,7 +1,7 @@
 package com.wechat.bot.bot.service.impl;
 
 import com.alibaba.fastjson2.JSONObject;
-import com.wechat.bot.ai.ali.service.impl.AliService;
+import com.wechat.bot.ai.ali.config.ALiConfig;
 import com.wechat.bot.ai.contant.AiEnum;
 import com.wechat.bot.ai.factory.AiServiceFactory;
 import com.wechat.bot.ai.service.AIService;
@@ -29,8 +29,8 @@ import java.util.concurrent.CompletableFuture;
 @Service
 public class CallBackServiceImpl implements CallBackService {
 
-    @Resource
-    private AliService aliService;
+    //@Resource
+    //private AliService aliService;
 
     //@Resource(name = "common")
     @Resource
@@ -38,6 +38,9 @@ public class CallBackServiceImpl implements CallBackService {
 
     @Resource
     private AiServiceFactory aiServiceFactory;
+
+    @Resource
+    private ALiConfig aliConfig;
 
     @Override
     public Boolean filterOther(String wxid, String fromUsername, String toUserName, String msgSource, String content) {
@@ -89,9 +92,11 @@ public class CallBackServiceImpl implements CallBackService {
     @Override
     public void replyTextMsg(String receiveMsg, ReplyTextMessage replyTextMessage) {
 
+        AIService aiService = chooseAiService();
+
         CompletableFuture.supplyAsync(() -> {
             log.info("请求阿里云");
-            return aliService.textToText(receiveMsg);
+            return aiService.textToText(receiveMsg);
         }, executor).thenApplyAsync((res) -> {
             res.forEach(msg -> {
                 log.info("请求gewechat服务：{}", msg);
@@ -131,6 +136,9 @@ public class CallBackServiceImpl implements CallBackService {
             return;
         }
 
+        //TODO 判断一下，是否单人聊天，还是群里面聊天
+
+
         // 判断类型
         switch (MsgTypeEnum.getMsgTypeEnum(msgType)) {
             case TEXT:
@@ -150,18 +158,26 @@ public class CallBackServiceImpl implements CallBackService {
     }
 
     @Override
-    public void chooseAiService() {
+    public AIService chooseAiService() {
 
-        AiEnum aiEnum = AiEnum.getById(1);
-        AIService aiService = AiServiceFactory.getAiService(aiEnum);
+        if (aliConfig.getEnabled()) {
+            // 找到正常的服务，然后取出枚举值
+            AiEnum aiEnum = AiEnum.getByName(aliConfig.getName());
+            AIService aiService = AiServiceFactory.getAiService(aiEnum);
+            return aiService;
+        }
+        return  null;
+
     }
 
     /**
      * 群消息，如何回复
+     *
      * @param requestBody
      */
     @Override
     public void groupMsg(JSONObject requestBody) {
+
 
     }
 

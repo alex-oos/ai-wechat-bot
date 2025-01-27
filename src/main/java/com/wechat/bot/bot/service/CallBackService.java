@@ -1,6 +1,7 @@
 package com.wechat.bot.bot.service;
 
 import com.alibaba.fastjson2.JSONObject;
+import com.wechat.bot.ai.service.AIService;
 import com.wechat.bot.entity.message.reply.ReplyTextMessage;
 
 /**
@@ -17,7 +18,7 @@ public interface CallBackService {
 
     void receiveMsg(JSONObject requestBody);
 
-    void chooseAiService();
+    AIService chooseAiService();
 
 
     void groupMsg(JSONObject requestBody);

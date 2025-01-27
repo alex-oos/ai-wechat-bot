@@ -1,7 +1,12 @@
 package com.wechat.bot.ai.config;
 
-import lombok.Data;
+import com.wechat.bot.ai.ali.config.ALiConfig;
+import com.wechat.bot.ai.xunfei.config.Xunconfig;
+import com.wechat.bot.fatory.YamlPropertySourceFactory;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
 
@@ -10,15 +15,17 @@ import org.springframework.stereotype.Component;
  * @since 2025/1/27 11:09
  * <p></p>
  */
-@Data
+@Getter
 @Component
 @Configurable
-//@PropertySource(value = {"classpath:static/ai.yml"}, encoding = "UTF-8", factory = YamlPropertySourceFactory.class)
+@ConfigurationProperties(prefix = "ai")
+@PropertySource(value = {"classpath:static/ai.yml"}, encoding = "UTF-8", factory = YamlPropertySourceFactory.class)
 public class AIConfig {
 
-    //("${ai.ali.enable}")
-    private Boolean aliEnable;
+    private ALiConfig aliConfig;
 
+
+    private Xunconfig xunfeiConfig;
 
 
 

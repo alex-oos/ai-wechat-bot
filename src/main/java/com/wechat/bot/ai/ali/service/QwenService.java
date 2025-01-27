@@ -1,22 +1,7 @@
 package com.wechat.bot.ai.ali.service;
 
-import com.alibaba.dashscope.aigc.generation.GenerationOutput;
-import com.wechat.bot.ai.ali.config.QwenConfig;
-import com.wechat.bot.ai.ali.service.impl.AliService;
-import com.wechat.bot.ai.contant.AiEnum;
-import com.wechat.bot.ai.service.AbstractAiService;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-
-import java.util.ArrayList;
-import java.util.Arrays;
-
-import java.lang.System;
-import java.util.List;
-
 import com.alibaba.dashscope.aigc.generation.Generation;
+import com.alibaba.dashscope.aigc.generation.GenerationOutput;
 import com.alibaba.dashscope.aigc.generation.GenerationParam;
 import com.alibaba.dashscope.aigc.generation.GenerationResult;
 import com.alibaba.dashscope.common.Message;
@@ -24,6 +9,17 @@ import com.alibaba.dashscope.common.Role;
 import com.alibaba.dashscope.exception.ApiException;
 import com.alibaba.dashscope.exception.InputRequiredException;
 import com.alibaba.dashscope.exception.NoApiKeyException;
+import com.wechat.bot.ai.ali.config.ALiConfig;
+import com.wechat.bot.ai.ali.service.impl.AliService;
+import com.wechat.bot.ai.contant.AiEnum;
+import com.wechat.bot.ai.service.AbstractAiService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 
 /**
@@ -37,7 +33,7 @@ import com.alibaba.dashscope.exception.NoApiKeyException;
 public class QwenService extends AbstractAiService implements AliService {
 
     @Autowired
-    private QwenConfig qwenConfig;
+    private ALiConfig qwenConfig;
 
     public QwenService() {
 
@@ -126,7 +122,7 @@ public class QwenService extends AbstractAiService implements AliService {
     @Override
     public Boolean checkIsEnabled() {
 
-        return qwenConfig.isEnabled();
+        return false;
     }
 
 
