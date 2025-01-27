@@ -156,5 +156,14 @@ public class CallBackServiceImpl implements CallBackService {
         AIService aiService = AiServiceFactory.getAiService(aiEnum);
     }
 
+    /**
+     * 群消息，如何回复
+     * @param requestBody
+     */
+    @Override
+    public void groupMsg(JSONObject requestBody) {
+
+    }
+
 
 }

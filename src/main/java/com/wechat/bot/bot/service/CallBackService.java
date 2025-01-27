@@ -19,4 +19,7 @@ public interface CallBackService {
 
     void chooseAiService();
 
+
+    void groupMsg(JSONObject requestBody);
+
 }
