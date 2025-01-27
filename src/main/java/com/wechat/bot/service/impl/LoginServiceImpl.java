@@ -4,10 +4,11 @@ import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.wechat.bot.entity.dto.UserDto;
+import com.wechat.bot.entity.dto.FriendDto;
+import com.wechat.bot.entity.dto.SystemConfigDto;
+import com.wechat.bot.service.FriendService;
 import com.wechat.bot.service.LoginService;
-import com.wechat.bot.service.UserService;
-import com.wechat.config.SystemConfig;
+import com.wechat.bot.service.SystemConfigService;
 import com.wechat.gewechat.service.ContactApi;
 import com.wechat.gewechat.service.LoginApi;
 import com.wechat.util.FileUtil;
@@ -18,8 +19,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -35,19 +34,20 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class LoginServiceImpl implements LoginService {
 
-    //@Resource
-    //SystemConfig systemConfig;
 
     @Resource
-    UserService userService;
+    SystemConfigService userService;
+
+    @Resource
+    FriendService friendService;
 
 
     @Override
     public void login() {
 
-        LambdaQueryWrapper<UserDto> queryWrapper = new QueryWrapper<UserDto>().lambda();
-        queryWrapper.orderByDesc(UserDto::getId);
-        UserDto user = userService.getOne(queryWrapper);
+        LambdaQueryWrapper<SystemConfigDto> queryWrapper = new QueryWrapper<SystemConfigDto>().lambda();
+        queryWrapper.orderByDesc(SystemConfigDto::getId);
+        SystemConfigDto user = userService.getOne(queryWrapper);
         if (user != null) {
             //检查设施是否在线
             OkhttpUtil.token = user.getToken();
@@ -143,9 +143,9 @@ public class LoginServiceImpl implements LoginService {
     @Override
     public void setCallbackUrl() {
 
-        LambdaQueryWrapper<UserDto> queryWrapper = new QueryWrapper<UserDto>().lambda();
-        queryWrapper.orderByDesc(UserDto::getId);
-        UserDto user = userService.getOne(queryWrapper);
+        LambdaQueryWrapper<SystemConfigDto> queryWrapper = new QueryWrapper<SystemConfigDto>().lambda();
+        queryWrapper.orderByDesc(SystemConfigDto::getId);
+        SystemConfigDto user = userService.getOne(queryWrapper);
 
         String callbackUrl = "http://" + IpUtil.getIp() + ":9919/v2/api/callback/collect";
 
@@ -162,9 +162,9 @@ public class LoginServiceImpl implements LoginService {
     @Override
     public void getALLFriends() {
 
-        LambdaQueryWrapper<UserDto> queryWrapper = new QueryWrapper<UserDto>().lambda();
-        queryWrapper.orderByDesc(UserDto::getId);
-        UserDto user = userService.getOne(queryWrapper);
+        LambdaQueryWrapper<SystemConfigDto> queryWrapper = new QueryWrapper<SystemConfigDto>().lambda();
+        queryWrapper.orderByDesc(SystemConfigDto::getId);
+        SystemConfigDto user = userService.getOne(queryWrapper);
         JSONObject res = ContactApi.fetchContactsList(user.getAppId());
         if (res.getInteger("ret") != 200) {
             return;
@@ -178,13 +178,18 @@ public class LoginServiceImpl implements LoginService {
         JSONArray jsonArray = data.getJSONArray("chatrooms");
         List<String> chatrooms = jsonArray.toJavaList(String.class);
 
-        JSONObject detailInfo = ContactApi.getDetailInfo(user.getAppId(), friends);
+        List<String> strings = friends.subList(0, 20);
+        JSONObject detailInfo = ContactApi.getDetailInfo(user.getAppId(), strings);
         if (detailInfo.getInteger("ret") != 200) {
             return;
         }
         log.info("获取好友列表成功");
+
+        JSONArray data1 = detailInfo.getJSONArray("data");
+        List<FriendDto> javaList = data1.toJavaList(FriendDto.class);
+
         // 将好友信息保存到数据库中，方便下次直接使用
-        ContactApi.getDetailInfo(user.getAppId(), chatrooms);
+        JSONObject detailInfo1 = ContactApi.getDetailInfo(user.getAppId(), chatrooms);
         // 将好友信息保存到数据库中，方便下次直接使用
 
 

@@ -22,7 +22,6 @@ import java.util.concurrent.TimeUnit;
 public class BotInitialize implements ApplicationRunner {
 
 
-
     @Resource
     private LoginService loginService;
 
@@ -33,7 +32,8 @@ public class BotInitialize implements ApplicationRunner {
         TimeUnit.SECONDS.sleep(5);
         loginService.setCallbackUrl();
 
-
+        //
+        //loginService.getALLFriends();
 
 
     }

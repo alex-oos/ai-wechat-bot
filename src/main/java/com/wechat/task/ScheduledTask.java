@@ -22,11 +22,9 @@ public class ScheduledTask {
 
     @Scheduled()
     public void scheduled() {
-        //  每天早上8点群里面发送一条消息
+        //TODO
         System.out.println("定时任务");
-
         callBackService.groupMsg(null);
-
 
     }
 
