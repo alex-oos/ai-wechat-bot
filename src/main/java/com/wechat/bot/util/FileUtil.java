@@ -22,6 +22,10 @@ public class FileUtil {
 
     public static SystemConfig readFile() {
 
+        if (!configFilePath.toFile().exists()) {
+            return null;
+        }
+
         String content = null;
         try {
             byte[] bytes = Files.readAllBytes(configFilePath);
@@ -34,6 +38,7 @@ public class FileUtil {
 
     public static void writeFile(SystemConfig systemConfig) {
 
+        checkFile();
         String content = JSONObject.toJSONString(systemConfig, JSONWriter.Feature.PrettyFormat);
         try {
             Files.write(configFilePath, content.getBytes());
@@ -43,6 +48,19 @@ public class FileUtil {
         }
 
 
+    }
+
+    public static boolean checkFile() {
+
+        if (!configFilePath.toFile().exists()) {
+
+            try {
+                configFilePath.toFile().createNewFile();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return true;
     }
 
 }

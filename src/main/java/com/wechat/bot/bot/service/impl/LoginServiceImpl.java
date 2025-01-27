@@ -5,11 +5,15 @@ import com.wechat.bot.bot.service.LoginService;
 import com.wechat.bot.config.SystemConfig;
 import com.wechat.bot.gewechat.service.LoginApi;
 import com.wechat.bot.util.FileUtil;
+import com.wechat.bot.util.IpUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -50,7 +54,13 @@ public class LoginServiceImpl implements LoginService {
                     break;
 
                 }
+            }else {
                 retryCount++;
+                try {
+                    Files.deleteIfExists(FileUtil.configFilePath);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
 
@@ -100,6 +110,20 @@ public class LoginServiceImpl implements LoginService {
         }
 
 
+    }
+
+    @Override
+    public void setCallbackUrl() {
+
+        String callbackUrl = "http://" + IpUtil.getIp() + ":9919/v2/api/callback/collect";
+
+        // 设置一下回调地址
+        //System.out.println(callbackUrl);
+        JSONObject setCallback = LoginApi.setCallback(systemConfig.getToken(), callbackUrl);
+        if (setCallback.getInteger("ret") != 200) {
+            throw new RuntimeException("设置回调地址失败");
+        }
+        log.info("设置回调地址成功");
     }
 
 

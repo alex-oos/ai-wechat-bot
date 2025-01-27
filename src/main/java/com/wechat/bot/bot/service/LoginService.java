@@ -9,4 +9,6 @@ public interface LoginService {
 
     void login();
 
+    void setCallbackUrl();
+
 }

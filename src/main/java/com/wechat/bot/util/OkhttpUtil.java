@@ -41,7 +41,13 @@ public class OkhttpUtil {
 
         TrustManager[] trustManagers = buildTrustManagers();
 
-        return new OkHttpClient.Builder().connectTimeout(60, TimeUnit.SECONDS).readTimeout(60, TimeUnit.SECONDS).writeTimeout(60, TimeUnit.SECONDS).sslSocketFactory(createSSLSocketFactory(trustManagers), (X509TrustManager) trustManagers[0]).hostnameVerifier((hostName, sessino) -> true).retryOnConnectionFailure(false)//是否开启缓存
+        return new OkHttpClient.Builder()
+                .connectTimeout(60, TimeUnit.SECONDS)
+                .readTimeout(60, TimeUnit.SECONDS)
+                .writeTimeout(60, TimeUnit.SECONDS)
+                .sslSocketFactory(createSSLSocketFactory(trustManagers), (X509TrustManager) trustManagers[0])
+                .hostnameVerifier((hostName, sessino) -> true)
+                .retryOnConnectionFailure(false)//是否开启缓存
                 .build();
     }
 
@@ -84,7 +90,7 @@ public class OkhttpUtil {
         //读取文件，看看文件中是否有值，如果文件中有值，直接覆盖
         if (token == null || token.isEmpty()) {
             SystemConfig systemConfig = FileUtil.readFile();
-            if (systemConfig.getToken() != null) {
+            if (systemConfig != null && systemConfig.getToken() != null) {
                 token = systemConfig.getToken();
             }
         }
@@ -103,6 +109,7 @@ public class OkhttpUtil {
             if (jsonObject.getInteger("ret") == 200) {
                 return jsonObject;
             } else {
+                token = "";
                 return jsonObject;
                 //throw new RuntimeException(res);
             }
