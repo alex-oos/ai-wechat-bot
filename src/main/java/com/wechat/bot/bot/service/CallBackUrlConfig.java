@@ -1,18 +1,17 @@
-package com.wechat.bot.config;
+package com.wechat.bot.bot.service;
 
 import com.alibaba.fastjson2.JSONObject;
+import com.wechat.bot.config.SystemConfig;
 import com.wechat.bot.gewechat.service.LoginApi;
 import com.wechat.bot.util.IpUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
-import org.springframework.boot.context.properties.bind.DefaultValue;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+import javax.annotation.Resource;
+import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -29,12 +28,17 @@ public class CallBackUrlConfig implements ApplicationRunner {
     @Autowired
     private SystemConfig systemConfig;
 
+    @Resource
+    private LoginService loginService;
+
     @Override
     public void run(ApplicationArguments args) throws Exception {
 
+        loginService.login();
+
+        TimeUnit.SECONDS.sleep(10);
 
         String callbackUrl = "http://" + IpUtil.getIp() + ":9919/v2/api/callback/collect";
-
 
         // 设置一下回调地址
         //System.out.println(callbackUrl);

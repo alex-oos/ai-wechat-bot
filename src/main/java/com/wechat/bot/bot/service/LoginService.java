@@ -7,4 +7,6 @@ package com.wechat.bot.bot.service;
  */
 public interface LoginService {
 
+    void login();
+
 }

@@ -11,10 +11,12 @@ import com.wechat.bot.entity.message.reply.ReplyTextMessage;
 public interface CallBackService {
 
 
-    Boolean filterOther(String fromUsername, String toUserName, String msgSource, String content);
+    Boolean filterOther(String wxid,String fromUsername, String toUserName, String msgSource, String content);
 
     void replyTextMsg(String receiveMsg, ReplyTextMessage replyTextMessage);
 
     void receiveMsg(JSONObject requestBody);
+
+    void chooseAiService();
 
 }

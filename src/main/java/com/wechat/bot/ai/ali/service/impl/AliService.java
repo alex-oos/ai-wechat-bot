@@ -13,7 +13,7 @@ import java.util.List;
  * @since 2025/1/26 18:03
  * <p></p>
  */
-public interface AliService extends AIService {
+public interface AliService {
 
     List<String> textToText(String content);
 

@@ -6,9 +6,9 @@ import com.wechat.bot.config.SystemConfig;
 import com.wechat.bot.gewechat.service.LoginApi;
 import com.wechat.bot.util.FileUtil;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.util.concurrent.TimeUnit;
 
@@ -24,6 +24,7 @@ public class LoginServiceImpl implements LoginService {
     @Resource
     SystemConfig systemConfig;
 
+    @Override
     public void login() {
 
         //检查设施是否在线
@@ -101,12 +102,5 @@ public class LoginServiceImpl implements LoginService {
 
     }
 
-
-    @PostConstruct
-    public void init() {
-
-        login();
-
-    }
 
 }

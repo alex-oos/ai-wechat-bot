@@ -3,6 +3,8 @@ package com.wechat.bot.ai.ali.service;
 import com.alibaba.dashscope.aigc.generation.GenerationOutput;
 import com.wechat.bot.ai.ali.config.QwenConfig;
 import com.wechat.bot.ai.ali.service.impl.AliService;
+import com.wechat.bot.ai.contant.AiEnum;
+import com.wechat.bot.ai.service.AbstractAiService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,10 +34,15 @@ import com.alibaba.dashscope.exception.NoApiKeyException;
 
 @Slf4j
 @Service
-public class QwenService implements AliService  {
+public class QwenService extends AbstractAiService implements AliService {
 
     @Autowired
     private QwenConfig qwenConfig;
+
+    public QwenService() {
+
+        super(AiEnum.ALI);
+    }
 
 
     @Override
@@ -114,6 +121,12 @@ public class QwenService implements AliService  {
     public String imageToImage(String content, String style, String prompt, String negativePrompt) {
 
         return "";
+    }
+
+    @Override
+    public Boolean checkIsEnabled() {
+
+        return qwenConfig.isEnabled();
     }
 
 

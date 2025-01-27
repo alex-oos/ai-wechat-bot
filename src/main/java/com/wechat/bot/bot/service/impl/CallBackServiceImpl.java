@@ -2,6 +2,9 @@ package com.wechat.bot.bot.service.impl;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.wechat.bot.ai.ali.service.impl.AliService;
+import com.wechat.bot.ai.contant.AiEnum;
+import com.wechat.bot.ai.factory.AiServiceFactory;
+import com.wechat.bot.ai.service.AIService;
 import com.wechat.bot.bot.service.CallBackService;
 import com.wechat.bot.contant.MsgTypeEnum;
 import com.wechat.bot.entity.message.reply.ReplyTextMessage;
@@ -33,8 +36,11 @@ public class CallBackServiceImpl implements CallBackService {
     @Resource
     private ThreadPoolTaskExecutor executor;
 
+    @Resource
+    private AiServiceFactory aiServiceFactory;
+
     @Override
-    public Boolean filterOther(String fromUsername, String toUserName, String msgSource, String content) {
+    public Boolean filterOther(String wxid, String fromUsername, String toUserName, String msgSource, String content) {
         /**
          *   """检查消息是否来自非用户账号（如公众号、腾讯游戏、微信团队等）
          *
@@ -50,7 +56,10 @@ public class CallBackServiceImpl implements CallBackService {
          *             1. 检查MsgSource中是否包含特定标签
          *             2. 检查发送者ID是否为特殊账号或以特定前缀开头
          */
-
+        // 防止给自己发消息
+        if (wxid.equals(fromUsername)) {
+            return true;
+        }
         //TODO(当前bug，总是莫名奇妙向其他群发消息，目前仍然未解决)
         ArrayList<String> list1 = new ArrayList<>();
         Collections.addAll(list1, "Tencent-Games", "weixin");
@@ -64,11 +73,12 @@ public class CallBackServiceImpl implements CallBackService {
             return true;
         }
         log.info("收到消息：{}", content);
-        // 过滤掉自己
-        if (toUserName.equals(fromUsername)) {
+
+        if (content.contains(toUserName) || content.contains(fromUsername)) {
             return true;
         }
-        if (content.contains(toUserName) || content.contains(fromUsername)) {
+        //代表目前是群消息，目前先关闭掉，后期先去想法子打开
+        if (fromUsername.contains("@")) {
             return true;
         }
         return false;
@@ -76,7 +86,6 @@ public class CallBackServiceImpl implements CallBackService {
 
     }
 
-    //@Async
     @Override
     public void replyTextMsg(String receiveMsg, ReplyTextMessage replyTextMessage) {
 
@@ -115,12 +124,9 @@ public class CallBackServiceImpl implements CallBackService {
         String msgSource = data.getString("MsgSource");
         Integer msgType = data.getInteger("MsgType");
 
-        // 防止给自己发消息
-        if (wxid.equals(fromUsername)) {
-            return;
-        }
+
         // 过滤
-        Boolean isFilter = this.filterOther(fromUsername, toUserName, msgSource, receiveMsg);
+        Boolean isFilter = this.filterOther(wxid, fromUsername, toUserName, msgSource, receiveMsg);
         if (isFilter) {
             return;
         }
@@ -132,7 +138,6 @@ public class CallBackServiceImpl implements CallBackService {
                 this.replyTextMsg(receiveMsg, replyTextMessage);
                 break;
             case IMAGE:
-
                 break;
             case VOICE:
                 break;
@@ -143,5 +148,13 @@ public class CallBackServiceImpl implements CallBackService {
         }
 
     }
+
+    @Override
+    public void chooseAiService() {
+
+        AiEnum aiEnum = AiEnum.getById(1);
+        AIService aiService = AiServiceFactory.getAiService(aiEnum);
+    }
+
 
 }
