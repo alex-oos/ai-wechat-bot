@@ -2,7 +2,6 @@ package com.wechat.bot.contant;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
 
 /**
  * @author Alex
