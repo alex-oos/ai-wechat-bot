@@ -40,80 +40,80 @@ public class LoginServiceImpl implements LoginService {
             return;
         }
         log.info("APPid:{}", "并未在线，开始执行登录流程");
+        systemConfig.setAppId(null);
+        systemConfig.setToken(null);
+        this.getToken();
+        String uuid = this.getqr();
+        this.checkQr(uuid);
+
+
+    }
+
+    @Override
+    public String getqr() {
+
+        String appId = "";
+        String uuid = "";
+        JSONObject response = LoginApi.getQr("");
+        if (response.getInteger("ret") == 200) {
+            JSONObject data = response.getJSONObject("data");
+            appId = data.getString("appId");
+            uuid = data.getString("uuid");
+            String qrData = data.getString("qrData");
+            System.out.println("时间等待20s，等待你登录");
+            System.out.println("请访问下面地址：登录也可以");
+            System.out.println("https://api.qrserver.com/v1/create-qr-code/?data=" + qrData);
+            systemConfig.setAppId(appId);
+            FileUtil.writeFile(systemConfig);
+            try {
+                TimeUnit.SECONDS.sleep(20);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            return uuid;
+        }
+
+
+        return null;
+
+
+    }
+
+    @Override
+    public void getToken() {
         // 删除文件
         FileUtil.configFilePath.toFile().delete();
         /**
          * 1.获取token
          */
-        int totalCount = 10;
-        int retryCount = 0;
-        while (retryCount < totalCount) {
-            JSONObject response = LoginApi.getToken();
-            if (response.getInteger("ret") == 200) {
-                String token = response.getString("data");
-                if (token != null) {
-                    systemConfig.setToken(token);
-                    FileUtil.writeFile(systemConfig);
-                    break;
-
-                }
-            } else {
-                retryCount++;
-                try {
-                    Files.deleteIfExists(FileUtil.configFilePath);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }
-
-        /**
-         *3、 获取登录二维码
-         * @param appId   设备id 首次登录传空，后续登录传返回的appid
-         */
-        String appId = "";
-        String uuid = "";
-        retryCount = 0;
-        while (retryCount <= totalCount) {
-            appId = "";
-            JSONObject response = LoginApi.getQr("");
-            if (response.getInteger("ret") == 200) {
-                JSONObject data = response.getJSONObject("data");
-                appId = data.getString("appId");
-                uuid = data.getString("uuid");
-                String qrData = data.getString("qrData");
-                System.out.println("请访问下面地址：登录也可以");
-                System.out.println("https://api.qrserver.com/v1/create-qr-code/?data=" + qrData);
-                try {
-                    TimeUnit.SECONDS.sleep(20);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-                systemConfig.setAppId(appId);
+        JSONObject response = LoginApi.getToken();
+        if (response.getInteger("ret") == 200) {
+            String token = response.getString("data");
+            if (token != null) {
+                systemConfig.setToken(token);
                 FileUtil.writeFile(systemConfig);
-                break;
+
             }
-            retryCount++;
-        }
-
-        /**
-         * 4、确认登陆
-         * @param appId
-
-         * @param uuid       取码返回的uuid
-         * @param captchCode 登录验证码（必须同省登录才能避免此问题，也能使账号更加稳定）
-         */
-        JSONObject jsonObject = LoginApi.checkQr(appId, uuid, null);
-        if (jsonObject.getInteger("ret") != 200) {
-            throw new RuntimeException("确认登录失败");
-
-        }
-        if (jsonObject.getJSONObject("data").getInteger("status") == 2) {
-            log.info("登录成功，appId:{}", appId);
         }
 
 
     }
+
+    @Override
+    public void checkQr(String uuid) {
+
+        JSONObject jsonObject = LoginApi.checkQr(systemConfig.getAppId(), uuid, null);
+        // 状态不为2的时候才是登录成功
+        if (jsonObject.getInteger("ret") == 200 && jsonObject.getJSONObject("data").getInteger("status") != 2) {
+            while (true) {
+                this.checkQr(this.getqr());
+            }
+        } else {
+            log.info("登录成功");
+
+        }
+    }
+
 
     @Override
     public void setCallbackUrl() {
