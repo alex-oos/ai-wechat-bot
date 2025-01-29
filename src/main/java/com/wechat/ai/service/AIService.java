@@ -24,7 +24,6 @@ public interface AIService {
 
     String imageToImage(String content, String style, String prompt, String negativePrompt);
 
-    Boolean checkIsEnabled();
 
 
 }

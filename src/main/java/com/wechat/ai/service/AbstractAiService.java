@@ -65,11 +65,7 @@ public class AbstractAiService implements AIService {
         return "";
     }
 
-    @Override
-    public Boolean checkIsEnabled() {
 
-        return null;
-    }
 
 
 }

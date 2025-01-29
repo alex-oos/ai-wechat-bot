@@ -139,11 +139,7 @@ public class QwenService extends AbstractAiService implements AliService {
         return "";
     }
 
-    @Override
-    public Boolean checkIsEnabled() {
 
-        return false;
-    }
 
 
 }

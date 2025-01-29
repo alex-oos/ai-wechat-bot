@@ -62,6 +62,12 @@ public class MessageServiceImpl implements MessageService {
         if (isFilter) {
             return;
         }
+        // 过滤掉5分钟前的消息
+        Long createTime = data.getLong("CreateTime");
+        if (createTime - (System.currentTimeMillis() / 1000) > 60 * 5) {
+            return;
+        }
+
         // 判断一下消息的类型
         this.sendMsgType(msgType, receiveMsg, appid, toUserName, fromUserName, isGroup);
 
@@ -191,6 +197,7 @@ public class MessageServiceImpl implements MessageService {
                 if (isGroup) {
                     log.info("群消息类型{}", appid);
                     //TODO(群消息，如何回复)
+                    this.groupMsg(null);
                     return;
                 } else {
                     log.info("个人消息");
