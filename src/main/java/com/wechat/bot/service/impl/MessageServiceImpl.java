@@ -1,17 +1,18 @@
 package com.wechat.bot.service.impl;
 
+import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.wechat.ai.ali.config.ALiConfig;
 import com.wechat.ai.contant.AiEnum;
 import com.wechat.ai.factory.AiServiceFactory;
 import com.wechat.ai.service.AIService;
+import com.wechat.bot.entity.ChatMessage;
 import com.wechat.bot.service.MessageService;
 import com.wechat.bot.contant.MsgTypeEnum;
 import com.wechat.bot.entity.message.reply.ReplyTextMessage;
+import com.wechat.gewechat.service.ContactApi;
 import com.wechat.gewechat.service.MessageApi;
-import kotlin.contracts.ReturnsNotNull;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.validator.internal.metadata.aggregated.rule.ReturnValueMayOnlyBeMarkedOnceAsCascadedPerHierarchyLine;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
@@ -50,26 +51,45 @@ public class MessageServiceImpl implements MessageService {
         JSONObject data = requestBody.getJSONObject("Data");
         String fromUserName = data.getJSONObject("FromUserName").getString("string");
         String toUserName = data.getJSONObject("ToUserName").getString("string");
-        String receiveMsg = data.getJSONObject("Content").getString("string");
+        String content = data.getJSONObject("Content").getString("string");
         String msgSource = data.getString("MsgSource");
         String msgId = data.getString("'NewMsgId'");
         // 消息类型
         Integer msgType = data.getInteger("MsgType");
         boolean isGroup = fromUserName.contains("@chatroom");
+        ChatMessage chatMessage = ChatMessage.builder()
+                .msgId(msgId)
+                .createTime(data.getLong("CreateTime"))
+                .ctype(MsgTypeEnum.getMsgTypeEnum(msgType))
+                .content(content)
+                .fromUserId(fromUserName)
+                .toUserId(toUserName)
+                .isMyMsg(wxid.equals(fromUserName))
+                .isGroup(isGroup)
+                .isAt(content.contains("@" + wxid))
+                .actualUserId(wxid)
+                .appId(appid)
+                .build();
 
         // 过滤掉非用户信息
-        Boolean isFilter = this.filterNotUserMessage(wxid, fromUserName, toUserName, msgSource, receiveMsg);
+        Boolean isFilter = this.filterNotUserMessage(chatMessage, msgSource);
         if (isFilter) {
             return;
         }
-        // 过滤掉5分钟前的消息
-        Long createTime = data.getLong("CreateTime");
-        if (createTime - (System.currentTimeMillis() / 1000) > 60 * 5) {
-            return;
+
+        // 获取好友的信息
+        JSONObject briefInfo = ContactApi.getBriefInfo(appid, Collections.singletonList(chatMessage.getFromUserId()));
+        if (briefInfo.getInteger("ret") == 200) {
+            JSONArray dataList = briefInfo.getJSONArray("data");
+            JSONObject userInfo = dataList.getJSONObject(0);
+            String remark = userInfo.getString("remark");
+            String nickname =remark!=null?remark:userInfo.getString("nickName");
+            chatMessage.setFromUserNickname(nickname);
         }
 
+
         // 判断一下消息的类型
-        this.sendMsgType(msgType, receiveMsg, appid, toUserName, fromUserName, isGroup);
+        this.sendMsgType(chatMessage);
 
     }
 
@@ -88,25 +108,18 @@ public class MessageServiceImpl implements MessageService {
      * 通过以下方式判断是否为非用户消息：
      * 1. 检查MsgSource中是否包含特定标签
      * 2. 检查发送者ID是否为特殊账号或以特定前缀开头
-     *
-     * @param wxid         微信id
-     * @param fromUsername 发送者id
-     * @param toUserName   接收者id
-     * @param msgSource    消息来源
-     * @param content      消息内容
      * @return true代表是过滤的消息，false代表不是过滤的消息
      */
-    @Override
-    public Boolean filterNotUserMessage(String wxid, String fromUsername, String toUserName, String msgSource, String content) {
+    public Boolean filterNotUserMessage(ChatMessage chatMessage, String msgSource) {
 
         // 防止给自己发消息
-        if (wxid.equals(fromUsername)) {
+        if (chatMessage.getIsMyMsg()) {
             return true;
         }
         ArrayList<String> list1 = new ArrayList<>();
         Collections.addAll(list1, "Tencent-Games", "weixin");
         //过滤公众号与腾讯团队
-        if (list1.contains(fromUsername) || fromUsername.startsWith("gh_")) {
+        if (list1.contains(chatMessage.getFromUserId()) || chatMessage.getFromUserId().startsWith("gh_")) {
             return true;
         }
         // 添加过滤标签
@@ -115,7 +128,9 @@ public class MessageServiceImpl implements MessageService {
         if (list.contains(msgSource)) {
             return true;
         }
-        if (content.contains(toUserName) || content.contains(fromUsername)) {
+
+        // 过滤掉5分钟前的消息
+        if (chatMessage.getCreateTime() - (System.currentTimeMillis() / 1000) > 60 * 5) {
             return true;
         }
         return false;
@@ -140,19 +155,17 @@ public class MessageServiceImpl implements MessageService {
         return false;
     }
 
-    @Override
-    public void replyTextMsg(String receiveMsg, ReplyTextMessage replyTextMessage) {
+    public void replyTextMsg(ChatMessage chatMessage) {
 
         AIService aiService = chooseAiService();
 
         CompletableFuture.supplyAsync(() -> {
             log.info("请求AI服务");
-            return aiService.textToText(receiveMsg);
+            return aiService.textToText(chatMessage.getContent());
         }, executor).thenApplyAsync((res) -> {
             res.forEach(msg -> {
                 log.info("请求gewechat服务：{}", msg);
-                replyTextMessage.setContent(msg);
-                JSONObject jsonObject = MessageApi.postText(replyTextMessage);
+                JSONObject jsonObject = MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), msg, chatMessage.getToUserId());
                 if (jsonObject.getInteger("ret") == 200) {
                     log.info("gewechat服务回复成功");
                 }
@@ -165,15 +178,11 @@ public class MessageServiceImpl implements MessageService {
     /**
      * 个人消息
      *
-     * @param msgType
-     * @param receiveMsg
-     * @param appid
-     * @param toUserName
-     * @param fromUserName
      */
-    public void personalMsg(String receiveMsg, ReplyTextMessage replyTextMessage) {
+    @Override
+    public void personalMsg(ChatMessage chatMessage) {
 
-        this.replyTextMsg(receiveMsg, replyTextMessage);
+        this.replyTextMsg(chatMessage);
 
 
     }
@@ -181,27 +190,22 @@ public class MessageServiceImpl implements MessageService {
     /**
      * 发送消息类型，主要是组装好，各种类型的消息体，以及消息类型
      *
-     * @param msgType
-     * @param receiveMsg
-     * @param appid
-     * @param toUserName
-     * @param fromUserName
      */
     @Async
-    public void sendMsgType(Integer msgType, String receiveMsg, String appid, String toUserName, String fromUserName, Boolean isGroup) {
+    @Override
+    public void sendMsgType(ChatMessage chatMessage) {
         // 判断类型
-        switch (MsgTypeEnum.getMsgTypeEnum(msgType)) {
+        switch (chatMessage.getCtype()) {
             case TEXT:
-                ReplyTextMessage replyTextMessage = ReplyTextMessage.builder().appId(appid).toWxid(toUserName).toWxid(fromUserName).build();
                 // 判断是否是群，或个人，如果是群的话，是需要怎么样回复，如果是个人的话，需要怎么样回复
-                if (isGroup) {
-                    log.info("群消息类型{}", appid);
+                if (chatMessage.getIsGroup()) {
+                    log.info("群消息类型{}");
                     //TODO(群消息，如何回复)
                     this.groupMsg(null);
                     return;
                 } else {
                     log.info("个人消息");
-                    this.replyTextMsg(receiveMsg, replyTextMessage);
+                    this.replyTextMsg(chatMessage);
                 }
 
                 break;

@@ -3,6 +3,9 @@ package com.wechat.bot.entity;
 import com.wechat.bot.contant.MsgTypeEnum;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 /**
  * @author Alex
@@ -35,25 +38,30 @@ public class ChatMessage {
 
     private String otherUserNickname;
 
-    private boolean myMsg;
+    private Boolean isMyMsg;
 
     private String selfDisplayName;
 
-    private boolean isGroup;
+    private Boolean isGroup;
 
-    private boolean isAt;
+    private Boolean isAt;
 
     private String actualUserId;
 
     private String actualUserNickname;
 
-    private String[] atList;
+    private List<String>  atList;
 
     private Runnable prepareFn;
 
     private boolean prepared;
 
+    /**
+     * 原始消息
+     */
     private Object rawMsg;
+
+    private String appId;
 
     public ChatMessage(Object rawMsg) {
 

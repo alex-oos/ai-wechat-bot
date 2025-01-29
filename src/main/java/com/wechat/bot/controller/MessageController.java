@@ -17,7 +17,7 @@ import javax.annotation.Resource;
  * <p></p>
  */
 @Slf4j
-@RestController()
+@RestController
 @RequestMapping("/v2/api")
 public class MessageController {
 

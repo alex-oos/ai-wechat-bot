@@ -75,3 +75,8 @@ mybatis-plus:
     # log-impl: org.apache.ibatis.logging.nologging.NoLoggingImpl   # 关闭日志
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl         # 打印到控制台
     auto-mapping-behavior: full
+# 日志设置
+# logging:
+#   # config: classpath:logback-spring.xml
+#   level:
+#     root: debug
