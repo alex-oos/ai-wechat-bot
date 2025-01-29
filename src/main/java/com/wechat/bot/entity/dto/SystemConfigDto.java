@@ -25,8 +25,14 @@ public class SystemConfigDto implements Serializable {
     @TableId(value = "id", type = IdType.AUTO) // 数据库ID自增，依赖于数据库。在插入操作生成SQL语句时，不会插入主键这一列
     private Long id;
 
+    /**
+     * 设备id
+     */
     private String appId;
 
+    /**
+     * 设备token
+     */
     private String token;
 
     /**

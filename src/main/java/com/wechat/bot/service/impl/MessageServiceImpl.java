@@ -69,6 +69,7 @@ public class MessageServiceImpl implements MessageService {
                 .isAt(content.contains("@" + wxid))
                 .actualUserId(wxid)
                 .appId(appid)
+                .rawMsg(requestBody)
                 .build();
 
         // 过滤掉非用户信息
@@ -154,7 +155,7 @@ public class MessageServiceImpl implements MessageService {
         }
         return false;
     }
-
+    @Override
     public void replyTextMsg(ChatMessage chatMessage) {
 
         AIService aiService = chooseAiService();
@@ -191,7 +192,6 @@ public class MessageServiceImpl implements MessageService {
      * 发送消息类型，主要是组装好，各种类型的消息体，以及消息类型
      *
      */
-    @Async
     @Override
     public void sendMsgType(ChatMessage chatMessage) {
         // 判断类型

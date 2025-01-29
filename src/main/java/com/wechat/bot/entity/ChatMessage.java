@@ -61,12 +61,11 @@ public class ChatMessage {
      */
     private Object rawMsg;
 
+    /**
+     * 设备id
+     */
     private String appId;
 
-    public ChatMessage(Object rawMsg) {
-
-        this.rawMsg = rawMsg;
-    }
 
     public void prepare() {
 
