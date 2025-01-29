@@ -2,6 +2,7 @@ package com.wechat.bot.entity.dto;
 
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -13,6 +14,7 @@ import java.util.Date;
  * @since 2025/1/27 20:57
  * <p></p>
  */
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
@@ -34,8 +36,8 @@ public class SystemConfigDto implements Serializable {
     private Date createTime;
 
     // 自动填充，更新的时候自动加入时间
-    @TableField(value = "update_time", fill = FieldFill.INSERT_UPDATE)
-    private Date updateTime;
+    @TableField(value = "login_time", fill = FieldFill.INSERT_UPDATE)
+    private Date loginTime;
 
     @TableLogic(value = "0", delval = "1")
     private Integer deleted;

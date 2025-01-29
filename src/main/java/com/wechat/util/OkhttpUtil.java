@@ -29,10 +29,6 @@ public class OkhttpUtil {
     static {
         try {
             baseUrl = "http://" + IpUtil.getIp() + baseUrl;
-            //SystemConfig systemConfig = FileUtil.readFile();
-            //if (systemConfig.getToken() != null) {
-            //    token = systemConfig.getToken();
-            //}
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -88,13 +84,6 @@ public class OkhttpUtil {
 
     public static JSONObject postJSON(String route, JSONObject param) {
 
-        //读取文件，看看文件中是否有值，如果文件中有值，直接覆盖
-        //if (token == null || token.isEmpty()) {
-        //    SystemConfig systemConfig = FileUtil.readFile();
-        //    if (systemConfig != null && systemConfig.getToken() != null) {
-        //        token = systemConfig.getToken();
-        //    }
-        //}
 
         Map<String, Object> header = new HashMap<>();//if (UserInfoConfig.TOKEN!=null){
         if (token != null) {
@@ -111,7 +100,6 @@ public class OkhttpUtil {
                 return jsonObject;
             } else {
                 log.error("请求失败，响应为：{}", res);
-                token = "";
                 return jsonObject;
             }
         } catch (Exception e) {

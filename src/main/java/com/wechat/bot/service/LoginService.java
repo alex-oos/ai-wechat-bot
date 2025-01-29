@@ -18,7 +18,7 @@ public interface LoginService {
     /**
      * 3、 获取登录二维码
      */
-    Map<String, String> getqr();
+    Map<String, String> getqr(String appId);
 
     void getToken();
 
@@ -27,6 +27,6 @@ public interface LoginService {
      *
      * @param uuid 取码返回的uuid
      */
-    void checkQr(Map<String, String> map);
+    void checkStatus(Map<String, String> map);
 
 }
