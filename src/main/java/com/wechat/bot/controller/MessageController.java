@@ -2,8 +2,7 @@ package com.wechat.bot.controller;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.wechat.ai.ali.service.impl.AliService;
-import com.wechat.bot.service.CallBackService;
-import com.wechat.config.SystemConfig;
+import com.wechat.bot.service.MessageService;
 //import com.wechat.bot.task.Task;
 //import com.wechat.bot.task.TaskQueue;
 import lombok.extern.slf4j.Slf4j;
@@ -20,25 +19,23 @@ import javax.annotation.Resource;
 @Slf4j
 @RestController()
 @RequestMapping("/v2/api")
-public class CallBackController {
+public class MessageController {
 
 
 
     @Resource
-    private AliService aliService;
-
-    @Resource
-    private CallBackService callBackService;
+    private MessageService messageService;
 
     @PostMapping("/callback/collect")
     public void receiveMessages(@RequestBody String requestBody) {
 
-        log.info("收到消息：{}", requestBody);
-        JSONObject request = JSONObject.parseObject(requestBody);
-        boolean isContain = request.containsKey("Appid");
-        if (isContain) {
-            callBackService.receiveMsg(request);
+        Boolean filterOther = messageService.filterErrorMessage(requestBody);
+        if (filterOther) {
+            return;
         }
+        log.info("接收到消息：{}", requestBody);
+        messageService.receiveMsg(JSONObject.parseObject(requestBody));
+
 
     }
 

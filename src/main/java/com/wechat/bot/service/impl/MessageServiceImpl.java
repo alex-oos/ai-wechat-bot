@@ -5,11 +5,13 @@ import com.wechat.ai.ali.config.ALiConfig;
 import com.wechat.ai.contant.AiEnum;
 import com.wechat.ai.factory.AiServiceFactory;
 import com.wechat.ai.service.AIService;
-import com.wechat.bot.service.CallBackService;
+import com.wechat.bot.service.MessageService;
 import com.wechat.bot.contant.MsgTypeEnum;
 import com.wechat.bot.entity.message.reply.ReplyTextMessage;
 import com.wechat.gewechat.service.MessageApi;
+import kotlin.contracts.ReturnsNotNull;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.validator.internal.metadata.aggregated.rule.ReturnValueMayOnlyBeMarkedOnceAsCascadedPerHierarchyLine;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
@@ -27,12 +29,9 @@ import java.util.concurrent.CompletableFuture;
  */
 @Slf4j
 @Service
-public class CallBackServiceImpl implements CallBackService {
+public class MessageServiceImpl implements MessageService {
 
-    //@Resource
-    //private AliService aliService;
 
-    //@Resource(name = "common")
     @Resource
     private ThreadPoolTaskExecutor executor;
 
@@ -53,24 +52,18 @@ public class CallBackServiceImpl implements CallBackService {
         String toUserName = data.getJSONObject("ToUserName").getString("string");
         String receiveMsg = data.getJSONObject("Content").getString("string");
         String msgSource = data.getString("MsgSource");
+        String msgId = data.getString("'NewMsgId'");
+        // 消息类型
         Integer msgType = data.getInteger("MsgType");
+        boolean isGroup = fromUserName.contains("@chatroom");
 
-
-        // 过滤
-        Boolean isFilter = this.filterOther(wxid, fromUserName, toUserName, msgSource, receiveMsg);
+        // 过滤掉非用户信息
+        Boolean isFilter = this.filterNotUserMessage(wxid, fromUserName, toUserName, msgSource, receiveMsg);
         if (isFilter) {
             return;
         }
-
-        //TODO 判断一下，是否单人聊天，还是群里面聊天
-        // 代表是群里面的消息
-        if (fromUserName.contains("@")) {
-            //TODO(群消息，如何回复)
-            this.groupMsg(requestBody);
-            return;
-        }
-        this.personalMsg(msgType, receiveMsg, appid, toUserName, fromUserName);
-
+        // 判断一下消息的类型
+        this.sendMsgType(msgType, receiveMsg, appid, toUserName, fromUserName, isGroup);
 
     }
 
@@ -98,7 +91,7 @@ public class CallBackServiceImpl implements CallBackService {
      * @return true代表是过滤的消息，false代表不是过滤的消息
      */
     @Override
-    public Boolean filterOther(String wxid, String fromUsername, String toUserName, String msgSource, String content) {
+    public Boolean filterNotUserMessage(String wxid, String fromUsername, String toUserName, String msgSource, String content) {
 
         // 防止给自己发消息
         if (wxid.equals(fromUsername)) {
@@ -116,13 +109,7 @@ public class CallBackServiceImpl implements CallBackService {
         if (list.contains(msgSource)) {
             return true;
         }
-        log.info("收到消息：{}", content);
-
         if (content.contains(toUserName) || content.contains(fromUsername)) {
-            return true;
-        }
-        //TODO代表目前是群消息，目前先关闭掉，后期先去想法子打开
-        if (fromUsername.contains("@")) {
             return true;
         }
         return false;
@@ -131,12 +118,29 @@ public class CallBackServiceImpl implements CallBackService {
     }
 
     @Override
+    public Boolean filterErrorMessage(String requestBody) {
+        //gewechat服务发送的回调测试消息
+        JSONObject response = JSONObject.parseObject(requestBody);
+        if (response.containsKey("testMsg") && response.containsKey("token")) {
+            return true;
+        }
+        // 过滤掉不包含Data字段的信息
+        if (!response.containsKey("Data")) {
+            return true;
+        }
+        if (!response.getJSONObject("Data").containsKey("NewMsgId")) {
+            return true;
+        }
+        return false;
+    }
+
+    @Override
     public void replyTextMsg(String receiveMsg, ReplyTextMessage replyTextMessage) {
 
         AIService aiService = chooseAiService();
 
         CompletableFuture.supplyAsync(() -> {
-            log.info("请求阿里云");
+            log.info("请求AI服务");
             return aiService.textToText(receiveMsg);
         }, executor).thenApplyAsync((res) -> {
             res.forEach(msg -> {
@@ -154,24 +158,45 @@ public class CallBackServiceImpl implements CallBackService {
 
     /**
      * 个人消息
+     *
      * @param msgType
      * @param receiveMsg
      * @param appid
      * @param toUserName
      * @param fromUserName
      */
-    public void personalMsg(Integer msgType, String receiveMsg, String appid, String toUserName, String fromUserName) {
+    public void personalMsg(String receiveMsg, ReplyTextMessage replyTextMessage) {
 
-        this.sendMsgType(msgType, receiveMsg, appid, toUserName, fromUserName);
+        this.replyTextMsg(receiveMsg, replyTextMessage);
+
 
     }
 
-    public void sendMsgType(Integer msgType, String receiveMsg, String appid, String toUserName, String fromUserName) {
+    /**
+     * 发送消息类型，主要是组装好，各种类型的消息体，以及消息类型
+     *
+     * @param msgType
+     * @param receiveMsg
+     * @param appid
+     * @param toUserName
+     * @param fromUserName
+     */
+    @Async
+    public void sendMsgType(Integer msgType, String receiveMsg, String appid, String toUserName, String fromUserName, Boolean isGroup) {
         // 判断类型
         switch (MsgTypeEnum.getMsgTypeEnum(msgType)) {
             case TEXT:
                 ReplyTextMessage replyTextMessage = ReplyTextMessage.builder().appId(appid).toWxid(toUserName).toWxid(fromUserName).build();
-                this.replyTextMsg(receiveMsg, replyTextMessage);
+                // 判断是否是群，或个人，如果是群的话，是需要怎么样回复，如果是个人的话，需要怎么样回复
+                if (isGroup) {
+                    log.info("群消息类型{}", appid);
+                    //TODO(群消息，如何回复)
+                    return;
+                } else {
+                    log.info("个人消息");
+                    this.replyTextMsg(receiveMsg, replyTextMessage);
+                }
+
                 break;
             case IMAGE:
                 break;
@@ -205,9 +230,11 @@ public class CallBackServiceImpl implements CallBackService {
     @Override
     public void groupMsg(JSONObject requestBody) {
         //TODO(群消息，如何回复)
+        //消息如何拼接，是否需要艾特人，等等之类的，还有各种各样的欢迎语
 
-        this.sendMsgType(null, null, null, null, null);
+        //this.sendMsgType(null, null, null, null, null);
 
+        return;
 
     }
 
