@@ -32,10 +32,9 @@ import java.util.List;
 @Service
 public class QwenService extends AbstractAiService implements AliService {
 
-    //@Autowired
-    //private ALiConfig qwenConfig;
     @Resource
     private BotConfig botConfig;
+
 
     public QwenService() {
 

@@ -235,11 +235,9 @@ public class MessageServiceImpl implements MessageService {
     @Override
     public AIService chooseAiService() {
 
-        // 根据这个取值，然后去获取对应的服务
-        String model = botconfig.getModel();
 
         // 找到正常的服务，然后取出枚举值
-        AiEnum aiEnum = AiEnum.getByModel(model);
+        AiEnum aiEnum = AiEnum.getByBotType( botconfig.getBotType());
         AIService aiService = AiServiceFactory.getAiService(aiEnum);
         return aiService;
     }

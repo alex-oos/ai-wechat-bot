@@ -20,7 +20,7 @@ public enum AiEnum {
 
     private final int id;
 
-    private final String name;
+    private final String botType;
 
     private final List<String> model;
 
@@ -35,10 +35,10 @@ public enum AiEnum {
         return null;
     }
 
-    public static AiEnum getByName(String name) {
+    public static AiEnum getByBotType(String botType) {
 
         for (AiEnum aiEnum : AiEnum.values()) {
-            if (aiEnum.getName().equals(name)) {
+            if (aiEnum.getBotType().equals(botType)) {
                 return aiEnum;
             }
         }
