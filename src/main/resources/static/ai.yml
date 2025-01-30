@@ -1,11 +1,11 @@
-ai:
-  ali:
-    model: "qwen-plus"
-    apiKey: "sk-4d61e913e8cf4185a816275dae53309b"
-    enabled: true
-    name: ali
-  xunfei:
-    app-id:
-    app-key:
-    enable:
-    name:
+# ai:
+#   ali:
+#     model: "qwen-plus"
+#     apiKey: "sk-4d61e913e8cf4185a816275dae53309b"
+#     enabled: true
+#     name: ali
+#   xunfei:
+#     app-id:
+#     app-key:
+#     enable:
+#     name:
