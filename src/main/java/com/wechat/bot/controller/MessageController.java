@@ -22,7 +22,6 @@ import javax.annotation.Resource;
 public class MessageController {
 
 
-
     @Resource
     private MessageService messageService;
 
@@ -33,7 +32,6 @@ public class MessageController {
         if (filterOther) {
             return;
         }
-        log.info("接收到消息：{}", requestBody);
         messageService.receiveMsg(JSONObject.parseObject(requestBody));
 
 

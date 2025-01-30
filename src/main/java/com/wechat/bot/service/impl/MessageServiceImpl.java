@@ -13,6 +13,7 @@ import com.wechat.bot.contant.MsgTypeEnum;
 import com.wechat.gewechat.service.ContactApi;
 import com.wechat.gewechat.service.MessageApi;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
@@ -45,6 +46,9 @@ public class MessageServiceImpl implements MessageService {
     @Resource
     BotConfig botconfig;
 
+    @Autowired
+    private BotConfig botConfig;
+
     @Async
     @Override
     public void receiveMsg(JSONObject requestBody) {
@@ -69,7 +73,7 @@ public class MessageServiceImpl implements MessageService {
                 .toUserId(toUserName)
                 .isMyMsg(wxid.equals(fromUserName))
                 .isGroup(isGroup)
-                .isAt(content.contains("@" + wxid))
+                .isAt(content.contains("@"))
                 .actualUserId(wxid)
                 .appId(appid)
                 .rawMsg(requestBody)
@@ -81,6 +85,7 @@ public class MessageServiceImpl implements MessageService {
             return;
         }
 
+        log.info("收到消息{}", chatMessage.getRawMsg());
         // 获取好友的信息
         JSONObject briefInfo = ContactApi.getBriefInfo(appid, Collections.singletonList(chatMessage.getFromUserId()));
         if (briefInfo.getInteger("ret") == 200) {
@@ -196,6 +201,8 @@ public class MessageServiceImpl implements MessageService {
                 }
             }
         }
+
+
         this.replyTextMsg(chatMessage);
 
 
@@ -252,11 +259,42 @@ public class MessageServiceImpl implements MessageService {
         // 黑名单过滤
         List<String> groupNameWhiteList = botconfig.getGroupNameWhiteList();
         if (!groupNameWhiteList.isEmpty()) {
-            // 判断群名是否在白名单中
-            if (!groupNameWhiteList.contains(chatMessage.getToUserNickname())) {
+
+            if (!groupNameWhiteList.get(0).equals("ALL_GROUP")) {
+                // 判断群名是否在白名单中
+                if (!groupNameWhiteList.contains(chatMessage.getToUserNickname())) {
+                    return;
+                }
+            }
+            // 开始发消息
+            // 区分类型，先判断是否需要艾特
+            List<String> groupChatPrefix = botConfig.getGroupChatPrefix();
+            if (groupChatPrefix.isEmpty()) {
                 return;
             }
+            for (String chatPrefix : groupChatPrefix) {
+                //如果包含ai, 则需要艾特
+                //@bot 特殊校验一下
+                if (chatPrefix.contains("@bot") && chatMessage.getIsAt()) {
+                    // TODO @bot
+                    if (chatMessage.getContent().contains(chatMessage.getSelfDisplayName())) {
+                        //  消息发送
+                        String replace = chatMessage.getContent().replace("@" + chatMessage.getSelfDisplayName(), "");
+                        chatMessage.setContent(replace);
+                        this.replyTextMsg(chatMessage);
 
+                    }
+                }
+
+                if (!chatMessage.getContent().contains(chatPrefix)) {
+                    return;
+                }
+                // 消息发送
+                String replace = chatMessage.getContent().replace(chatPrefix, "");
+                chatMessage.setContent(replace);
+                this.replyTextMsg(chatMessage);
+
+            }
 
             //TODO(群消息，如何回复)
             //消息如何拼接，是否需要艾特人，等等之类的，还有各种各样的欢迎语
