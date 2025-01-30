@@ -28,7 +28,7 @@ public interface MessageService {
 
     AIService chooseAiService();
 
-    void groupMsg(JSONObject requestBody);
+    void groupMsg(ChatMessage chatMessage);
 
     void sendMsgType(ChatMessage chatMessage);
 

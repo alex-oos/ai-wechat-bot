@@ -1,6 +1,6 @@
 package com.wechat.bot.config;
 
-import com.wechat.config.BotConfig;
+import com.wechat.bot.entity.BotConfig;
 import com.wechat.util.FileUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;

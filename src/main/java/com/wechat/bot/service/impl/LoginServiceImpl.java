@@ -2,22 +2,16 @@ package com.wechat.bot.service.impl;
 
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.wechat.bot.entity.BotConfig;
 import com.wechat.bot.entity.dto.FriendDto;
 import com.wechat.bot.entity.dto.SystemConfigDto;
-import com.wechat.bot.service.FriendService;
 import com.wechat.bot.service.LoginService;
-import com.wechat.bot.service.SystemConfigService;
-import com.wechat.config.BotConfig;
 import com.wechat.gewechat.service.ContactApi;
 import com.wechat.gewechat.service.LoginApi;
 import com.wechat.util.FileUtil;
 import com.wechat.util.IpUtil;
 import com.wechat.util.OkhttpUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.validator.internal.metadata.aggregated.rule.ReturnValueMayOnlyBeMarkedOnceAsCascadedPerHierarchyLine;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 

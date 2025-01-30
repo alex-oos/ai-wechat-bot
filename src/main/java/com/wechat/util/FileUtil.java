@@ -2,7 +2,7 @@ package com.wechat.util;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.fastjson2.JSONWriter;
-import com.wechat.config.BotConfig;
+import com.wechat.bot.entity.BotConfig;
 
 import java.io.IOException;
 import java.nio.file.Files;

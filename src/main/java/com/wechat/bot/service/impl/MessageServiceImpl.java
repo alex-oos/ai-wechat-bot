@@ -6,6 +6,7 @@ import com.wechat.ai.ali.config.ALiConfig;
 import com.wechat.ai.contant.AiEnum;
 import com.wechat.ai.factory.AiServiceFactory;
 import com.wechat.ai.service.AIService;
+import com.wechat.bot.entity.BotConfig;
 import com.wechat.bot.entity.ChatMessage;
 import com.wechat.bot.service.MessageService;
 import com.wechat.bot.contant.MsgTypeEnum;
@@ -40,6 +41,9 @@ public class MessageServiceImpl implements MessageService {
 
     @Resource
     private ALiConfig aliConfig;
+
+    @Resource
+    BotConfig botconfig;
 
     @Async
     @Override
@@ -83,7 +87,7 @@ public class MessageServiceImpl implements MessageService {
             JSONArray dataList = briefInfo.getJSONArray("data");
             JSONObject userInfo = dataList.getJSONObject(0);
             String remark = userInfo.getString("remark");
-            String nickname =remark!=null?remark:userInfo.getString("nickName");
+            String nickname = remark != null ? remark : userInfo.getString("nickName");
             chatMessage.setFromUserNickname(nickname);
         }
 
@@ -108,6 +112,7 @@ public class MessageServiceImpl implements MessageService {
      * 通过以下方式判断是否为非用户消息：
      * 1. 检查MsgSource中是否包含特定标签
      * 2. 检查发送者ID是否为特殊账号或以特定前缀开头
+     *
      * @return true代表是过滤的消息，false代表不是过滤的消息
      */
     public Boolean filterNotUserMessage(ChatMessage chatMessage, String msgSource) {
@@ -154,6 +159,7 @@ public class MessageServiceImpl implements MessageService {
         }
         return false;
     }
+
     @Override
     public void replyTextMsg(ChatMessage chatMessage) {
 
@@ -177,11 +183,19 @@ public class MessageServiceImpl implements MessageService {
 
     /**
      * 个人消息
-     *
      */
     @Override
     public void personalMsg(ChatMessage chatMessage) {
-
+        // 聊天前缀过滤
+        List<String> singleChatPrefix = botconfig.getSingleChatPrefix();
+        if (!singleChatPrefix.isEmpty()) {
+            // 单独聊天前缀过滤
+            for (String chatPrefix : singleChatPrefix) {
+                if (!chatMessage.getContent().startsWith(chatPrefix)) {
+                    return;
+                }
+            }
+        }
         this.replyTextMsg(chatMessage);
 
 
@@ -189,7 +203,6 @@ public class MessageServiceImpl implements MessageService {
 
     /**
      * 发送消息类型，主要是组装好，各种类型的消息体，以及消息类型
-     *
      */
     @Override
     public void sendMsgType(ChatMessage chatMessage) {
@@ -198,13 +211,12 @@ public class MessageServiceImpl implements MessageService {
             case TEXT:
                 // 判断是否是群，或个人，如果是群的话，是需要怎么样回复，如果是个人的话，需要怎么样回复
                 if (chatMessage.getIsGroup()) {
-                    log.info("群消息类型{}");
-                    //TODO(群消息，如何回复)
-                    this.groupMsg(null);
+                    log.info("群消息类型");
+                    this.groupMsg(chatMessage);
                     return;
                 } else {
                     log.info("个人消息");
-                    this.replyTextMsg(chatMessage);
+                    this.personalMsg(chatMessage);
                 }
 
                 break;
@@ -234,17 +246,26 @@ public class MessageServiceImpl implements MessageService {
 
     /**
      * 群消息，如何回复
-     *
-     * @param requestBody
      */
-    @Override
-    public void groupMsg(JSONObject requestBody) {
-        //TODO(群消息，如何回复)
-        //消息如何拼接，是否需要艾特人，等等之类的，还有各种各样的欢迎语
+    public void groupMsg(ChatMessage chatMessage) {
 
-        //this.sendMsgType(null, null, null, null, null);
+        // 黑名单过滤
+        List<String> groupNameWhiteList = botconfig.getGroupNameWhiteList();
+        if (!groupNameWhiteList.isEmpty()) {
+            // 判断群名是否在白名单中
+            if (!groupNameWhiteList.contains(chatMessage.getToUserNickname())) {
+                return;
+            }
 
-        return;
+
+            //TODO(群消息，如何回复)
+            //消息如何拼接，是否需要艾特人，等等之类的，还有各种各样的欢迎语
+
+            //this.sendMsgType(null, null, null, null, null);
+
+            return;
+        }
+
 
     }
 

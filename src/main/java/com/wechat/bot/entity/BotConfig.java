@@ -60,4 +60,6 @@ public class BotConfig {
 
     private String ttsVoiceId;
 
+    private String systemPrompt;
+
 }
