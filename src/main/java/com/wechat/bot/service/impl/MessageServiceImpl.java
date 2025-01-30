@@ -37,17 +37,12 @@ public class MessageServiceImpl implements MessageService {
     @Resource
     private ThreadPoolTaskExecutor executor;
 
-    @Resource
-    private AiServiceFactory aiServiceFactory;
-
-    @Resource
-    private ALiConfig aliConfig;
+    //@Resource
+    //private ALiConfig aliConfig;
 
     @Resource
     BotConfig botconfig;
 
-    @Autowired
-    private BotConfig botConfig;
 
     @Async
     @Override
@@ -241,15 +236,15 @@ public class MessageServiceImpl implements MessageService {
     @Override
     public AIService chooseAiService() {
 
-        if (aliConfig.getEnabled()) {
-            // 找到正常的服务，然后取出枚举值
-            AiEnum aiEnum = AiEnum.getByName(aliConfig.getName());
-            AIService aiService = AiServiceFactory.getAiService(aiEnum);
-            return aiService;
-        }
-        return null;
+        // 根据这个取值，然后去获取对应的服务
+        String model = botconfig.getModel();
 
+        // 找到正常的服务，然后取出枚举值
+        AiEnum aiEnum = AiEnum.getByModel(model);
+        AIService aiService = AiServiceFactory.getAiService(aiEnum);
+        return aiService;
     }
+
 
     /**
      * 群消息，如何回复
@@ -268,7 +263,7 @@ public class MessageServiceImpl implements MessageService {
             }
             // 开始发消息
             // 区分类型，先判断是否需要艾特
-            List<String> groupChatPrefix = botConfig.getGroupChatPrefix();
+            List<String> groupChatPrefix = botconfig.getGroupChatPrefix();
             if (groupChatPrefix.isEmpty()) {
                 return;
             }

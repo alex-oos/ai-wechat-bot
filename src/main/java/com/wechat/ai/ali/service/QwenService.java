@@ -34,8 +34,8 @@ import java.util.List;
 @Service
 public class QwenService extends AbstractAiService implements AliService {
 
-    @Autowired
-    private ALiConfig qwenConfig;
+    //@Autowired
+    //private ALiConfig qwenConfig;
     @Resource
     private BotConfig botConfig;
 
@@ -58,8 +58,8 @@ public class QwenService extends AbstractAiService implements AliService {
                 .content(content)
                 .build();
         GenerationParam param = GenerationParam.builder()
-                .apiKey(qwenConfig.getApiKey())
-                .model(qwenConfig.getModel())
+                .apiKey(botConfig.getDashscopeApiKey())
+                .model(botConfig.getModel())
                 .messages(Arrays.asList(systemMsg, userMsg))
                 .resultFormat(GenerationParam.ResultFormat.MESSAGE)
                 .build();
@@ -122,8 +122,6 @@ public class QwenService extends AbstractAiService implements AliService {
 
         return "";
     }
-
-
 
 
 }
