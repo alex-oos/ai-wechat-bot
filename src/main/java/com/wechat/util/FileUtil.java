@@ -2,7 +2,7 @@ package com.wechat.util;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.fastjson2.JSONWriter;
-import com.wechat.config.SystemConfig;
+import com.wechat.config.BotConfig;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -20,7 +20,7 @@ public class FileUtil {
      */
     public static Path configFilePath = Path.of("src/main/resources/static/config.json");
 
-    public static SystemConfig readFile() {
+    public static BotConfig readFile() {
 
         if (!configFilePath.toFile().exists()) {
             return null;
@@ -30,13 +30,13 @@ public class FileUtil {
         try {
             byte[] bytes = Files.readAllBytes(configFilePath);
             content = new String(bytes);
-            return JSONObject.parseObject(content, SystemConfig.class);
+            return JSONObject.parseObject(content, BotConfig.class);
         } catch (IOException e) {
             throw new RuntimeException("文件读取失败，请检查config 文件是否存在");
         }
     }
 
-    public static void writeFile(SystemConfig systemConfig) {
+    public static void writeFile(BotConfig systemConfig) {
 
         checkFile();
         String content = JSONObject.toJSONString(systemConfig, JSONWriter.Feature.PrettyFormat);

@@ -3,7 +3,6 @@ package com.wechat.bot.service;
 import com.alibaba.fastjson2.JSONObject;
 import com.wechat.ai.service.AIService;
 import com.wechat.bot.entity.ChatMessage;
-import com.wechat.bot.entity.message.reply.ReplyTextMessage;
 
 /**
  * @author Alex

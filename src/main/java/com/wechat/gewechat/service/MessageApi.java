@@ -1,7 +1,6 @@
 package com.wechat.gewechat.service;
 
 import com.alibaba.fastjson2.JSONObject;
-import com.wechat.bot.entity.message.reply.ReplyTextMessage;
 import com.wechat.util.OkhttpUtil;
 
 /**
@@ -22,10 +21,7 @@ public class MessageApi {
         return OkhttpUtil.postJSON("/message/postText", param);
     }
 
-    public static JSONObject postText(ReplyTextMessage replyTextMessage) {
 
-        return OkhttpUtil.postJSON("/message/postText", JSONObject.from(replyTextMessage));
-    }
 
     /**
      * 发送文件消息

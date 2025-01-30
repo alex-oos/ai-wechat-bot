@@ -1,6 +1,6 @@
 //package com.wechat.bot.task;
 //
-//import com.wechat.bot.config.SystemConfig;
+//import com.wechat.bot.config.BotConfig;
 //import lombok.extern.slf4j.Slf4j;
 //import org.springframework.boot.CommandLineRunner;
 //import org.springframework.stereotype.Component;
@@ -23,7 +23,7 @@
 //    private TaskProcessor taskProcessor;
 //
 //    @Resource
-//    private SystemConfig systemConfig;
+//    private BotConfig systemConfig;
 //
 //    @Override
 //    public void run(String... strings) throws Exception {

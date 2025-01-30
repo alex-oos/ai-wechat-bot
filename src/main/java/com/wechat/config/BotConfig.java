@@ -14,7 +14,7 @@ import lombok.*;
 @AllArgsConstructor
 @Data
 @Builder
-public class SystemConfig {
+public class BotConfig {
 
 
     private String token;

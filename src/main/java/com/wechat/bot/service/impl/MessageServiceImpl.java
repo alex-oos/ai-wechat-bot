@@ -9,7 +9,6 @@ import com.wechat.ai.service.AIService;
 import com.wechat.bot.entity.ChatMessage;
 import com.wechat.bot.service.MessageService;
 import com.wechat.bot.contant.MsgTypeEnum;
-import com.wechat.bot.entity.message.reply.ReplyTextMessage;
 import com.wechat.gewechat.service.ContactApi;
 import com.wechat.gewechat.service.MessageApi;
 import lombok.extern.slf4j.Slf4j;

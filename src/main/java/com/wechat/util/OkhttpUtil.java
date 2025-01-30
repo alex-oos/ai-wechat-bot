@@ -1,7 +1,6 @@
 package com.wechat.util;
 
 import com.alibaba.fastjson2.JSONObject;
-import com.wechat.config.SystemConfig;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 
@@ -85,7 +84,7 @@ public class OkhttpUtil {
     public static JSONObject postJSON(String route, JSONObject param) {
 
 
-        Map<String, Object> header = new HashMap<>();//if (UserInfoConfig.TOKEN!=null){
+        Map<String, Object> header = new HashMap<>();//if (BotConfig.TOKEN!=null){
         if (token != null) {
             header.put("X-GEWE-TOKEN", token);
         }

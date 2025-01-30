@@ -27,6 +27,6 @@ public interface LoginService {
      *
      * @param uuid 取码返回的uuid
      */
-    void checkStatus(Map<String, String> map);
+    Boolean checkStatus(Map<String, String> map);
 
 }

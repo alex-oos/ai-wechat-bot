@@ -9,8 +9,10 @@ import com.wechat.bot.entity.dto.SystemConfigDto;
 import com.wechat.bot.service.FriendService;
 import com.wechat.bot.service.LoginService;
 import com.wechat.bot.service.SystemConfigService;
+import com.wechat.config.BotConfig;
 import com.wechat.gewechat.service.ContactApi;
 import com.wechat.gewechat.service.LoginApi;
+import com.wechat.util.FileUtil;
 import com.wechat.util.IpUtil;
 import com.wechat.util.OkhttpUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -37,54 +39,38 @@ public class LoginServiceImpl implements LoginService {
 
 
     @Resource
-    SystemConfigService userService;
-
-    @Resource
-    FriendService friendService;
-
-    @Autowired
-    private SystemConfigService systemConfigService;
+    private BotConfig botConfig;
 
 
     @Override
     public void login() {
 
-        try {
-            // 从数据库中获取最新的系统配置
-            LambdaQueryWrapper<SystemConfigDto> queryWrapper = new QueryWrapper<SystemConfigDto>().lambda();
-            queryWrapper.orderByDesc(SystemConfigDto::getId).last("limit 1");
-            SystemConfigDto systemConfig = userService.getOne(queryWrapper);
-            if (systemConfig != null) {
-                handleExistingConfig(systemConfig);
-            } else {
-                handleNewConfig();
-            }
-        } catch (Exception e) {
-            log.error("获取系统配置失败", e);
-            // 删除所有的数据
-            //userService.remove(new QueryWrapper<>());
-            log.error("已经删除所有的配置文件，请重新启动尝试一下，即可");
+        if (botConfig.getAppId() == null) {
+            //第一次登录
+            handleNewConfig();
+            return;
+
         }
+        //第二次登录
+        handleExistingConfig();
 
 
     }
 
 
-    /**
-     * 处理已存在配置的情况
-     */
-    private void handleExistingConfig(SystemConfigDto existingConfig) {
-        // 检查设施是否在线
-        OkhttpUtil.token = existingConfig.getToken();
-        JSONObject onlineStatus = LoginApi.checkOnline(existingConfig.getAppId());
+
+
+    private void handleExistingConfig() {
+
+        OkhttpUtil.token = botConfig.getToken();
+        JSONObject onlineStatus = LoginApi.checkOnline(botConfig.getAppId());
         if (isStillOnline(onlineStatus)) {
-            log.info("AppId : {} 保持在线状态，跳过登录流程", existingConfig.getAppId());
+            log.info("AppId : {} 保持在线状态，跳过登录流程", botConfig.getAppId());
             return;
         }
-        log.info("AppId : {} 已离线，开始执行登录流程", existingConfig.getAppId());
-        performLoginFlow(existingConfig.getAppId(), true, existingConfig);
+        log.info("AppId : {} 已离线，开始执行登录流程", botConfig.getAppId());
+        performLoginFlow(botConfig.getAppId());
         //systemConfigService.remove(new QueryWrapper<>());
-        handleNewConfig();
 
     }
 
@@ -95,27 +81,20 @@ public class LoginServiceImpl implements LoginService {
 
         log.info("系统初次登录，开始初始化流程");
         this.getToken();  // 确保先获取基础token
-        performLoginFlow("", false, null);
+        Boolean isSuccess = performLoginFlow("");
+        if (!isSuccess) {
+            log.error("登录失败，请重试");
+            return;
+        }
+        FileUtil.writeFile(botConfig);
     }
 
-    /**
-     * 执行完整的登录流程
-     *
-     * @param appId            当前appId（可能为空）
-     * @param isExistingConfig 是否是已存在的配置
-     * @param originalConfig   原始配置对象（更新时使用）
-     */
-    private void performLoginFlow(String appId, boolean isExistingConfig, SystemConfigDto originalConfig) {
+
+    private Boolean performLoginFlow(String appId) {
         // 获取登录二维码
         Map<String, String> qrInfo = this.getqr(appId);
-
-            // 执行二维码验证流程
-            this.checkStatus(qrInfo);
-            // 构建需要保存的配置对象
-            SystemConfigDto configToSave = buildConfigDto(qrInfo, isExistingConfig, originalConfig);
-            //持久化到数据库
-            userService.saveOrUpdate(configToSave);
-
+        // 执行二维码验证流程
+        return this.checkStatus(qrInfo);
 
 
     }
@@ -159,7 +138,7 @@ public class LoginServiceImpl implements LoginService {
             return map;
         }
 
-        throw new RuntimeException("获取二维码失败"+response.toJSONString());
+        throw new RuntimeException("获取二维码失败" + response.toJSONString());
 
 
     }
@@ -177,8 +156,7 @@ public class LoginServiceImpl implements LoginService {
 
     }
 
-    @Override
-    public void checkStatus(Map<String, String> map) {
+    public Boolean checkStatus(Map<String, String> map) {
 
         int retryCount = 0;
 
@@ -188,7 +166,7 @@ public class LoginServiceImpl implements LoginService {
             JSONObject response = LoginApi.checkQr(map.get("appId"), map.get("uuid"), null);
             if (response.getInteger("ret") != 200) {
                 log.error("检查登录状态失败:{}", response.getString("msg"));
-                return;
+                return false;
                 //throw new RuntimeException("检查登录状态失败");
             }
             //2. 获取解析数据
@@ -208,8 +186,7 @@ public class LoginServiceImpl implements LoginService {
             if (statusCode == 2) {
                 String nickName = data.getString("nickName");
                 log.info("登录成功,用户昵称是：" + nickName);
-                // 进行数据插入操作
-
+                return true;
 
             } else {
                 retryCount++;
@@ -226,21 +203,18 @@ public class LoginServiceImpl implements LoginService {
 
         }
 
+        return false;
     }
 
 
     @Override
     public void setCallbackUrl() {
 
-        LambdaQueryWrapper<SystemConfigDto> queryWrapper = new QueryWrapper<SystemConfigDto>().lambda();
-        queryWrapper.orderByDesc(SystemConfigDto::getId);
-        SystemConfigDto user = userService.getOne(queryWrapper);
-
         String callbackUrl = "http://" + IpUtil.getIp() + ":9919/v2/api/callback/collect";
 
         // 设置一下回调地址
         //System.out.println(callbackUrl);
-        JSONObject setCallback = LoginApi.setCallback(user.getToken(), callbackUrl);
+        JSONObject setCallback = LoginApi.setCallback(botConfig.getToken(), callbackUrl);
         if (setCallback.getInteger("ret") != 200) {
             throw new RuntimeException("设置回调地址失败");
         }
@@ -251,10 +225,7 @@ public class LoginServiceImpl implements LoginService {
     @Override
     public void getALLFriends() {
 
-        LambdaQueryWrapper<SystemConfigDto> queryWrapper = new QueryWrapper<SystemConfigDto>().lambda();
-        queryWrapper.orderByDesc(SystemConfigDto::getId);
-        SystemConfigDto user = userService.getOne(queryWrapper);
-        JSONObject res = ContactApi.fetchContactsList(user.getAppId());
+        JSONObject res = ContactApi.fetchContactsList(botConfig.getAppId());
         if (res.getInteger("ret") != 200) {
             return;
         }
@@ -268,7 +239,7 @@ public class LoginServiceImpl implements LoginService {
         List<String> chatrooms = jsonArray.toJavaList(String.class);
 
         List<String> strings = friends.subList(0, 20);
-        JSONObject detailInfo = ContactApi.getDetailInfo(user.getAppId(), strings);
+        JSONObject detailInfo = ContactApi.getDetailInfo(botConfig.getAppId(), strings);
         if (detailInfo.getInteger("ret") != 200) {
             return;
         }
@@ -278,7 +249,7 @@ public class LoginServiceImpl implements LoginService {
         List<FriendDto> javaList = data1.toJavaList(FriendDto.class);
 
         // 将好友信息保存到数据库中，方便下次直接使用
-        JSONObject detailInfo1 = ContactApi.getDetailInfo(user.getAppId(), chatrooms);
+        JSONObject detailInfo1 = ContactApi.getDetailInfo(botConfig.getAppId(), chatrooms);
         // 将好友信息保存到数据库中，方便下次直接使用
 
 

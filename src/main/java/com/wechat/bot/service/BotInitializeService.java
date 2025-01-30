@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Slf4j
 @Component
-public class BotInitialize implements ApplicationRunner {
+public class BotInitializeService implements ApplicationRunner {
 
 
     @Resource

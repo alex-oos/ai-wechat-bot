@@ -1,32 +1,29 @@
 {
-    "channel_type": "gewechat",
-    "dashscope_api_key": "sk-4d61e913e8cf4185a816275dae53309b",
-    "debug": true,
-    "dify_api_base": "https://api.dify.ai/v1",
-    "dify_api_key": "app-xxx",
-    "dify_app_type": "chatbot",
-    "appId": "wx_kwXIgvsxodGSg62uGO9AC",
-    "baseUrl": "http://10.225.64.78:2531/v2/api",
-    "callbackUrl": "http://10.225.64.78:9919/v2/api/callback/collect",
-    "downloadUrl": "http://10.225.64.78:2532/download",
-    "token": "801c6321cd264bd59821b987ce062fad",
-    "group_chat_prefix": [
-        "@bot"
-    ],
-    "group_name_white_list": [
-        "ALL_GROUP"
-    ],
-    "image_recognition": true,
-    "model": "qwen-plus",
-    "single_chat_prefix": [
-        ""
-    ],
-    "single_chat_reply_prefix": "",
-    "speech_recognition": true,
-    "text_to_voice": "ali",
-    "voice_reply_voice": true,
-    "voice_to_text": "ali",
-    "bot_type": "dashscope",
-    "text_to_voice_model": "tts-1",
-    "tts_voice_id": "alloy"
+  "appId": "wx_eQm9I4zBXsAabaTQEoyZb",
+  "token": "23c619719ca94ea59cb19f3a320b45b5",
+  "channelType": "gewechat",
+  "dashscopeApiKey": "sk-4d61e913e8cf4185a816275dae53309b",
+  "debug": true,
+  "baseUrl": "http://10.225.64.78:2531/v2/api",
+  "callbackUrl": "http://10.225.64.78:9919/v2/api/callback/collect",
+  "downloadUrl": "http://10.225.64.78:2532/download",
+  "groupChatPrefix": [
+    "@bot"
+  ],
+  "groupNameWhiteList": [
+    "ALL_GROUP"
+  ],
+  "imageRecognition": true,
+  "model": "qwen-plus",
+  "singleChatPrefix": [
+    ""
+  ],
+  "singleChatReplyPrefix": "",
+  "speechCecognition": true,
+  "textToVoice": "ali",
+  "voiceReplyVoice": true,
+  "voiceToText": "ali",
+  "botType": "dashscope",
+  "textToVoiceModel": "tts-1",
+  "ttsVoiceId": "alloy"
 }
