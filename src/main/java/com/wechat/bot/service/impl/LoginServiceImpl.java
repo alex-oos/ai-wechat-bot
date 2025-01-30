@@ -14,6 +14,8 @@ import com.wechat.gewechat.service.LoginApi;
 import com.wechat.util.IpUtil;
 import com.wechat.util.OkhttpUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.validator.internal.metadata.aggregated.rule.ReturnValueMayOnlyBeMarkedOnceAsCascadedPerHierarchyLine;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -40,6 +42,9 @@ public class LoginServiceImpl implements LoginService {
     @Resource
     FriendService friendService;
 
+    @Autowired
+    private SystemConfigService systemConfigService;
+
 
     @Override
     public void login() {
@@ -47,7 +52,7 @@ public class LoginServiceImpl implements LoginService {
         try {
             // 从数据库中获取最新的系统配置
             LambdaQueryWrapper<SystemConfigDto> queryWrapper = new QueryWrapper<SystemConfigDto>().lambda();
-            queryWrapper.orderByDesc(SystemConfigDto::getId);
+            queryWrapper.orderByDesc(SystemConfigDto::getId).last("limit 1");
             SystemConfigDto systemConfig = userService.getOne(queryWrapper);
             if (systemConfig != null) {
                 handleExistingConfig(systemConfig);
@@ -57,7 +62,7 @@ public class LoginServiceImpl implements LoginService {
         } catch (Exception e) {
             log.error("获取系统配置失败", e);
             // 删除所有的数据
-            userService.remove(new QueryWrapper<>());
+            //userService.remove(new QueryWrapper<>());
             log.error("已经删除所有的配置文件，请重新启动尝试一下，即可");
         }
 
@@ -72,13 +77,14 @@ public class LoginServiceImpl implements LoginService {
         // 检查设施是否在线
         OkhttpUtil.token = existingConfig.getToken();
         JSONObject onlineStatus = LoginApi.checkOnline(existingConfig.getAppId());
-
         if (isStillOnline(onlineStatus)) {
             log.info("AppId : {} 保持在线状态，跳过登录流程", existingConfig.getAppId());
             return;
         }
         log.info("AppId : {} 已离线，开始执行登录流程", existingConfig.getAppId());
         performLoginFlow(existingConfig.getAppId(), true, existingConfig);
+        //systemConfigService.remove(new QueryWrapper<>());
+        handleNewConfig();
 
     }
 
@@ -103,14 +109,15 @@ public class LoginServiceImpl implements LoginService {
         // 获取登录二维码
         Map<String, String> qrInfo = this.getqr(appId);
 
-        // 执行二维码验证流程
-        this.checkStatus(qrInfo);
+            // 执行二维码验证流程
+            this.checkStatus(qrInfo);
+            // 构建需要保存的配置对象
+            SystemConfigDto configToSave = buildConfigDto(qrInfo, isExistingConfig, originalConfig);
+            //持久化到数据库
+            userService.saveOrUpdate(configToSave);
 
-        // 构建需要保存的配置对象
-        SystemConfigDto configToSave = buildConfigDto(qrInfo, isExistingConfig, originalConfig);
 
-        //持久化到数据库
-        userService.saveOrUpdate(configToSave);
+
     }
 
     /**
@@ -152,7 +159,7 @@ public class LoginServiceImpl implements LoginService {
             return map;
         }
 
-        return Map.of();
+        throw new RuntimeException("获取二维码失败"+response.toJSONString());
 
 
     }
@@ -182,6 +189,7 @@ public class LoginServiceImpl implements LoginService {
             if (response.getInteger("ret") != 200) {
                 log.error("检查登录状态失败:{}", response.getString("msg"));
                 return;
+                //throw new RuntimeException("检查登录状态失败");
             }
             //2. 获取解析数据
             JSONObject data = response.getJSONObject("data");
@@ -200,6 +208,8 @@ public class LoginServiceImpl implements LoginService {
             if (statusCode == 2) {
                 String nickName = data.getString("nickName");
                 log.info("登录成功,用户昵称是：" + nickName);
+                // 进行数据插入操作
+
 
             } else {
                 retryCount++;
