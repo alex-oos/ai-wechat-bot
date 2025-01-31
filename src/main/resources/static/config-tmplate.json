@@ -1,6 +1,6 @@
 {
   "channel_type": "gewechat",
-  "dashscope_api_key": "sk-4d61e913e8cf4185a816275dae53309b",
+  "dashscope_api_key": "",
   "debug": true,
   "dify_api_base": "https://api.dify.ai/v1",
   "dify_api_key": "app-xxx",
