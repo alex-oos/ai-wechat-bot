@@ -67,16 +67,16 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
             default:
                 break;
         }
-
-
-        @Override
-        public AIService chooseAiService () {
-
-
-            // 找到正常的服务，然后取出枚举值
-            AiEnum aiEnum = AiEnum.getByBotType(botconfig.getBotType());
-            AIService aiService = AiServiceFactory.getAiService(aiEnum);
-            return aiService;
-        }
-
     }
+
+
+    @Override
+    public AIService chooseAiService() {
+
+        // 找到正常的服务，然后取出枚举值
+        AiEnum aiEnum = AiEnum.getByBotType(botconfig.getBotType());
+        AIService aiService = AiServiceFactory.getAiService(aiEnum);
+        return aiService;
+    }
+
+}
