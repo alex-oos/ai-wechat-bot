@@ -22,15 +22,11 @@ public interface MessageService {
      */
     Boolean filterErrorMessage(String requestBody);
 
-    void replyTextMsg(ChatMessage chatMessage);
 
     void receiveMsg(JSONObject requestBody);
 
-    AIService chooseAiService();
-
     void groupMsg(ChatMessage chatMessage);
 
-    void sendMsgType(ChatMessage chatMessage);
 
     void personalMsg(ChatMessage chatMessage);
 

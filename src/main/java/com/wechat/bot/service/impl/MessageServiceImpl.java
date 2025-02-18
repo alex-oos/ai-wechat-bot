@@ -9,6 +9,7 @@ import com.wechat.bot.entity.BotConfig;
 import com.wechat.bot.entity.ChatMessage;
 import com.wechat.bot.service.MessageService;
 import com.wechat.bot.contant.MsgTypeEnum;
+import com.wechat.bot.service.ReplyMsgService;
 import com.wechat.gewechat.service.ContactApi;
 import com.wechat.gewechat.service.MessageApi;
 import lombok.extern.slf4j.Slf4j;
@@ -34,10 +35,8 @@ public class MessageServiceImpl implements MessageService {
 
 
     @Resource
-    private ThreadPoolTaskExecutor executor;
+    private ReplyMsgService replyMsgService;
 
-    //@Resource
-    //private ALiConfig aliConfig;
 
     @Resource
     BotConfig botconfig;
@@ -166,26 +165,6 @@ public class MessageServiceImpl implements MessageService {
         return false;
     }
 
-    @Override
-    public void replyTextMsg(ChatMessage chatMessage) {
-
-        AIService aiService = chooseAiService();
-
-        CompletableFuture.supplyAsync(() -> {
-            log.info("请求AI服务");
-            return aiService.textToText(chatMessage.getContent());
-        }, executor).thenApplyAsync((res) -> {
-            res.forEach(msg -> {
-                log.info("请求gewechat服务：{}", msg);
-                JSONObject jsonObject = MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), msg, chatMessage.getToUserId());
-                if (jsonObject.getInteger("ret") == 200) {
-                    log.info("gewechat服务回复成功");
-                }
-            });
-            return null;
-        }, executor);
-
-    }
 
     /**
      * 个人消息
@@ -203,41 +182,9 @@ public class MessageServiceImpl implements MessageService {
             }
         }
 
-        this.sendMsgType(chatMessage);
+        replyMsgService.replyType(chatMessage);
 
 
-    }
-
-    /**
-     * 发送消息类型，主要是组装好，各种类型的消息体，以及消息类型
-     */
-    @Override
-    public void sendMsgType(ChatMessage chatMessage) {
-        // 判断类型
-        switch (chatMessage.getCtype()) {
-            case TEXT:
-                this.replyTextMsg(chatMessage);
-                break;
-            case IMAGE:
-
-                break;
-            case VOICE:
-                break;
-            case VIDEO:
-                break;
-            default:
-                break;
-        }
-    }
-
-    @Override
-    public AIService chooseAiService() {
-
-
-        // 找到正常的服务，然后取出枚举值
-        AiEnum aiEnum = AiEnum.getByBotType(botconfig.getBotType());
-        AIService aiService = AiServiceFactory.getAiService(aiEnum);
-        return aiService;
     }
 
 
@@ -271,7 +218,7 @@ public class MessageServiceImpl implements MessageService {
                         //  消息发送
                         String replace = chatMessage.getContent().replace("@" + chatMessage.getSelfDisplayName(), "");
                         chatMessage.setContent(replace);
-                        this.replyTextMsg(chatMessage);
+                        //this.replyTextMsg(chatMessage);
 
                     }
                 }
@@ -282,7 +229,7 @@ public class MessageServiceImpl implements MessageService {
                 // 消息发送
                 String replace = chatMessage.getContent().replace(chatPrefix, "");
                 chatMessage.setContent(replace);
-                this.replyTextMsg(chatMessage);
+                //this.replyTextMsg(chatMessage);
 
             }
 
@@ -290,7 +237,7 @@ public class MessageServiceImpl implements MessageService {
             //消息如何拼接，是否需要艾特人，等等之类的，还有各种各样的欢迎语
 
             // 判断一下消息的类型
-            this.sendMsgType(chatMessage);
+            replyMsgService.replyType(chatMessage);
             return;
         }
 
