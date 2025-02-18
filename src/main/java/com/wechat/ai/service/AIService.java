@@ -12,7 +12,7 @@ public interface AIService {
 
     List<String> textToText(String content);
 
-    String textToImage(String content);
+    List<String>  textToImage(String content);
 
     String imageToText(String content);
 

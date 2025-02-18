@@ -4,6 +4,7 @@ import com.wechat.ai.contant.AiEnum;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -30,9 +31,9 @@ public class AbstractAiService implements AIService {
     }
 
     @Override
-    public String textToImage(String content) {
+    public List<String> textToImage(String content) {
 
-        return "";
+        return Collections.singletonList("");
     }
 
     @Override
@@ -64,8 +65,6 @@ public class AbstractAiService implements AIService {
 
         return "";
     }
-
-
 
 
 }

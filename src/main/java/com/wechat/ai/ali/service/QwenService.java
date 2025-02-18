@@ -4,15 +4,20 @@ import com.alibaba.dashscope.aigc.generation.Generation;
 import com.alibaba.dashscope.aigc.generation.GenerationOutput;
 import com.alibaba.dashscope.aigc.generation.GenerationParam;
 import com.alibaba.dashscope.aigc.generation.GenerationResult;
+import com.alibaba.dashscope.aigc.imagesynthesis.ImageSynthesis;
+import com.alibaba.dashscope.aigc.imagesynthesis.ImageSynthesisParam;
+import com.alibaba.dashscope.aigc.imagesynthesis.ImageSynthesisResult;
 import com.alibaba.dashscope.common.Message;
 import com.alibaba.dashscope.common.Role;
 import com.alibaba.dashscope.exception.ApiException;
 import com.alibaba.dashscope.exception.InputRequiredException;
 import com.alibaba.dashscope.exception.NoApiKeyException;
+import com.alibaba.dashscope.utils.JsonUtils;
 import com.wechat.ai.ali.service.impl.AliService;
 import com.wechat.ai.contant.AiEnum;
 import com.wechat.ai.service.AbstractAiService;
 import com.wechat.bot.entity.BotConfig;
+import kotlin.jvm.internal.MutablePropertyReference0;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +25,7 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -85,10 +91,37 @@ public class QwenService extends AbstractAiService implements AliService {
     }
 
     @Override
-    public String textToImage(String content) {
+    public List<String> textToImage(String content) {
 
-        return "";
+        //String prompt = "一间有着精致窗户的花店，漂亮的木质门，摆放着花朵";
+        String prompt = content;
+        ImageSynthesisParam param =
+                ImageSynthesisParam.builder()
+                        .apiKey(botConfig.getDashscopeApiKey())
+                        .model("wanx2.1-t2i-turbo")
+                        .prompt(prompt)
+                        .n(1)
+                        .size("1024*1024")
+                        .build();
+
+        ImageSynthesis imageSynthesis = new ImageSynthesis();
+        ImageSynthesisResult result = null;
+        try {
+            System.out.println("---sync call, please wait a moment----");
+            result = imageSynthesis.call(param);
+        } catch (ApiException | NoApiKeyException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+        System.out.println(JsonUtils.toJson(result));
+        List<Map<String, String>> results = result.getOutput().getResults();
+        List<String> imageUrlList = new ArrayList<>();
+        results.forEach(e -> {
+            imageUrlList.add(e.get("url"));
+        });
+
+        return imageUrlList;
     }
+
 
     @Override
     public String imageToText(String content) {

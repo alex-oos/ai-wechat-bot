@@ -11,18 +11,14 @@ import com.wechat.bot.service.MessageService;
 import com.wechat.bot.contant.MsgTypeEnum;
 import com.wechat.bot.service.ReplyMsgService;
 import com.wechat.gewechat.service.ContactApi;
-import com.wechat.gewechat.service.MessageApi;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * @author Alex

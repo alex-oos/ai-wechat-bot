@@ -18,4 +18,16 @@ public interface ReplyMsgService {
 
     void replyType(ChatMessage chatMessage);
 
+    void replyImageMsg(ChatMessage chatMessage);
+
+    void replyVideoMsg(ChatMessage chatMessage);
+
+    void replyFileMsg(ChatMessage chatMessage);
+
+    void replyAudioMsg(ChatMessage chatMessage);
+
+    void replyLocationMsg(ChatMessage chatMessage);
+
+    void replyLinkMsg(ChatMessage chatMessage);
+
 }

@@ -31,6 +31,27 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
     private BotConfig botconfig;
 
     @Override
+    public void replyType(ChatMessage chatMessage) {
+
+
+        // 判断类型
+        switch (chatMessage.getCtype()) {
+            case TEXT:
+                this.replyTextMsg(chatMessage);
+                break;
+            case IMAGE:
+                this.replyImageMsg(chatMessage);
+                break;
+            case VOICE:
+                break;
+            case VIDEO:
+                break;
+            default:
+                break;
+        }
+    }
+
+    @Override
     public void replyTextMsg(ChatMessage chatMessage) {
 
         AIService aiService = chooseAiService();
@@ -50,23 +71,51 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
         }, executor);
     }
 
-    @Override
-    public void replyType(ChatMessage chatMessage) {
-        // 判断类型
-        switch (chatMessage.getCtype()) {
-            case TEXT:
-                this.replyTextMsg(chatMessage);
-                break;
-            case IMAGE:
 
-                break;
-            case VOICE:
-                break;
-            case VIDEO:
-                break;
-            default:
-                break;
-        }
+    @Override
+    public void replyImageMsg(ChatMessage chatMessage) {
+
+        AIService aiService = chooseAiService();
+
+        CompletableFuture.supplyAsync(() -> {
+            log.info("请求AI服务");
+            return aiService.textToImage(chatMessage.getContent());
+        }, executor).thenApplyAsync((res) -> {
+            res.forEach(msg -> {
+                log.info("请求gewechat服务：{}", msg);
+                JSONObject jsonObject = MessageApi.postImage(chatMessage.getAppId(), chatMessage.getFromUserId(), msg);
+                if (jsonObject.getInteger("ret") == 200) {
+                    log.info("gewechat服务回复成功");
+                }
+            });
+            return null;
+        }, executor);
+
+    }
+
+    @Override
+    public void replyVideoMsg(ChatMessage chatMessage) {
+
+    }
+
+    @Override
+    public void replyFileMsg(ChatMessage chatMessage) {
+
+    }
+
+    @Override
+    public void replyAudioMsg(ChatMessage chatMessage) {
+
+    }
+
+    @Override
+    public void replyLocationMsg(ChatMessage chatMessage) {
+
+    }
+
+    @Override
+    public void replyLinkMsg(ChatMessage chatMessage) {
+
     }
 
 
