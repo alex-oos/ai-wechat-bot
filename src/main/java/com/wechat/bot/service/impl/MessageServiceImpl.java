@@ -91,8 +91,15 @@ public class MessageServiceImpl implements MessageService {
         }
 
 
-        // 判断一下消息的类型
-        this.sendMsgType(chatMessage);
+        if (chatMessage.getIsGroup()) {
+            log.info("群消息类型");
+            this.groupMsg(chatMessage);
+            return;
+        } else {
+            log.info("个人消息");
+            this.personalMsg(chatMessage);
+        }
+
 
     }
 
@@ -196,8 +203,7 @@ public class MessageServiceImpl implements MessageService {
             }
         }
 
-
-        this.replyTextMsg(chatMessage);
+        this.sendMsgType(chatMessage);
 
 
     }
@@ -210,18 +216,10 @@ public class MessageServiceImpl implements MessageService {
         // 判断类型
         switch (chatMessage.getCtype()) {
             case TEXT:
-                // 判断是否是群，或个人，如果是群的话，是需要怎么样回复，如果是个人的话，需要怎么样回复
-                if (chatMessage.getIsGroup()) {
-                    log.info("群消息类型");
-                    this.groupMsg(chatMessage);
-                    return;
-                } else {
-                    log.info("个人消息");
-                    this.personalMsg(chatMessage);
-                }
-
+                this.replyTextMsg(chatMessage);
                 break;
             case IMAGE:
+
                 break;
             case VOICE:
                 break;
@@ -237,7 +235,7 @@ public class MessageServiceImpl implements MessageService {
 
 
         // 找到正常的服务，然后取出枚举值
-        AiEnum aiEnum = AiEnum.getByBotType( botconfig.getBotType());
+        AiEnum aiEnum = AiEnum.getByBotType(botconfig.getBotType());
         AIService aiService = AiServiceFactory.getAiService(aiEnum);
         return aiService;
     }
@@ -291,8 +289,8 @@ public class MessageServiceImpl implements MessageService {
             //TODO(群消息，如何回复)
             //消息如何拼接，是否需要艾特人，等等之类的，还有各种各样的欢迎语
 
-            //this.sendMsgType(null, null, null, null, null);
-
+            // 判断一下消息的类型
+            this.sendMsgType(chatMessage);
             return;
         }
 
