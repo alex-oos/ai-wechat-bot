@@ -1,7 +1,6 @@
 package com.wechat.bot.service;
 
 import com.alibaba.fastjson2.JSONObject;
-import com.wechat.ai.service.AIService;
 import com.wechat.bot.entity.ChatMessage;
 
 /**
@@ -25,9 +24,6 @@ public interface MessageService {
 
     void receiveMsg(JSONObject requestBody);
 
-    void groupMsg(ChatMessage chatMessage);
 
-
-    void personalMsg(ChatMessage chatMessage);
 
 }

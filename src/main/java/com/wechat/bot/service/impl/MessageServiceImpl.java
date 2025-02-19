@@ -2,14 +2,10 @@ package com.wechat.bot.service.impl;
 
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
-import com.wechat.ai.contant.AiEnum;
-import com.wechat.ai.factory.AiServiceFactory;
-import com.wechat.ai.service.AIService;
-import com.wechat.bot.entity.BotConfig;
+import com.wechat.bot.contant.MsgTypeEnum;
 import com.wechat.bot.entity.ChatMessage;
 import com.wechat.bot.service.MessageService;
-import com.wechat.bot.contant.MsgTypeEnum;
-import com.wechat.bot.service.ReplyMsgService;
+import com.wechat.bot.service.MsgSourceService;
 import com.wechat.gewechat.service.ContactApi;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
@@ -29,13 +25,9 @@ import java.util.List;
 @Service
 public class MessageServiceImpl implements MessageService {
 
-
     @Resource
-    private ReplyMsgService replyMsgService;
+    private MsgSourceService msgSourceService;
 
-
-    @Resource
-    BotConfig botconfig;
 
 
     @Async
@@ -88,11 +80,11 @@ public class MessageServiceImpl implements MessageService {
 
         if (chatMessage.getIsGroup()) {
             log.info("群消息类型");
-            this.groupMsg(chatMessage);
+            msgSourceService.groupMsg(chatMessage);
             return;
         } else {
             log.info("个人消息");
-            this.personalMsg(chatMessage);
+            msgSourceService.personalMsg(chatMessage);
         }
 
 
@@ -162,83 +154,6 @@ public class MessageServiceImpl implements MessageService {
     }
 
 
-    /**
-     * 个人消息
-     */
-    @Override
-    public void personalMsg(ChatMessage chatMessage) {
-        // 聊天前缀过滤
-        List<String> singleChatPrefix = botconfig.getSingleChatPrefix();
-        if (!singleChatPrefix.isEmpty()) {
-            // 单独聊天前缀过滤
-            for (String chatPrefix : singleChatPrefix) {
-                if (!chatMessage.getContent().startsWith(chatPrefix)) {
-                    return;
-                }
-            }
-        }
-
-        replyMsgService.replyType(chatMessage);
-
-
-    }
-
-
-    /**
-     * 群消息，如何回复
-     */
-    public void groupMsg(ChatMessage chatMessage) {
-
-        // 黑名单过滤
-        List<String> groupNameWhiteList = botconfig.getGroupNameWhiteList();
-        if (!groupNameWhiteList.isEmpty()) {
-
-            if (!groupNameWhiteList.get(0).equals("ALL_GROUP")) {
-                // 判断群名是否在白名单中
-                if (!groupNameWhiteList.contains(chatMessage.getToUserNickname())) {
-                    return;
-                }
-            }
-            // 开始发消息
-            // 区分类型，先判断是否需要艾特
-            List<String> groupChatPrefix = botconfig.getGroupChatPrefix();
-            if (groupChatPrefix.isEmpty()) {
-                return;
-            }
-            for (String chatPrefix : groupChatPrefix) {
-                //如果包含ai, 则需要艾特
-                //@bot 特殊校验一下
-                if (chatPrefix.contains("@bot") && chatMessage.getIsAt()) {
-                    // TODO @bot
-                    if (chatMessage.getContent().contains(chatMessage.getSelfDisplayName())) {
-                        //  消息发送
-                        String replace = chatMessage.getContent().replace("@" + chatMessage.getSelfDisplayName(), "");
-                        chatMessage.setContent(replace);
-                        //this.replyTextMsg(chatMessage);
-
-                    }
-                }
-
-                if (!chatMessage.getContent().contains(chatPrefix)) {
-                    return;
-                }
-                // 消息发送
-                String replace = chatMessage.getContent().replace(chatPrefix, "");
-                chatMessage.setContent(replace);
-                //this.replyTextMsg(chatMessage);
-
-            }
-
-            //TODO(群消息，如何回复)
-            //消息如何拼接，是否需要艾特人，等等之类的，还有各种各样的欢迎语
-
-            // 判断一下消息的类型
-            replyMsgService.replyType(chatMessage);
-            return;
-        }
-
-
-    }
 
 
 }
