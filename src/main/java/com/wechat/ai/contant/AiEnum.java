@@ -15,12 +15,14 @@ import java.util.List;
 @Getter
 public enum AiEnum {
 
-    ALI(1, "ali", List.of("qwen-plus", "qwen-max", "qwen-turbo", "qwen-max-lite", "qwen-max-pro", "qwen-max-lite-v2", "qwen-max-pro-v2", "qwen-max-lite-v3", "qwen-max-pro-v3", "qwen-max-l"));
+    ALI(1, "ali", List.of("qwen-plus", "qwen-max", "qwen-turbo", "qwen-max-lite", "qwen-max-pro", "qwen-max-lite-v2", "qwen-max-pro-v2", "qwen-max-lite-v3", "qwen-max-pro-v3", "qwen-max-l")),
+
+    DEEPSEEK(2, "deepseek", List.of("qwen-plus", "qwen-max", "qwen-turbo", "qwen-max-lite", "qwen-max-pro", "qwen-max-lite-v2", "qwen-max-pro-v2", "qwen-max-lite-v3", "qwen-max-pro-v3", "qwen-max-l"));
 
 
     private final int id;
 
-    private final String botType;
+    private final String aiType;
 
     private final List<String> model;
 
@@ -38,7 +40,7 @@ public enum AiEnum {
     public static AiEnum getByBotType(String botType) {
 
         for (AiEnum aiEnum : AiEnum.values()) {
-            if (aiEnum.getBotType().equals(botType)) {
+            if (aiEnum.getAiType().equals(botType)) {
                 return aiEnum;
             }
         }

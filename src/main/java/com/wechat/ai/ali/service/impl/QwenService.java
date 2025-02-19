@@ -1,4 +1,4 @@
-package com.wechat.ai.ali.service;
+package com.wechat.ai.ali.service.impl;
 
 import com.alibaba.dashscope.aigc.generation.Generation;
 import com.alibaba.dashscope.aigc.generation.GenerationOutput;
@@ -13,7 +13,6 @@ import com.alibaba.dashscope.exception.ApiException;
 import com.alibaba.dashscope.exception.InputRequiredException;
 import com.alibaba.dashscope.exception.NoApiKeyException;
 import com.alibaba.dashscope.utils.JsonUtils;
-import com.wechat.ai.ali.service.impl.AliService;
 import com.wechat.ai.contant.AiEnum;
 import com.wechat.ai.service.AbstractAiService;
 import com.wechat.bot.entity.BotConfig;
@@ -35,7 +34,7 @@ import java.util.Map;
 
 @Slf4j
 @Service
-public class QwenService extends AbstractAiService implements AliService {
+public class QwenService extends AbstractAiService {
 
     @Resource
     private BotConfig botConfig;
@@ -47,7 +46,6 @@ public class QwenService extends AbstractAiService implements AliService {
     }
 
 
-    @Override
     public GenerationResult callWithMessage(String content) throws ApiException, NoApiKeyException, InputRequiredException {
 
         Generation gen = new Generation();

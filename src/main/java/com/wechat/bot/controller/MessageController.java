@@ -1,7 +1,6 @@
 package com.wechat.bot.controller;
 
 import com.alibaba.fastjson2.JSONObject;
-import com.wechat.ai.ali.service.impl.AliService;
 import com.wechat.bot.service.MessageService;
 //import com.wechat.bot.task.Task;
 //import com.wechat.bot.task.TaskQueue;
