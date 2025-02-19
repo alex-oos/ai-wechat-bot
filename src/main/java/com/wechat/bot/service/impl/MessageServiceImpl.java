@@ -13,7 +13,11 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 
@@ -47,6 +51,31 @@ public class MessageServiceImpl implements MessageService {
         String msgId = data.getString("'NewMsgId'");
         // 消息类型
         Integer msgType = data.getInteger("MsgType");
+        MsgTypeEnum msgTypeEnum = MsgTypeEnum.getMsgTypeEnum(msgType);
+        // 判断消息类型，进行一系列的操作
+        switch (msgTypeEnum) {
+            case TEXT:
+                break;
+            case IMAGE:
+                //图片保存一下
+                // 提取图片缩略图的Base64并保存为文件
+                String imgBuf = data.getJSONObject("ImgBuf").getString("buffer");
+                byte[] imageBytes = Base64.getDecoder().decode(imgBuf);
+                File imageFile = new File("thumbnail.jpg");
+                try (FileOutputStream fos = new FileOutputStream(imageFile)) {
+                    fos.write(imageBytes);
+                    System.out.println("图片缩略图已保存为: " + imageFile.getAbsolutePath());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                break;
+            case VOICE:
+
+                break;
+            default:
+                break;
+
+        }
         boolean isGroup = fromUserName.contains("@chatroom");
         ChatMessage chatMessage = ChatMessage.builder()
                 .msgId(msgId)

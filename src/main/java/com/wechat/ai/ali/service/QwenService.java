@@ -17,7 +17,6 @@ import com.wechat.ai.ali.service.impl.AliService;
 import com.wechat.ai.contant.AiEnum;
 import com.wechat.ai.service.AbstractAiService;
 import com.wechat.bot.entity.BotConfig;
-import kotlin.jvm.internal.MutablePropertyReference0;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -126,13 +125,13 @@ public class QwenService extends AbstractAiService implements AliService {
     @Override
     public String imageToText(String content) {
 
-        return "";
+        return super.imageToText(content);
     }
 
     @Override
     public String imageToImage(String content) {
 
-        return "";
+        return super.imageToImage(content);
     }
 
     @Override
