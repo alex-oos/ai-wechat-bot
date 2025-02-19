@@ -1,9 +1,11 @@
 package com.wechat.bot.entity;
 
 import com.wechat.bot.contant.MsgTypeEnum;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -54,7 +56,7 @@ public class ChatMessage {
 
     private Runnable prepareFn;
 
-    private boolean prepared;
+    private Boolean prepared;
 
     /**
      * 原始消息

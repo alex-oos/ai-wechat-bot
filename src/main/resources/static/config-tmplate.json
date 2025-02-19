@@ -14,12 +14,17 @@
     "@bot"
   ],
   "group_name_white_list": [
-    "ALL_GROUP"
+    "ChatGPT测试群",
+    "ChatGPT测试群2"
   ],
   "image_recognition": true,
   "model": "qwen-plus",
   "single_chat_prefix": [
-    ""
+    "bot",
+    "@bot"
+  ],
+  "image_create_prefix": [
+     "画"
   ],
   "single_chat_reply_prefix": "",
   "speech_recognition": true,

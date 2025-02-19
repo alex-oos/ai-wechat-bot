@@ -3,6 +3,7 @@ package com.wechat.bot.service.impl;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.wechat.bot.contant.MsgTypeEnum;
+import com.wechat.bot.entity.BotConfig;
 import com.wechat.bot.entity.ChatMessage;
 import com.wechat.bot.service.MessageService;
 import com.wechat.bot.service.MsgSourceService;
@@ -29,6 +30,8 @@ public class MessageServiceImpl implements MessageService {
     private MsgSourceService msgSourceService;
 
 
+    @Resource
+    private BotConfig botConfig;
 
     @Async
     @Override
@@ -67,6 +70,7 @@ public class MessageServiceImpl implements MessageService {
         }
 
         log.info("收到消息{}", chatMessage.getRawMsg());
+        this.updateMsgType(chatMessage);
         // 获取好友的信息
         JSONObject briefInfo = ContactApi.getBriefInfo(appid, Collections.singletonList(chatMessage.getFromUserId()));
         if (briefInfo.getInteger("ret") == 200) {
@@ -76,7 +80,6 @@ public class MessageServiceImpl implements MessageService {
             String nickname = remark != null ? remark : userInfo.getString("nickName");
             chatMessage.setFromUserNickname(nickname);
         }
-
 
         if (chatMessage.getIsGroup()) {
             log.info("群消息类型");
@@ -153,7 +156,32 @@ public class MessageServiceImpl implements MessageService {
         return false;
     }
 
+    /**
+     * 将类型修改为图片类型
+     *
+     * @param chatMessage
+     */
+    private void updateMsgType(ChatMessage chatMessage) {
 
+        String content = chatMessage.getContent();
+        List<String> imageCreatePrefix = botConfig.getImageCreatePrefix();
+        for (String createPrefix : imageCreatePrefix) {
+            if (content.contains(createPrefix)) {
+                chatMessage.setCtype(MsgTypeEnum.IMAGE);
+                return;
+            }
+        }
+        if (content.contains("视频") && content.contains("生成")) {
+            chatMessage.setCtype(MsgTypeEnum.VIDEO);
+            return;
+        }
+        if (content.contains("语音") && content.contains("生成")) {
+            chatMessage.setCtype(MsgTypeEnum.VOICE);
+            return;
+        }
+
+
+    }
 
 
 }

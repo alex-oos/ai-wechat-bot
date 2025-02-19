@@ -30,10 +30,12 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
     @Resource
     private BotConfig botconfig;
 
+    private AIService aiService;
+
     @Override
     public void replyType(ChatMessage chatMessage) {
 
-
+        aiService = chooseAiService();
         // 判断类型
         switch (chatMessage.getCtype()) {
             case TEXT:
@@ -43,8 +45,10 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
                 this.replyImageMsg(chatMessage);
                 break;
             case VOICE:
+                this.replyAudioMsg(chatMessage);
                 break;
             case VIDEO:
+                this.replyVideoMsg(chatMessage);
                 break;
             default:
                 break;
@@ -54,7 +58,6 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
     @Override
     public void replyTextMsg(ChatMessage chatMessage) {
 
-        AIService aiService = chooseAiService();
 
         CompletableFuture.supplyAsync(() -> {
             log.info("请求AI服务");
@@ -75,7 +78,6 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
     @Override
     public void replyImageMsg(ChatMessage chatMessage) {
 
-        AIService aiService = chooseAiService();
 
         CompletableFuture.supplyAsync(() -> {
             log.info("请求AI服务");

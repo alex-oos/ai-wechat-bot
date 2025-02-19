@@ -62,4 +62,9 @@ public class BotConfig {
 
     private String systemPrompt;
 
+    /**
+     * 图片生成前缀
+     */
+    private List<String> imageCreatePrefix;
+
 }

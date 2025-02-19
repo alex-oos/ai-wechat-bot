@@ -19,8 +19,13 @@
   "singleChatPrefix": [
     "将哥"
   ],
+  "imageCreatePrefix": [
+    "画",
+    "图片",
+    "图"
+  ],
   "singleChatReplyPrefix": "",
-  "speechCecognition": true,
+  "speechRecognition": true,
   "textToVoice": "ali",
   "voiceReplyVoice": true,
   "voiceToText": "ali",
