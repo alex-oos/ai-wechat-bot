@@ -4,6 +4,7 @@ import com.wechat.bot.entity.BotConfig;
 import com.wechat.bot.entity.ChatMessage;
 import com.wechat.bot.service.MsgSourceService;
 import com.wechat.bot.service.ReplyMsgService;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -26,6 +27,7 @@ public class MsgSourceServiceImpl implements MsgSourceService {
     /**
      * 个人消息
      */
+    @Async
     @Override
     public void personalMsg(ChatMessage chatMessage) {
         // 聊天前缀过滤
@@ -48,6 +50,7 @@ public class MsgSourceServiceImpl implements MsgSourceService {
     /**
      * 群消息，如何回复
      */
+    @Async
     @Override
     public void groupMsg(ChatMessage chatMessage) {
 
