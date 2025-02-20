@@ -15,7 +15,7 @@ import java.util.List;
 @Getter
 public enum AiEnum {
 
-    ALI(1, "ali", List.of("qwen-plus", "qwen-max", "qwen-turbo", "qwen-max-lite", "qwen-max-pro", "qwen-max-lite-v2", "qwen-max-pro-v2", "qwen-max-lite-v3", "qwen-max-pro-v3", "qwen-max-l")),
+    ALI(1, "ali", List.of("qwen-plus", "qwen-max", "qwen-turbo", "qwen-max-lite", "qwen-max-pro", "qwen-max-lite-v2", "qwen-max-pro-v2", "qwen-max-lite-v3", "qwen-max-pro-v3", "qwen-max-l","deepseek-r1")),
 
     DEEPSEEK(2, "deepseek", List.of("qwen-plus", "qwen-max", "qwen-turbo", "qwen-max-lite", "qwen-max-pro", "qwen-max-lite-v2", "qwen-max-pro-v2", "qwen-max-lite-v3", "qwen-max-pro-v3", "qwen-max-l"));
 

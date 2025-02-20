@@ -125,7 +125,7 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
     public AIService chooseAiService() {
 
         // 找到正常的服务，然后取出枚举值
-        AiEnum aiEnum = AiEnum.getByBotType(botconfig.getBotType());
+        AiEnum aiEnum = AiEnum.getByBotType(botconfig.getAiType());
         AIService aiService = AiServiceFactory.getAiService(aiEnum);
         return aiService;
     }

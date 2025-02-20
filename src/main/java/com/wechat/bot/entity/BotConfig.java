@@ -54,7 +54,7 @@ public class BotConfig {
 
     private String voiceToText;
 
-    private String botType;
+    private String aiType;
 
     private String textToVoiceModel;
 

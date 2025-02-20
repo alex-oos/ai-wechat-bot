@@ -38,13 +38,13 @@ import java.util.Map;
 
 @Slf4j
 @Service
-public class QwenService extends AbstractAiService implements AliService {
+public class DashScopeService extends AbstractAiService implements AliService {
 
     @Resource
     private BotConfig botConfig;
 
 
-    public QwenService() {
+    public DashScopeService() {
 
         super(AiEnum.ALI);
     }
