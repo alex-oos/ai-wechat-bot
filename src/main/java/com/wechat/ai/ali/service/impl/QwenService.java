@@ -13,6 +13,7 @@ import com.alibaba.dashscope.exception.ApiException;
 import com.alibaba.dashscope.exception.InputRequiredException;
 import com.alibaba.dashscope.exception.NoApiKeyException;
 import com.alibaba.dashscope.utils.JsonUtils;
+import com.wechat.ai.ali.service.AliService;
 import com.wechat.ai.contant.AiEnum;
 import com.wechat.ai.service.AbstractAiService;
 import com.wechat.bot.entity.BotConfig;
@@ -29,12 +30,15 @@ import java.util.Map;
 /**
  * @author Alex
  * @since 2025/1/26 17:58
- * <p></p>
+ * <p>
+ *    通义千问  https://help.aliyun.com/zh/model-studio/developer-reference/use-qwen-by-calling-api?spm=a2c6h.13066369.question.6.66921a93YmGP7w
+ *    https://www.alibabacloud.com/help/zh/model-studio/developer-reference/use-qwen-by-calling-api
+ * </p>
  */
 
 @Slf4j
 @Service
-public class QwenService extends AbstractAiService {
+public class QwenService extends AbstractAiService implements AliService {
 
     @Resource
     private BotConfig botConfig;
