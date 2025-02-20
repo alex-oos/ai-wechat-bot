@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
  * <p></p>
  */
 @Slf4j
-@Service
+//@Service
 public class XunFeiService extends AbstractAiService {
 
     public XunFeiService() {
