@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author Alex
@@ -27,6 +28,12 @@ import java.util.Arrays;
 @Service
 public class DeepSeekService extends AbstractAiService {
 
+    private static StringBuilder reasoningContent = new StringBuilder();
+
+    private static StringBuilder finalContent = new StringBuilder();
+
+    private static boolean isFirstPrint = true;
+
     @Resource
     private BotConfig botConfig;
 
@@ -35,9 +42,6 @@ public class DeepSeekService extends AbstractAiService {
         super(AiEnum.DEEPSEEK);
     }
 
-    private static StringBuilder reasoningContent = new StringBuilder();
-    private static StringBuilder finalContent = new StringBuilder();
-    private static boolean isFirstPrint = true;
     /**
      * 因 目前deepseek 官网不能使用，目前使用 阿里云的deepseek r1模型
      * 文档如下：https://help.aliyun.com/zh/model-studio/developer-reference/deepseek?spm=a2c4g.11186623.help-menu-2400256.d_3_3_1_0.51834823WCKcfb#0c19e69319xc6
@@ -100,7 +104,7 @@ public class DeepSeekService extends AbstractAiService {
             Generation gen = new Generation();
             Message userMsg = Message.builder().role(Role.USER.getValue()).content("你是谁？").build();
             streamCallWithMessage(gen, userMsg);
-             //打印最终结果
+            //打印最终结果
             if (reasoningContent.length() > 0) {
                 System.out.println("\n====================完整回复====================");
                 System.out.println(finalContent.toString());
@@ -109,6 +113,23 @@ public class DeepSeekService extends AbstractAiService {
             log.error("An exception occurred: {}", e.getMessage());
         }
         System.exit(0);
+    }
+
+    @Override
+    public List<String> textToText(String content) {
+
+        Generation gen = new Generation();
+        Message userMsg = Message.builder().role(Role.USER.getValue()).content(content).build();
+        try {
+            streamCallWithMessage(gen, userMsg);
+        } catch (NoApiKeyException e) {
+            throw new RuntimeException(e);
+        } catch (InputRequiredException e) {
+            throw new RuntimeException(e);
+        }
+
+
+        return List.of();
     }
 
     public GenerationResult callWithMessage(String content) throws ApiException, NoApiKeyException, InputRequiredException {
