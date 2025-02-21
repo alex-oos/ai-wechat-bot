@@ -3,7 +3,8 @@ package com.wechat.ai.enums;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Alex
@@ -15,10 +16,9 @@ import java.util.List;
 @Getter
 public enum AiEnum {
 
-    ALI(1, "ali", List.of("qwen-plus", "qwen-max", "qwen-turbo", "qwen-max-lite", "qwen-max-pro", "qwen-max-lite-v2", "qwen-max-pro-v2", "qwen-max-lite-v3", "qwen-max-pro-v3", "qwen-max-l","deepseek-r1")),
+    ALI(1, "ali", List.of("qwen-plus", "qwen-max", "qwen-turbo", "qwen-max-lite", "qwen-max-pro", "qwen-max-lite-v2", "qwen-max-pro-v2", "qwen-max-lite-v3", "qwen-max-pro-v3", "qwen-max-l")),
 
-    DEEPSEEK(2, "deepseek", List.of("qwen-plus", "qwen-max", "qwen-turbo", "qwen-max-lite", "qwen-max-pro", "qwen-max-lite-v2", "qwen-max-pro-v2", "qwen-max-lite-v3", "qwen-max-pro-v3", "qwen-max-l"));
-
+    DEEPSEEK(2, "deepseek", List.of("deepseek-r1"));
 
     private final int id;
 
@@ -26,36 +26,25 @@ public enum AiEnum {
 
     private final List<String> model;
 
+    private static final Map<Integer, AiEnum> idMap = Arrays.stream(values())
+            .collect(Collectors.toMap(AiEnum::getId, e -> e));
+
+    private static final Map<String, AiEnum> aiTypeMap = Arrays.stream(values())
+            .collect(Collectors.toMap(AiEnum::getAiType, e -> e));
+
+    private static final Map<String, AiEnum> modelMap = Arrays.stream(values())
+            .flatMap(e -> e.getModel().stream().map(model -> Map.entry(model, e)))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
     public static AiEnum getById(int id) {
-
-        for (AiEnum aiEnum : AiEnum.values()) {
-            if (aiEnum.getId() == id) {
-                return aiEnum;
-            }
-        }
-        return null;
+        return idMap.get(id);
     }
 
     public static AiEnum getByBotType(String botType) {
-
-        for (AiEnum aiEnum : AiEnum.values()) {
-            if (aiEnum.getAiType().equals(botType)) {
-                return aiEnum;
-            }
-        }
-        return null;
+        return aiTypeMap.get(botType);
     }
 
     public static AiEnum getByModel(String model) {
-
-        for (AiEnum aiEnum : AiEnum.values()) {
-            if (aiEnum.getModel().contains(model)) {
-                return aiEnum;
-            }
-        }
-        return null;
+        return modelMap.get(model);
     }
-
-
 }

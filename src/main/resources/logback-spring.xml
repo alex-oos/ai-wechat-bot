@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration scan="true" scanPeriod="60 seconds" debug="false">
     <contextName>ai-wechat-bot-server</contextName>
-    <springProperty scope="context" name="LOG_HOME" source="log.path" defaultValue="logs"/>
+    <springProperty scope="context" name="LOG_HOME" source="log.path" defaultValue="logs/"/>
     <springProperty scope="context" name="APPLICATION_NAME" source="spring.application.name"
                     defaultValue="ai-wechat-bot-server"/>
 
