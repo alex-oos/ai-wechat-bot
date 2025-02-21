@@ -31,6 +31,15 @@
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
         <java.version>11</java.version>
+        <!-- 更新 fastjson2 版本 -->
+        <fastjson2.version>2.0.55</fastjson2.version>
+        <!-- 更新 mybatis-plus 版本 -->
+        <mybatis-plus.version>3.5.3.2</mybatis-plus.version>
+        <!-- 更新 druid 版本 -->
+        <druid.version>1.2.17</druid.version>
+        <!-- 更新 logback 版本 -->
+        <logback.version>1.2.11</logback.version>
+        <slf4j.version>1.7.36</slf4j.version>
     </properties>
     <dependencies>
         <dependency>
@@ -66,7 +75,7 @@
         <dependency>
             <groupId>com.alibaba.fastjson2</groupId>
             <artifactId>fastjson2</artifactId>
-            <version>2.0.54</version>
+            <version>${fastjson2.version}</version>
         </dependency>
 
         <!--  二维码解析    -->
@@ -84,12 +93,12 @@
             <groupId>com.alibaba</groupId>
             <artifactId>dashscope-sdk-java</artifactId>
             <version>2.18.2</version>
-<!--            <exclusions>-->
-<!--                <exclusion>-->
-<!--                    <groupId>org.slf4j</groupId>-->
-<!--                    <artifactId>slf4j-simple</artifactId>-->
-<!--                </exclusion>-->
-<!--            </exclusions>-->
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-simple</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!--数据库相关-->
@@ -97,7 +106,7 @@
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-boot-starter</artifactId>
-            <version>3.5.3.1</version>
+            <version>${mybatis-plus.version}</version>
         </dependency>
         <!--        sqlite-->
         <dependency>
@@ -108,7 +117,7 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>druid-spring-boot-starter</artifactId>
-            <version>1.2.16</version>
+            <version>${druid.version}</version>
         </dependency>
         <!-- mybatis plus 代码生成器依赖 -->
         <dependency>
@@ -117,7 +126,7 @@
             <version>3.5.3.1</version>
         </dependency>
 
-<!--        <dependency>
+        <dependency>
             <groupId>net.logstash.logback</groupId>
             <artifactId>logstash-logback-encoder</artifactId>
             <version>7.4</version>
@@ -125,11 +134,27 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.4.12</version> &lt;!&ndash; 确保使用最新版本 &ndash;&gt;
-        </dependency>-->
+            <version>${logback.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+            <version>${logback.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-access</artifactId>
+            <version>1.2.9</version>
+        </dependency>
     </dependencies>
 
     <build>
+        <finalName>${project.artifactId}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>

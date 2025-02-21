@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="60 seconds" debug="false">
+    <contextName>ai-wechat-bot-server</contextName>
+    <springProperty scope="context" name="LOG_HOME" source="log.path" defaultValue="logs"/>
+    <springProperty scope="context" name="APPLICATION_NAME" source="spring.application.name"
+                    defaultValue="ai-wechat-bot-server"/>
+
+    <!-- 输出到控制台 -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder charset="UTF-8">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %cyan([%thread]) %highlight([%-5level]) at %magenta(%file.%line)
+                %logger{50}: %msg%n
+            </pattern>
+        </encoder>
+    </appender>
+
+    <appender name="LOG_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_HOME}${APPLICATION_NAME}.log</file>
+        <encoder charset="UTF-8" class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+                <mdc/>
+                <pattern>
+                    <pattern>
+                        {
+                        "app":"${APPLICATION_NAME}",
+                        "host":"${HostName}",
+                        "timestamp":"%d{yyyy-MM-dd'T'HH:mm:ss.SSSZZ}",
+                        "logger": "%logger",
+                        "level": "%level",
+                        "thread": "%thread",
+                        "location": "%file.%line",
+                        "message":"%message"
+                        }
+                    </pattern>
+                </pattern>
+                <stackTrace>
+                    <throwableConverter class="net.logstash.logback.stacktrace.ShortenedThrowableConverter">
+                        <maxDepthPerThrowable>100</maxDepthPerThrowable>
+                        <rootCauseFirst>true</rootCauseFirst>
+                        <inlineHash>true</inlineHash>
+                    </throwableConverter>
+                </stackTrace>
+            </providers>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_HOME}/${APPLICATION_NAME}.%d{yyyyMMdd}.%i.json.zip</fileNamePattern>
+            <maxHistory>7</maxHistory>
+            <maxFileSize>100MB</maxFileSize>
+        </rollingPolicy>
+    </appender>
+
+    <!--  指定不同包的日志级别  -->
+    <!-- 日志输出级别，OFF level > FATAL > ERROR > WARN > INFO > DEBUG > ALL level -->
+    <logger name="com.springboot" level="INFO"/>
+    <logger name="org.springframework" level="WARN"/>
+
+    <root level="INFO">
+        <appender-ref ref="LOG_FILE"/>
+        <appender-ref ref="CONSOLE"/>
+    </root>
+</configuration>
