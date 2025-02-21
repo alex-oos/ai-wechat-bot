@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
  * @since 2025/1/27 22:19
  * <p></p>
  */
-@Service
+//@Service
 public class ChatRoomServiceImpl extends ServiceImpl<ChatRoomMapper, ChatRoomsDto> implements ChatRoomService {
 
 }

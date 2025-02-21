@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
  * @since 2025/1/27 22:25
  * <p></p>
  */
-@Service
+//@Service
 public class FriendServiceImpl extends ServiceImpl<FriendMapper, FriendDto> implements FriendService {
 
 }

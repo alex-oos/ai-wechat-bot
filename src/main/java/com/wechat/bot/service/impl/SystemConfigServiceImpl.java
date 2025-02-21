@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
  * @since 2021/5/31 下午 9:56
  * 
  */
-@Service
+//@Service
 public class SystemConfigServiceImpl extends ServiceImpl<SystemConfigMapper, SystemConfigDto> implements SystemConfigService {
 
 }

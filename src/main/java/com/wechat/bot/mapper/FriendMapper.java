@@ -10,7 +10,7 @@ import org.apache.ibatis.annotations.Mapper;
  * @since 2025/1/27 22:24
  * <p></p>
  */
-@Mapper
+//@Mapper
 public interface FriendMapper  extends BaseMapper<FriendDto> {
 
 }

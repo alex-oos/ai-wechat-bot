@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
  * @since 2021/1/21 13:46
  * 
  */
-@Mapper
+//@Mapper
 //@Repository // 也可以使用@Component，效果都是一样的，只是为了声明为bean
 public interface SystemConfigMapper extends BaseMapper<SystemConfigDto> {
 
