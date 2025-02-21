@@ -1,4 +1,4 @@
-package com.wechat.task;
+package com.wechat.schedule;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -17,7 +17,7 @@ public class ScheduledTask {
     //MessageService callBackService;
 
 
-    @Scheduled()
+    @Scheduled(cron ="")
     public void scheduled() {
         //TODO
         System.out.println("定时任务");
