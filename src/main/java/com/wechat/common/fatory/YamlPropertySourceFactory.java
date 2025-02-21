@@ -1,4 +1,4 @@
-package com.wechat.fatory;
+package com.wechat.common.fatory;
 
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;

@@ -1,4 +1,4 @@
-package com.wechat.ai.contant;
+package com.wechat.ai.enums;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

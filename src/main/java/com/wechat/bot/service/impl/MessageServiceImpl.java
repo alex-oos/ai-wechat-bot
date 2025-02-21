@@ -2,7 +2,7 @@ package com.wechat.bot.service.impl;
 
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
-import com.wechat.bot.contant.MsgTypeEnum;
+import com.wechat.bot.enums.MsgTypeEnum;
 import com.wechat.bot.entity.BotConfig;
 import com.wechat.bot.entity.ChatMessage;
 import com.wechat.bot.service.MessageService;

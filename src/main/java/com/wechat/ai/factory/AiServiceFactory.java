@@ -1,6 +1,6 @@
 package com.wechat.ai.factory;
 
-import com.wechat.ai.contant.AiEnum;
+import com.wechat.ai.enums.AiEnum;
 import com.wechat.ai.service.AIService;
 import com.wechat.ai.service.AbstractAiService;
 import org.springframework.beans.BeansException;

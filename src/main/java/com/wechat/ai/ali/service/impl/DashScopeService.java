@@ -14,7 +14,7 @@ import com.alibaba.dashscope.exception.InputRequiredException;
 import com.alibaba.dashscope.exception.NoApiKeyException;
 import com.alibaba.dashscope.utils.JsonUtils;
 import com.wechat.ai.ali.service.AliService;
-import com.wechat.ai.contant.AiEnum;
+import com.wechat.ai.enums.AiEnum;
 import com.wechat.ai.service.AbstractAiService;
 import com.wechat.bot.entity.BotConfig;
 import lombok.extern.slf4j.Slf4j;

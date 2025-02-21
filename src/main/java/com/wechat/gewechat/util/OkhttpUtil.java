@@ -1,6 +1,7 @@
-package com.wechat.util;
+package com.wechat.gewechat.util;
 
 import com.alibaba.fastjson2.JSONObject;
+import com.wechat.util.IpUtil;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 

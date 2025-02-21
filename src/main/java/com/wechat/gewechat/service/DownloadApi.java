@@ -1,7 +1,7 @@
 package com.wechat.gewechat.service;
 
 import com.alibaba.fastjson2.JSONObject;
-import com.wechat.util.OkhttpUtil;
+import com.wechat.gewechat.util.OkhttpUtil;
 
 /**
  * 下载模块

@@ -1,4 +1,4 @@
-package com.wechat.bot.contant;
+package com.wechat.bot.enums;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

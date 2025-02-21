@@ -1,9 +1,8 @@
 package com.wechat.ai.xunfei.service;
 
-import com.wechat.ai.contant.AiEnum;
+import com.wechat.ai.enums.AiEnum;
 import com.wechat.ai.service.AbstractAiService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 
 /**
  * @author Alex

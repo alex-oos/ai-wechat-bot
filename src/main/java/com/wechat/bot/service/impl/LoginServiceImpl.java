@@ -10,7 +10,7 @@ import com.wechat.gewechat.service.ContactApi;
 import com.wechat.gewechat.service.LoginApi;
 import com.wechat.util.FileUtil;
 import com.wechat.util.IpUtil;
-import com.wechat.util.OkhttpUtil;
+import com.wechat.gewechat.util.OkhttpUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;

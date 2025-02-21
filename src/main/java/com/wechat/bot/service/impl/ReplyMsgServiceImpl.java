@@ -1,7 +1,7 @@
 package com.wechat.bot.service.impl;
 
 import com.alibaba.fastjson2.JSONObject;
-import com.wechat.ai.contant.AiEnum;
+import com.wechat.ai.enums.AiEnum;
 import com.wechat.ai.factory.AiServiceFactory;
 import com.wechat.ai.service.AIService;
 import com.wechat.bot.entity.BotConfig;

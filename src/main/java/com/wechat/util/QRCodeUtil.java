@@ -15,7 +15,9 @@ import java.util.Objects;
 /**
  * @author Alex
  * @since 2025/1/24 15:04
- * <p></p>
+ * <p>
+ *     二维码生成工具
+ * </p>
  */
 public class QRCodeUtil {
 

@@ -1,6 +1,6 @@
 package com.wechat.bot.entity;
 
-import com.wechat.bot.contant.MsgTypeEnum;
+import com.wechat.bot.enums.MsgTypeEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

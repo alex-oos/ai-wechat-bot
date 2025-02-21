@@ -1,6 +1,6 @@
 package com.wechat.ai.service;
 
-import com.wechat.ai.contant.AiEnum;
+import com.wechat.ai.enums.AiEnum;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
