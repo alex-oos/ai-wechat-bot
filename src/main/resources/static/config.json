@@ -1,6 +1,5 @@
 {
-  "appId": "wx_eQm9I4zBXsAabaTQEoyZb",
-  "token": "23c619719ca94ea59cb19f3a320b45b5",
+
   "channelType": "gewechat",
   "aiType": "deepseek",
   "model": "deepseek-r1",

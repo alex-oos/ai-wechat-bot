@@ -204,7 +204,7 @@ public class LoginServiceImpl implements LoginService {
     @Override
     public void setCallbackUrl() {
 
-        String callbackUrl = "http://" + IpUtil.getIp() + ":9919/v2/api/callback/collect";
+        String callbackUrl = "http://app:9919/v2/api/callback/collect";
 
         // 设置一下回调地址
         //System.out.println(callbackUrl);
