@@ -1,5 +1,6 @@
 package com.wechat.task;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
@@ -12,6 +13,7 @@ import javax.annotation.Resource;
  *     任务管理器
  * </p>
  */
+@Slf4j
 @Component
 public class TaskProcessor {
 
@@ -34,8 +36,9 @@ public class TaskProcessor {
                     try {
                         Runnable task = taskQueue.dequeue();
                         task.run();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+                    } catch (Exception e) {
+                        log.error("线程执行失败",e.getMessage());
+                        //e.printStackTrace();
                     }
                 }
             });

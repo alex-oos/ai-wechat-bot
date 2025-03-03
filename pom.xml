@@ -9,8 +9,8 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.wechat</groupId>
-    <artifactId>wechat-bot</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <artifactId>ai-wechat-bot</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
     <name>wechat-bot</name>
     <description>wechat-bot</description>
     <url/>
