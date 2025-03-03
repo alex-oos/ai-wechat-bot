@@ -7,13 +7,13 @@ api文档地址为：[gewechat api](https://apifox.com/apidoc/shared-69ba62ca-cb
 首先可以简单了解 ai-wechat-bot、gewechat服务的调用关系，如下图所示
 
 <div align="center">
-<img width="700" src="../../docs/gewechat/gewechat_service_design.png">
+<img width="700" src="/docs/gewechat/gewechat_service_design.png">
 </div>
 
 
 # 2. gewechat 服务部署教程
 
-gewechat 服务需要自行部署，[dify-on-wechat](https://github.com/hanfangyuan4396/dify-on-wechat) 项目只负责对接gewechat服务，请参考下方教程部署gewechat服务。
+gewechat 服务需要自行部署，[ai-wechat-bot](https://github.com/hanfangyuan4396/ai-wechat-bot) 项目只负责对接gewechat服务，请参考下方教程部署gewechat服务。
 
 ## 2.1 下载镜像
 
@@ -70,10 +70,10 @@ docker compose up -d
 看到如下日志，表示gewechat服务启动成功
 
 <div align="center">
-<img width="700" src="../../docs/gewechat/gewechat_service_success.jpg">
+<img width="700" src="./docs/gewechat/gewechat_service_success.jpg">
 </div>
 
-# 3. 使用dify-on-wechat对接gewechat服务
+# 3. 使用ai-wechat-bot对接gewechat服务
 
 ## 3.1 gewechat相关参数配置
 
@@ -91,13 +91,13 @@ docker compose up -d
 ```
 
 参数说明：
-- `gewechat_token`: gewechat服务的认证token，首次登录时，可以留空，启动dify-on-wechat服务时，会**自动获取token**并**自动保存到config.json**中
-- `gewechat_app_id`: gewechat服务分配的设备ID，首次登录时，可以留空，启动dify-on-wechat服务时，会**自动获取appid**并**自动保存到config.json**中
-- `gewechat_base_url`: gewechat服务的API基础地址，请根据实际情况配置，如果gewechat服务与dify-on-wechat服务部署在同一台机器上，可以配置为`http://本机ip:2531/v2/api`
-- `gewechat_callback_url`: 接收gewechat消息的回调地址，请根据实际情况配置，如果gewechat服务与dify-on-wechat服务部署在同一台机器上，可以配置为`http://本机ip:9919/v2/api/callback/collect`，如无特殊需要，请使用9919端口号
-- `gewechat_download_url`: 文件下载地址，用于下载语音、图片等文件，请根据实际部署情况配置，如果gewechat服务与dify-on-wechat服务部署在同一台机器上，可以配置为`http://本机ip:2532/download`
+- `gewechat_token`: gewechat服务的认证token，首次登录时，可以留空，启动ai-wechat-bot服务时，会**自动获取token**并**自动保存到config.json**中
+- `gewechat_app_id`: gewechat服务分配的设备ID，首次登录时，可以留空，启动ai-wechat-bot服务时，会**自动获取appid**并**自动保存到config.json**中
+- `gewechat_base_url`: gewechat服务的API基础地址，请根据实际情况配置，如果gewechat服务与ai-wechat-bot服务部署在同一台机器上，可以配置为`http://本机ip:2531/v2/api`
+- `gewechat_callback_url`: 接收gewechat消息的回调地址，请根据实际情况配置，如果gewechat服务与ai-wechat-bot服务部署在同一台机器上，可以配置为`http://本机ip:9919/v2/api/callback/collect`，如无特殊需要，请使用9919端口号
+- `gewechat_download_url`: 文件下载地址，用于下载语音、图片等文件，请根据实际部署情况配置，如果gewechat服务与ai-wechat-bot服务部署在同一台机器上，可以配置为`http://本机ip:2532/download`
 
-注意：请确保您的回调地址(callback_url)，即dify-on-wechat启动的回调服务可以被gewechat服务正常访问到。如果您使用Docker部署，需要注意网络配置，确保容器之间可以正常通信。
+注意：请确保您的回调地址(callback_url)，即ai-wechat-bot启动的回调服务可以被gewechat服务正常访问到。如果您使用Docker部署，需要注意网络配置，确保容器之间可以正常通信。
 
 ## 3.2 ai-wechat-bot相关参数配置
 
@@ -125,7 +125,7 @@ mvn run ai-wechat-bot.jar
 启动成功后，可以看到如下日志信息，注意token和appid会自动保存到config.json，无需手动保存
 
 <div align="center">
-<img width="700" src="../../docs/gewechat/gewechat_login.jpg">
+<img width="700" src="/docs/gewechat/gewechat_login.jpg">
 </div>
 
 ## 3.4 利用gewechat发送语音条消息
@@ -147,7 +147,7 @@ mvn run ai-wechat-bot.jar
 gewechat支持**发送语音条消息**，但是gewechat服务只能获取到**20s**以内的语音，所以**你只能给bot发送20s以内的语音**，而**bot给你发送语音时无此限制**。
 
 <div align="center">
-<img width="700" src="../../docs/gewechat/gewechat_voice.jpg">
+<img width="700" src="/docs/gewechat/gewechat_voice.jpg">
 </div>
 
 
