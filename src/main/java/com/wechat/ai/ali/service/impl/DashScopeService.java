@@ -85,8 +85,8 @@ public class DashScopeService extends AbstractAiService implements AliService {
             return messageList;
         } catch (ApiException | NoApiKeyException | InputRequiredException e) {
             // 使用日志框架记录异常信息
-            //log.error(e.getMessage());
-            System.err.println("An error occurred while calling the generation service: " + e.getMessage());
+            log.error("An error occurred while calling the generation service:{}",e.getMessage());
+            //System.err.println("An error occurred while calling the generation service: " + e.getMessage());
         }
         return null;
     }
