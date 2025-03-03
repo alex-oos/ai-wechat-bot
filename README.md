@@ -13,7 +13,7 @@ api文档地址为：[gewechat api](https://apifox.com/apidoc/shared-69ba62ca-cb
 
 # 2. gewechat 服务部署教程
 
-gewechat 服务需要自行部署，[ai-wechat-bot](https://github.com/hanfangyuan4396/ai-wechat-bot) 项目只负责对接gewechat服务，请参考下方教程部署gewechat服务。
+gewechat 服务需要自行部署，[ai-wechat-bot](https://github.com/alex-oos/ai-wechat-bot) 项目只负责对接gewechat服务，请参考下方教程部署gewechat服务。
 
 ## 2.1 下载镜像
 
