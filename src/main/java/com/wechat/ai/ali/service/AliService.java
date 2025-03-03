@@ -8,5 +8,4 @@ package com.wechat.ai.ali.service;
 public interface AliService {
 
 
-
 }

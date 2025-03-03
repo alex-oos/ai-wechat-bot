@@ -1,5 +1,6 @@
 package com.wechat.task;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.BlockingQueue;
@@ -11,19 +12,31 @@ import java.util.concurrent.LinkedBlockingQueue;
  * <p></p>
  */
 
+@Slf4j
 @Component
 public class TaskQueue {
 
-    private final BlockingQueue<Task> queue = new LinkedBlockingQueue<>();
+    private final BlockingQueue<Runnable> queue = new LinkedBlockingQueue<>();
 
-    public void enqueue(Task task) throws InterruptedException {
+    public void enqueue(Runnable task){
 
-        queue.put(task);
+        try {
+            queue.put(task);
+        } catch (InterruptedException e) {
+            log.error("异常：", e);
+            //throw new RuntimeException(e);
+        }
     }
 
-    public Task dequeue() throws InterruptedException {
+    public Runnable dequeue() {
 
-        return queue.take();
+        try {
+            return queue.take();
+        } catch (InterruptedException e) {
+            log.error("异常：", e);
+            //throw new RuntimeException(e);
+        }
+        return null;
     }
 
     public int size() {

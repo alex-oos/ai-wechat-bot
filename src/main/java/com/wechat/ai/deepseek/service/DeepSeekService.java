@@ -75,7 +75,7 @@ public class DeepSeekService extends AbstractAiService {
             messgaeList.add(result.getOutput().getChoices().get(0).getMessage().getContent());
         } catch (ApiException | NoApiKeyException | InputRequiredException e) {
             // 使用日志框架记录异常信息
-            System.err.println("An error occurred while calling the generation service: " + e.getMessage());
+            //System.err.println("An error occurred while calling the generation service: " + e.getMessage());
             log.error("An error occurred while calling the generation service: " + e.getMessage());
         }
 

@@ -24,10 +24,12 @@ public class MsgSourceServiceImpl implements MsgSourceService {
     @Resource
     private ReplyMsgService replyMsgService;
 
+
+
     /**
      * 个人消息
      */
-    @Async
+    //@Async
     @Override
     public void personalMsg(ChatMessage chatMessage) {
         // 聊天前缀过滤
@@ -40,6 +42,7 @@ public class MsgSourceServiceImpl implements MsgSourceService {
                 }
             }
         }
+
 
         replyMsgService.replyType(chatMessage);
 

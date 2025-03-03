@@ -9,12 +9,12 @@ package com.wechat.task;
  * </p>
  */
 
-public class Task implements Runnable {
-
-
-    @Override
-    public void run() {
-
-    }
-
-}
+//public class Task implements Runnable {
+//
+//
+//    @Override
+//    public void run() {
+//
+//    }
+//
+//}

@@ -8,6 +8,7 @@ import com.wechat.bot.entity.ChatMessage;
 import com.wechat.bot.service.MessageService;
 import com.wechat.bot.service.MsgSourceService;
 import com.wechat.gewechat.service.ContactApi;
+import com.wechat.task.TaskQueue;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -36,6 +37,9 @@ public class MessageServiceImpl implements MessageService {
 
     @Resource
     private BotConfig botConfig;
+
+    @Resource
+    private TaskQueue taskQueue;
 
     @Async
     @Override
@@ -112,11 +116,17 @@ public class MessageServiceImpl implements MessageService {
 
         if (chatMessage.getIsGroup()) {
             log.info("群消息类型");
-            msgSourceService.groupMsg(chatMessage);
-            return;
+            taskQueue.enqueue(() -> {
+                msgSourceService.groupMsg(chatMessage);
+
+            });
         } else {
             log.info("个人消息");
-            msgSourceService.personalMsg(chatMessage);
+            taskQueue.enqueue(() -> {
+                msgSourceService.personalMsg(chatMessage);
+
+            });
+            //msgSourceService.personalMsg(chatMessage);
         }
 
 

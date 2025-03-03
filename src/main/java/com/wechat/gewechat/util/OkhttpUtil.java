@@ -85,12 +85,12 @@ public class OkhttpUtil {
     public static JSONObject postJSON(String route, JSONObject param) {
 
 
-        Map<String, Object> header = new HashMap<>();//if (BotConfig.TOKEN!=null){
+        Map<String, Object> header = new HashMap<>();
         if (token != null) {
             header.put("X-GEWE-TOKEN", token);
         }
         try {
-            if (baseUrl == null || "".equals(baseUrl)) {
+            if (baseUrl == null || baseUrl.isEmpty()) {
                 throw new RuntimeException("baseUrl 未配置");
             }
             String res = json(baseUrl + route, header, param.toJSONString(), okHttpClient());

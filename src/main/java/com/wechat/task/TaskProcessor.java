@@ -32,7 +32,7 @@ public class TaskProcessor {
             threadPool.execute(() -> {
                 while (true) {
                     try {
-                        Task task = taskQueue.dequeue();
+                        Runnable task = taskQueue.dequeue();
                         task.run();
                     } catch (InterruptedException e) {
                         e.printStackTrace();
