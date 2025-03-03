@@ -1,13 +1,13 @@
-# 1. gewechat 
+# 1. gewechat channel简介
 
-Gewechat 是基于[Gewechat](https://github.com/Devo919/Gewechat)项目实现的微信个人号通道，使用ipad协议登录，该协议能获取到wxid，能发送语音条消息，相比itchat协议更稳定。
+Gewechat channel是基于[Gewechat](https://github.com/Devo919/Gewechat)项目实现的微信个人号通道，使用ipad协议登录，该协议能获取到wxid，能发送语音条消息，相比itchat协议更稳定。
 
 api文档地址为：[gewechat api](https://apifox.com/apidoc/shared-69ba62ca-cb7d-437e-85e4-6f3d3df271b1/api-197179336)
 
-首先可以简单了解 ai-wechat-bot、gewechat服务的调用关系，如下图所示
+首先可以简单了解 dify-on-wechat、dify、gewechat服务的调用关系，如下图所示
 
 <div align="center">
-<img width="700" src="../../docs/gewechat/gewechat_service_design.png">
+<img width="700" src="./gewechat_service_design.png">
 </div>
 
 
@@ -33,7 +33,7 @@ docker tag ghcr.io/tu1h/wechotd/wechotd:alpine gewe
 
 ```bash
 mkdir -p gewechat/data  
-docker run -itd -v gewechat/data:/root/temp -p 2531:2531 -p 2532:2532 --restart=always --name=gewe gewe
+docker run -itd -v ./gewechat/data:/root/temp -p 2531:2531 -p 2532:2532 --restart=always --name=gewe gewe
 ```
 
 ## 2.3 使用docker compose启动
@@ -70,14 +70,14 @@ docker compose up -d
 看到如下日志，表示gewechat服务启动成功
 
 <div align="center">
-<img width="700" src="../../docs/gewechat/gewechat_service_success.jpg">
+<img width="700" src="./gewechat_service_success.jpg">
 </div>
 
 # 3. 使用dify-on-wechat对接gewechat服务
 
 ## 3.1 gewechat相关参数配置
 
-在config.json中需要配置以下gewechat相关的参数：
+在dify-on-wechat项目的`config.json`中需要配置以下gewechat相关的参数：
 
 ```bash
 {
@@ -97,14 +97,23 @@ docker compose up -d
 - `gewechat_callback_url`: 接收gewechat消息的回调地址，请根据实际情况配置，如果gewechat服务与dify-on-wechat服务部署在同一台机器上，可以配置为`http://本机ip:9919/v2/api/callback/collect`，如无特殊需要，请使用9919端口号
 - `gewechat_download_url`: 文件下载地址，用于下载语音、图片等文件，请根据实际部署情况配置，如果gewechat服务与dify-on-wechat服务部署在同一台机器上，可以配置为`http://本机ip:2532/download`
 
-注意：请确保您的回调地址(callback_url)，即dify-on-wechat启动的回调服务可以被gewechat服务正常访问到。如果您使用Docker部署，需要注意网络配置，确保容器之间可以正常通信。
+> 请确保您的回调地址(callback_url)，即dify-on-wechat启动的回调服务可以被gewechat服务正常访问到。如果您使用Docker部署，需要注意网络配置，确保容器之间可以正常通信。
+> 
+> 本机ip是指**局域网ip**或**公网ip**，可通过`ipconfig`或`ifconfig`命令查看
+> 
+> 对与gewechat_callback_url，ip不能填`127.0.0.1`或`localhost`，否则会报错
+> 
+> `9919`端口是dify-on-wechat服务监听的端口，如果是用docker启动的dify-on-wechat服务,请把`9919`端口映射到宿主机
 
-## 3.2 ai-wechat-bot相关参数配置
+## 3.2 dify相关参数配置
 
-在config.json中需要配置以下
+在dify-on-wechat项目的`config.json`中需要配置以下dify相关参数：
 
 ```bash
 {
+  "dify_api_base": "https://api.dify.ai/v1",    # dify base url
+  "dify_api_key": "app-xxx",                    # dify api key
+  "dify_app_type": "chatbot",                   # dify应用类型,对应聊天助手
   "channel_type": "gewechat",                   # 通道类型设置为gewechat
   "model": "dify",                              # 模型名称设置为dify
   "single_chat_prefix": [""],                   # 私聊触发前缀
@@ -114,18 +123,19 @@ docker compose up -d
 }
 ```
 
+关于dify_api_base、dify_api_key等参数的获取方法,请参考文章 [手摸手教你把 Dify 接入微信生态](https://docs.dify.ai/v/zh-hans/learn-more/use-cases/dify-on-wechat)。
 
-## 3.3 启动ai-wechat-bot服务
+## 3.3 启动dify-on-wechat服务
 
-完成上述配置后，你需要确保gewechat服务已正常启动
+完成上述配置后，你需要确保gewechat服务已正常启动，dify-on-wechat的依赖已安装(见 [dify-on-wechat项目README](https://github.com/hanfangyuan4396/dify-on-wechat) 或 [手摸手教你把 Dify 接入微信生态](https://docs.dify.ai/v/zh-hans/learn-more/use-cases/dify-on-wechat) )，然后运行以下命令启动服务:
 
 ```bash
-mvn run ai-wechat-bot.jar
+python app.py
 ```
 启动成功后，可以看到如下日志信息，注意token和appid会自动保存到config.json，无需手动保存
 
 <div align="center">
-<img width="700" src="../../docs/gewechat/gewechat_login.jpg">
+<img width="700" src="./gewechat_login.jpg">
 </div>
 
 ## 3.4 利用gewechat发送语音条消息
@@ -134,21 +144,25 @@ mvn run ai-wechat-bot.jar
 
 ```bash
 {
+  "dify_api_base": "https://api.dify.ai/v1",
+  "dify_api_key": "app-xxx",
+  "dify_app_type": "chatbot",
   "channel_type": "gewechat",  # 通道类型设置为gewechat
-  "model": "ai",    
+  "model": "dify",    
   "speech_recognition": true,  # 是否开启语音识别
   "voice_reply_voice": true,   # 是否使用语音回复语音
   "always_reply_voice": false, # 是否一直使用语音回复
-  "voice_to_text": "ai",     # 语音识别引擎
-  "text_to_voice": "ai"      # 语音合成引擎
+  "voice_to_text": "dify",     # 语音识别引擎
+  "text_to_voice": "dify"      # 语音合成引擎
 }
 ```
 
 gewechat支持**发送语音条消息**，但是gewechat服务只能获取到**20s**以内的语音，所以**你只能给bot发送20s以内的语音**，而**bot给你发送语音时无此限制**。
 
 <div align="center">
-<img width="700" src="../../docs/gewechat/gewechat_voice.jpg">
+<img width="700" src="./gewechat_voice.jpg">
 </div>
+
 
 
 # 4. gewechat_channel 服务的限制
