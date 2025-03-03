@@ -13,7 +13,7 @@ import java.util.List;
  */
 @Getter
 @Slf4j
-public class AbstractAiService implements AIService {
+public abstract class AbstractAiService implements AIService {
 
     protected final AiEnum aiEnum;
 
@@ -32,7 +32,7 @@ public class AbstractAiService implements AIService {
     @Override
     public List<String> textToImage(String content) {
 
-        return  List.of();
+        return List.of();
     }
 
     @Override
