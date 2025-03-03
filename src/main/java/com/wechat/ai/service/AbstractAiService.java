@@ -9,7 +9,9 @@ import java.util.List;
 /**
  * @author Alex
  * @since 2025/1/27 12:16
- * <p></p>
+ * <p>
+ * 抽象AI父类，为其提供共同的字段，并且提供默认的实现，便于管理
+ * </p>
  */
 @Getter
 @Slf4j
