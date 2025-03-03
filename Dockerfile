@@ -1,8 +1,6 @@
 FROM ubuntu:latest
-LABEL authors="alex"
-
 #  添加标签,可以设置用户名
-LABEL maintainer="alex <alex@qq.com>"
+LABEL maintainer="alex"
 
 # 步骤2: 修改镜像源为阿里镜像源
 RUN mkdir -p /etc/apt/ \
