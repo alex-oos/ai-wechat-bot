@@ -74,7 +74,6 @@ public class MessageServiceImpl implements MessageService {
                 }
                 break;
             case VOICE:
-
                 break;
             default:
                 break;
@@ -116,6 +115,7 @@ public class MessageServiceImpl implements MessageService {
 
         if (chatMessage.getIsGroup()) {
             log.info("群消息类型");
+            // 多消息任务来处理，更快一些
             taskQueue.enqueue(() -> {
                 msgSourceService.groupMsg(chatMessage);
 

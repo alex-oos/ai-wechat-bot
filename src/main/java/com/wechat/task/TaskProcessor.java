@@ -35,6 +35,9 @@ public class TaskProcessor {
                 while (true) {
                     try {
                         Runnable task = taskQueue.dequeue();
+                        if (task == null) {
+                            continue;
+                        }
                         task.run();
                     } catch (Exception e) {
                         log.error("线程执行失败",e.getMessage());
