@@ -139,19 +139,19 @@ public class DashScopeService extends AbstractAiService implements AliService {
     @Override
     public String imageToImage(String content, String style) {
 
-        return "";
+        return super.imageToImage(content, style);
     }
 
     @Override
     public String imageToImage(String content, String style, String prompt) {
 
-        return "";
+        return super.imageToImage(content, style, prompt);
     }
 
     @Override
     public String imageToImage(String content, String style, String prompt, String negativePrompt) {
 
-        return "";
+        return super.imageToImage(content, style, prompt, negativePrompt);
     }
 
 
