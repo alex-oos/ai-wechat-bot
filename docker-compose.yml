@@ -1,0 +1,11 @@
+version: '3'
+services:
+  gewechat:
+    image: gewe
+    container_name: gewe
+    volumes:
+      - ./gewechat/data:/root/temp
+    ports:
+      - "2531:2531"
+      - "2532:2532"
+    restart: always

@@ -1,220 +1,158 @@
-<p align="center">
-  <img src="logo.png" width="500px" height="350px" alt=" Logo">
-</p>
+# 1. gewechat 
 
-## 👉 Gewechat🤖
+Gewechat 是基于[Gewechat](https://github.com/Devo919/Gewechat)项目实现的微信个人号通道，使用ipad协议登录，该协议能获取到wxid，能发送语音条消息，相比itchat协议更稳定。
 
-个人微信免费开源框架，支持二次开发、任意语言都可接入，Restful API接入。
+api文档地址为：[gewechat api](https://apifox.com/apidoc/shared-69ba62ca-cb7d-437e-85e4-6f3d3df271b1/api-197179336)
 
-### 框架优势：
+首先可以简单了解 ai-wechat-bot、gewechat服务的调用关系，如下图所示
 
- - 简单易用，无接入难度，区别于其它开源项目，本框架无需用户安装电脑微信，无需安装手机破解插件，只需扫码登录即可使用，操作简单，目前是大厂最稳定的主流使用方案。
+<div align="center">
+<img width="700" src="/docs/gewechat/gewechat_service_design.png">
+</div>
 
-### 主要能力：
 
-* 消息自动化、给指定对象（好友、群组）发送文本、图片、文件、emoji表情、小程序、语音等消息
-* 自定义消息处理、自动回复、自定义关键字回复、AI回复、各种自定义类型、RPA自动化业务交互
-* 群管理及好友管理、设置好友备注、邀请好友统计、拉好友进群等
-* 各种业务模型接入，例如chatgpt、sora、大数据及客服模型
-* 基于框架您可以创造更多有趣的功能...
+# 2. gewechat 服务部署教程
 
-<br/>
-<details><summary>免责声明【必读】</summary>
-<br/>
-- 本框架仅供学习和技术研究使用，不得用于任何商业或非法行为，否则后果自负。
+gewechat 服务需要自行部署，[ai-wechat-bot](https://github.com/alex-oos/ai-wechat-bot) 项目只负责对接gewechat服务，请参考下方教程部署gewechat服务。
 
-- 本框架的作者不对本工具的安全性、完整性、可靠性、有效性、正确性或适用性做任何明示或暗示的保证，也不对本工具的使用或滥用造成的任何直接或间接的损失、责任、索赔、要求或诉讼承担任何责任。
+## 2.1 下载镜像
 
-- 本框架的作者保留随时修改、更新、删除或终止本工具的权利，无需事先通知或承担任何义务。
+感谢gewechat交流群中的大佬 `@1H` 重构了镜像,让gewe镜像不依赖cgroup和docker --privilege,可以在更高版本的ubuntu、debian以及macos系统上运行。
 
-- 本框架的使用者应遵守相关法律法规，尊重微信的版权和隐私，不得侵犯微信或其他第三方的合法权益，不得从事任何违法或不道德的行为。
+```bash
+# 从阿里云镜像仓库拉取(国内)
+docker pull registry.cn-chengdu.aliyuncs.com/tu1h/wechotd:alpine
+docker tag registry.cn-chengdu.aliyuncs.com/tu1h/wechotd:alpine gewe
 
-- 本框架的使用者在下载、安装、运行或使用本工具时，即表示已阅读并同意本免责声明。如有异议，请立即停止使用本工具，并删除所有相关文件。
-</details>
-<br/>
-<details><summary>点击查看功能清单</summary><br/>
-+ [x] 登录模块：获取登录二维码、执行登录、设置消息回调地址
-
-+ [x] 联系人模块：获取通讯录列表、获取通讯录信息、搜索好友、添加好友、同意添加好友、删除好友、设置好友仅聊天、设置好友备注
-
-+ [x] 群模块：创建微信群、修改群名称、修改群备注、修改群昵称、邀请/添加入群、删除群成员、退出群聊、解散群聊
-
-+ [x] 消息模块：发送文字/文件/图片/视频/语音/小程序/链接/各类APP消息、转发文件/图片/链接/视频/链接/小程序等、接收各类消息及下载消息内容
-
-+ [x] 标签模块：添加标签、删除标签、标签列表、修改好友标签
-
-+ [x] 个人模块：获取个人资料、获取自己的二维码、隐私设置、修改个人信息、修改头像
-
-+ [x] 收藏夹模块：同步收藏夹、获取收藏夹内容、删除收藏夹
-
-+ [x] 账号管理模块：断线重连、退出微信、检查在线
-</details>
-<br/>
-
-## 🚀 快速入门
-
-### 安装Docker
-
-> Centos Docker安装，已安装Docker可跳过
-
-1、安装gcc相关
-
-```
-yum -y install gcc
-yum -y install gcc-c++
+# 或从GitHub镜像仓库拉取
+docker pull ghcr.io/tu1h/wechotd/wechotd:alpine
+docker tag ghcr.io/tu1h/wechotd/wechotd:alpine gewe
 ```
 
-2、配置镜像
+## 2.2 使用docker启动
 
-```
-yum install -y yum-utils
-yum-config-manager --add-repo http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
-yum makecache fast
-```
-
-3、安装docker
-
-```
-yum install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+```bash
+mkdir -p gewechat/data  
+docker run -itd -v gewechat/data:/root/temp -p 2531:2531 -p 2532:2532 --restart=always --name=gewe gewe
 ```
 
-4、启动docker
+## 2.3 使用docker compose启动
 
-```
-systemctl start docker
-//将docker设置成开机自启动
-systemctl enable docker.service
-```
+首先创建必要的数据目录:
 
-### 启动服务
-
-1、拉取镜像
-
-```
- docker pull registry.cn-hangzhou.aliyuncs.com/gewe/gewe:latest
- 
- docker tag registry.cn-hangzhou.aliyuncs.com/gewe/gewe gewe
+```bash
+mkdir -p gewechat/data
 ```
 
-2、运行镜像容器
+创建 `docker-compose.yml` 文件:
 
-```
-mkdir -p /root/temp
-docker run -itd -v /root/temp:/root/temp -p 2531:2531 -p 2532:2532 --privileged=true --name=gewe gewe /usr/sbin/init
-```
-
-3、将容器设置成开机运行
-
-```
-docker update --restart=always gewe
-```
-
-### API服务调用
-
-1. API服务调用地址 `http://{服务ip}:2531/v2/api/{接口名}` 
-
-2. 文件下载地址 `http://{服务ip}:2532/download/{接口返回的文件路径}`
-
-3. 点击此处查看[详细API文档](https://apifox.com/apidoc/shared-69ba62ca-cb7d-437e-85e4-6f3d3df271b1)
-
-## 项目架构设计
-
- <img src="liucheng.jpg" width="600px" height="350px" alt=" Logo">
-
-## 基本用法（java示例）
-
-- 其他语言执行restful接口可实现相同功能，支持各类语言接入。
- 
-```
- //1、程序部署完成后先获取接口token
- JSONObject token = LoginApi.getToken();
- 
- //2、token获取成功后将token值放入header即可访问api，每个api都需要校验token
- header.put("X-GEWE-TOKEN",token);
- 
- /**
-  *3、 获取登录二维码
-  * @param appId   设备id 首次登录传空，后续登录传返回的appid
-  */
- JSONObject qr = LoginApi.getQr(appid, proxy);
- 
- /**
-  * 4、确认登陆
-  * @param appId
-
-  * @param uuid       取码返回的uuid
-  * @param captchCode 登录验证码（必须同省登录才能避免此问题，也能使账号更加稳定）
-  */
-  JSONObject jsonObject = LoginApi.checkQr(appId, proxyIp, uuid, captchCode);
-  
-  //5、第四步执行完成则表示微信已登录，执行下列类中的方法可实现不同功能
-  LoginApi.class     //登录模块
-  PersonalApi.class  //个人账号模块
-  ContactApi.class   //联系人模块
-  GroupApi.class     //微信群模块
-  MessageApi.class   //消息模块
-  LabelApi.class     //标签模块
-  FavorApi.class     //收藏夹模块
+```yaml
+version: '3'
+services:
+  gewechat:
+    image: gewe
+    container_name: gewe
+    volumes:
+      - ./gewechat/data:/root/temp
+    ports:
+      - "2531:2531"
+      - "2532:2532"
+    restart: always
 ```
 
-## 注意事项：
-
-- 1、系统环境推荐：Centos7或Ubantu2204
-- 2、硬件环境推荐：4核8G
-- 3、由于容器需要用到2531和2532端口，要保证服务器这两个端口没有被占用
-- 4、容器启动后会访问腾讯服务，因此要保证服务器能够访问外网，并且出网没有被限制，否则会导致容器无法正常启动
-- 5、使用者必须搭建服务到同省服务器或者电脑里方可正常使用
-- 6、本框架面向个人娱乐使用，请勿用于任何商用场景
-
-[//]: # (## 交流群：)
-
-[//]: # ()
-[//]: # (<p align="center">)
-
-[//]: # (  <img src="mine.jpg" width="300px" height="300px" alt=" Logo">)
-
-[//]: # (</p>)
-
-[//]: # (<p align="center">)
-
-[//]: # ( 添加好友备注GW加群交流)
-
-[//]: # (</p>)
-
-## 后续有新版本如何更新
-
-### 更新流程
-
+运行:
+```bash
+docker compose up -d
 ```
-1、选择更新版本下载
-2、将文件解压至服务器root目录
-3、执行命令
-    chmod +x install-gewe.sh
-    ./install-gewe.sh
+
+## 2.4 成功日志
+
+看到如下日志，表示gewechat服务启动成功
+
+<div align="center">
+<img width="700" src="./docs/gewechat/gewechat_service_success.jpg">
+</div>
+
+# 3. 使用ai-wechat-bot对接gewechat服务
+
+## 3.1 gewechat相关参数配置
+
+在config.json中需要配置以下gewechat相关的参数：
+
+```bash
+{
+    "channel_type": "gewechat"   # 通道类型，请设置为gewechat    
+    "gewechat_token": "",        # gewechat服务的token，用于接口认证
+    "gewechat_app_id": "",       # gewechat服务的应用ID
+    "gewechat_base_url": "http://本机ip:2531/v2/api",  # gewechat服务的API基础URL
+    "gewechat_callback_url": "http://本机ip:9919/v2/api/callback/collect", # 回调URL，用于接收消息
+    "gewechat_download_url": "http://本机ip:2532/download", # 文件下载URL
+}
+```
+
+参数说明：
+- `gewechat_token`: gewechat服务的认证token，首次登录时，可以留空，启动ai-wechat-bot服务时，会**自动获取token**并**自动保存到config.json**中
+- `gewechat_app_id`: gewechat服务分配的设备ID，首次登录时，可以留空，启动ai-wechat-bot服务时，会**自动获取appid**并**自动保存到config.json**中
+- `gewechat_base_url`: gewechat服务的API基础地址，请根据实际情况配置，如果gewechat服务与ai-wechat-bot服务部署在同一台机器上，可以配置为`http://本机ip:2531/v2/api`
+- `gewechat_callback_url`: 接收gewechat消息的回调地址，请根据实际情况配置，如果gewechat服务与ai-wechat-bot服务部署在同一台机器上，可以配置为`http://本机ip:9919/v2/api/callback/collect`，如无特殊需要，请使用9919端口号
+- `gewechat_download_url`: 文件下载地址，用于下载语音、图片等文件，请根据实际部署情况配置，如果gewechat服务与ai-wechat-bot服务部署在同一台机器上，可以配置为`http://本机ip:2532/download`
+
+注意：请确保您的回调地址(callback_url)，即ai-wechat-bot启动的回调服务可以被gewechat服务正常访问到。如果您使用Docker部署，需要注意网络配置，确保容器之间可以正常通信。
+
+## 3.2 ai-wechat-bot相关参数配置
+
+在config.json中需要配置以下
+
+```bash
+{
+  "channel_type": "gewechat",                   # 通道类型设置为gewechat
+  "model": "dify",                              # 模型名称设置为dify
+  "single_chat_prefix": [""],                   # 私聊触发前缀
+  "single_chat_reply_prefix": "",               # 私聊回复前缀
+  "group_chat_prefix": ["@bot"],                # 群聊触发前缀
+  "group_name_white_list": ["ALL_GROUP"],       # 允许响应的群组
+}
 ```
 
 
-## 友情链接
-- [gewechaty](https://github.com/mikoshu/gewechaty) 基于nodejs二次封装gewechat的易用框架
-- [rgewe-api](https://github.com/momo402/rgewe-api) 基于rust语言封装gewechat的api接口，同步API web页面文档
-- [gewechat-python](https://github.com/hanfangyuan4396/gewechat-python) python实现的gewechat api接口
-- [dify-on-wechat](https://github.com/hanfangyuan4396/dify-on-wechat) 对chatgpt-on-wechat项目扩展，实现了gewechat channel
+## 3.3 启动ai-wechat-bot服务
 
-## 特别鸣谢
-* [gewe](https://github.com/Devo919/Gewechat)该项目的大力支持 
+完成上述配置后，你需要确保gewechat服务已正常启动
 
-## 版本更新
+```bash
+mvn run ai-wechat-bot.jar
+```
+启动成功后，可以看到如下日志信息，注意token和appid会自动保存到config.json，无需手动保存
 
-### 1.0.1
+<div align="center">
+<img width="700" src="/docs/gewechat/gewechat_login.jpg">
+</div>
 
-* 兼容图片下载
-* 更新方式：重新拉镜像部署即可，需注意，本次更新后是新设备登录
+## 3.4 利用gewechat发送语音条消息
+
+语音相关配置如下，另外需要在dify应用中开启语音转文字以及文字转语音功能，注意语音功能需要**安装ffmpeg依赖**
+
+```bash
+{
+  "channel_type": "gewechat",  # 通道类型设置为gewechat
+  "model": "ai",    
+  "speech_recognition": true,  # 是否开启语音识别
+  "voice_reply_voice": true,   # 是否使用语音回复语音
+  "always_reply_voice": false, # 是否一直使用语音回复
+  "voice_to_text": "ai",     # 语音识别引擎
+  "text_to_voice": "ai"      # 语音合成引擎
+}
+```
+
+gewechat支持**发送语音条消息**，但是gewechat服务只能获取到**20s**以内的语音，所以**你只能给bot发送20s以内的语音**，而**bot给你发送语音时无此限制**。
+
+<div align="center">
+<img width="700" src="/docs/gewechat/gewechat_voice.jpg">
+</div>
 
 
-### 1.0.0
-
-* 正式1.0版本发布
-
-<details><summary>点击查看更多</summary>
-
-### 暂无
+# 4. gewechat_channel 服务的限制
+1. gewechat 要求必须搭建服务到**同省**服务器或者电脑里方可正常使用，即登录微信的手机与gewechat服务必须在同一省
+2. gewechat 开源框架**只支持**下载接收到的图片，不支持下载文件
+3. gewechat_channel 目前暂时**只支持接收文字消息**，**只支持发送文字消息与图片消息**，后续支持的消息类型会逐步完善
+4. 此项目仅用于个人娱乐场景，请**勿用于任何商业场景**

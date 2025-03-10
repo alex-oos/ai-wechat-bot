@@ -15,7 +15,9 @@ import java.util.Map;
 /**
  * @author Alex
  * @since 2025/1/27 12:03
- * <p></p>
+ * <p>
+ * 工厂模式，启动的时候，自动将其注入到spring 容器中，方便后续使用
+ * </p>
  */
 @Component
 public class AiServiceFactory implements ApplicationContextAware, InitializingBean {
@@ -47,6 +49,11 @@ public class AiServiceFactory implements ApplicationContextAware, InitializingBe
         return aiserviceMap.get(aiEnum);
     }
 
+    /**
+     * 初始化的时候，将其注入进入
+     *
+     * @throws Exception
+     */
     @Override
     public void afterPropertiesSet() throws Exception {
 
