@@ -30,12 +30,18 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
     @Resource
     private BotConfig botconfig;
 
+    @Resource
     private AIService aiService;
+
+    // 匿名代码块，用来初始化aiService
+    {
+        aiService = this.chooseAiService();
+    }
 
     @Override
     public void replyType(ChatMessage chatMessage) {
 
-        aiService = chooseAiService();
+        //aiService = chooseAiService();
         // 判断类型
         switch (chatMessage.getCtype()) {
             case TEXT:
@@ -126,8 +132,7 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
 
         // 找到正常的服务，然后取出枚举值
         AiEnum aiEnum = AiEnum.getByBotType(botconfig.getAiType());
-        AIService aiService = AiServiceFactory.getAiService(aiEnum);
-        return aiService;
+        return AiServiceFactory.getAiService(aiEnum);
     }
 
 }

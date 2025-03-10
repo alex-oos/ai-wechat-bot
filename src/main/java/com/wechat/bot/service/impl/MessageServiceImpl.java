@@ -2,15 +2,14 @@ package com.wechat.bot.service.impl;
 
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
-import com.wechat.bot.enums.MsgTypeEnum;
 import com.wechat.bot.entity.BotConfig;
 import com.wechat.bot.entity.ChatMessage;
+import com.wechat.bot.enums.MsgTypeEnum;
 import com.wechat.bot.service.MessageService;
 import com.wechat.bot.service.MsgSourceService;
 import com.wechat.gewechat.service.ContactApi;
 import com.wechat.task.TaskQueue;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -41,7 +40,7 @@ public class MessageServiceImpl implements MessageService {
     @Resource
     private TaskQueue taskQueue;
 
-    @Async
+    //@Async
     @Override
     public void receiveMsg(JSONObject requestBody) {
 
@@ -116,16 +115,18 @@ public class MessageServiceImpl implements MessageService {
         if (chatMessage.getIsGroup()) {
             log.info("群消息类型");
             // 多消息任务来处理，更快一些
-            taskQueue.enqueue(() -> {
-                msgSourceService.groupMsg(chatMessage);
-
-            });
+            //taskQueue.enqueue(() -> {
+            //    msgSourceService.groupMsg(chatMessage);
+            //
+            //});
+            msgSourceService.groupMsg(chatMessage);
         } else {
             log.info("个人消息");
-            taskQueue.enqueue(() -> {
-                msgSourceService.personalMsg(chatMessage);
-
-            });
+            //taskQueue.enqueue(() -> {
+            //    msgSourceService.personalMsg(chatMessage);
+            //
+            //});
+            msgSourceService.personalMsg(chatMessage);
             //msgSourceService.personalMsg(chatMessage);
         }
 

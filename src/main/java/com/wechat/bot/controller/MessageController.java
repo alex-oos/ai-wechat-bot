@@ -2,8 +2,7 @@ package com.wechat.bot.controller;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.wechat.bot.service.MessageService;
-//import com.wechat.bot.task.Task;
-//import com.wechat.bot.task.TaskQueue;
+import com.wechat.task.TaskQueue;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,14 +23,21 @@ public class MessageController {
     @Resource
     private MessageService messageService;
 
+    @Resource
+    private TaskQueue taskQueue;
+
     @PostMapping("/callback/collect")
     public void receiveMessages(@RequestBody String requestBody) {
 
-        Boolean filterOther = messageService.filterErrorMessage(requestBody);
-        if (filterOther) {
-            return;
-        }
-        messageService.receiveMsg(JSONObject.parseObject(requestBody));
+        // 直接添加到任务中，单个线程去处理，增加，同时处理的数量
+
+        taskQueue.enqueue(() -> {
+            Boolean filterOther = messageService.filterErrorMessage(requestBody);
+            if (filterOther) {
+                return;
+            }
+            messageService.receiveMsg(JSONObject.parseObject(requestBody));
+        });
 
 
     }

@@ -43,7 +43,6 @@ public class MsgSourceServiceImpl implements MsgSourceService {
             }
         }
 
-
         replyMsgService.replyType(chatMessage);
 
 
