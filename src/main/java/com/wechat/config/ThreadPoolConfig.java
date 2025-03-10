@@ -2,6 +2,7 @@ package com.wechat.config;
 
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
@@ -25,7 +26,7 @@ public class ThreadPoolConfig {
 
 
     @Bean
-    public ThreadPoolTaskExecutor threadPool() {
+    public TaskExecutor threadPool() {
 
         ThreadPoolTaskExecutor threadPoolTaskExecutor = new ThreadPoolTaskExecutor();
         threadPoolTaskExecutor.setCorePoolSize(CORE_POOL_SIZE);

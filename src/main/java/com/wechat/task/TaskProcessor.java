@@ -1,7 +1,7 @@
 package com.wechat.task;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -21,7 +21,7 @@ public class TaskProcessor {
     private TaskQueue taskQueue;
 
     @Resource
-    private ThreadPoolTaskExecutor threadPool;
+    private TaskExecutor threadPool;
 
 
     public void processTasks() {
