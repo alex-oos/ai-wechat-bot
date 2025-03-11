@@ -8,11 +8,13 @@ import com.wechat.bot.entity.BotConfig;
 import com.wechat.bot.entity.ChatMessage;
 import com.wechat.bot.service.ReplyMsgService;
 import com.wechat.gewechat.service.MessageApi;
+import com.wechat.util.FileUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -24,24 +26,24 @@ import java.util.concurrent.CompletableFuture;
 @Service
 public class ReplyMsgServiceImpl implements ReplyMsgService {
 
-    @Resource
-    private ThreadPoolTaskExecutor executor;
+    @Resource(name = "commonThreadPool")
+    private TaskExecutor executor;
 
     @Resource
     private BotConfig botconfig;
 
-    @Resource
+    //@Resource
     private AIService aiService;
 
     // 匿名代码块，用来初始化aiService
-    {
-        aiService = this.chooseAiService();
-    }
+    //{
+    //    aiService = this.chooseAiService();
+    //}
 
     @Override
     public void replyType(ChatMessage chatMessage) {
 
-        //aiService = chooseAiService();
+        aiService = chooseAiService();
         // 判断类型
         switch (chatMessage.getCtype()) {
             case TEXT:
@@ -131,7 +133,8 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
     public AIService chooseAiService() {
 
         // 找到正常的服务，然后取出枚举值
-        AiEnum aiEnum = AiEnum.getByBotType(botconfig.getAiType());
+        AiEnum aiEnum = AiEnum.getByBotType(Objects.requireNonNull(FileUtil.readFile()).getAiType());
+        //AiEnum aiEnum = AiEnum.getByBotType(botconfig.getAiType());
         return AiServiceFactory.getAiService(aiEnum);
     }
 

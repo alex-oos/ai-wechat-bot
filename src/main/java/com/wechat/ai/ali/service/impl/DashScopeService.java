@@ -13,7 +13,6 @@ import com.alibaba.dashscope.exception.ApiException;
 import com.alibaba.dashscope.exception.InputRequiredException;
 import com.alibaba.dashscope.exception.NoApiKeyException;
 import com.alibaba.dashscope.utils.JsonUtils;
-import com.wechat.ai.ali.service.AliService;
 import com.wechat.ai.enums.AiEnum;
 import com.wechat.ai.service.AbstractAiService;
 import com.wechat.bot.entity.BotConfig;
@@ -38,7 +37,7 @@ import java.util.Map;
 
 @Slf4j
 @Service
-public class DashScopeService extends AbstractAiService implements AliService {
+public class DashScopeService extends AbstractAiService {
 
     @Resource
     private BotConfig botConfig;

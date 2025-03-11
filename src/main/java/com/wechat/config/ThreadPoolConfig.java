@@ -25,7 +25,7 @@ public class ThreadPoolConfig {
     public static final int MAX_POOL_SIZE = CPU_COUNT * 4;
 
 
-    @Bean
+    @Bean(name = "commonThreadPool")
     public TaskExecutor threadPool() {
 
         ThreadPoolTaskExecutor threadPoolTaskExecutor = new ThreadPoolTaskExecutor();

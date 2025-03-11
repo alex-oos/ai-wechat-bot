@@ -11,11 +11,14 @@ import org.springframework.stereotype.Component;
  * <p></p>
  */
 @Component
-public class MyConfig {
+public class MyConfig   {
+
 
     @Bean
     public BotConfig init() {
+
         return FileUtil.readFile();
     }
+
 
 }
