@@ -26,8 +26,6 @@ public class BotInitializeService implements ApplicationRunner {
     private LoginService loginService;
 
 
-
-
     @Override
     public void run(ApplicationArguments args) throws Exception {
 
@@ -36,5 +34,7 @@ public class BotInitializeService implements ApplicationRunner {
         loginService.setCallbackUrl();
 
     }
+
+
 
 }

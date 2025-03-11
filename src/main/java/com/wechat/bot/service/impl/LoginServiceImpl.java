@@ -39,7 +39,7 @@ public class LoginServiceImpl implements LoginService {
     @Override
     public void login() {
 
-        if (botConfig.getAppId() == null) {
+        if (botConfig.getAppId() == null || botConfig.getAppId().isEmpty() ) {
             //第一次登录
             handleNewConfig();
             return;
@@ -145,6 +145,7 @@ public class LoginServiceImpl implements LoginService {
         JSONObject response = LoginApi.getToken();
         if (response.getInteger("ret") == 200) {
             OkhttpUtil.token = response.getString("data");
+            botConfig.setToken(OkhttpUtil.token);
         }
 
 
@@ -180,6 +181,7 @@ public class LoginServiceImpl implements LoginService {
             if (statusCode == 2) {
                 String nickName = data.getString("nickName");
                 log.info("登录成功,用户昵称是：" + nickName);
+                botConfig.setAppId(map.get("appId"));
                 return true;
 
             } else {
