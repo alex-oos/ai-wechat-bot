@@ -1,38 +1,55 @@
 package com.wechat.ai.session;
 
+
+import com.alibaba.dashscope.common.Message;
+
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * @author Alex
  * @since 2025/3/11 15:38
  * <p></p>
  */
-
-import lombok.Getter;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-
 public class SessionManager {
+
 
     private static final Map<String, Session> sessions = new ConcurrentHashMap<>();
 
-    private static final int MAX_TOKENS = 4096;
+    private static final int MAX_TOKENS = 8192;
 
-    public String createSession(String systemPrompt, String userId) {
+    public String createSession(String userId, String systemPrompt) {
 
-        String sessionId = userId;
+        String sessionId = UUID.randomUUID().toString();
         Session session = new Session(sessionId, systemPrompt);
-        sessions.put(sessionId, session);
+        sessions.put(userId, session);
         return sessionId;
     }
 
-    public void updateSession(String sessionId, List<Message> messages) {
+    public void updateSession(String userId, List<Message> messages) {
 
-        Session session = sessions.get(sessionId);
+        Session session = sessions.get(userId);
         if (session != null) {
             session.getMessages().addAll(messages);
+            int currentTokens = calculateTokens(session.getMessages());
+            if (currentTokens > MAX_TOKENS) {
+                trimSession(session, currentTokens);
+            }
+        }
+    }
+
+    public void addMessage(String userId, String query, String reply) {
+
+        Session session = sessions.get(userId);
+        if (session != null) {
+            if (query != null) {
+                session.addQuery(query);
+            }
+            if (reply != null) {
+                session.addReply(reply);
+            }
             int currentTokens = calculateTokens(session.getMessages());
             if (currentTokens > MAX_TOKENS) {
                 trimSession(session, currentTokens);
@@ -44,7 +61,7 @@ public class SessionManager {
 
         List<Message> messages = session.getMessages();
         while (currentTokens > MAX_TOKENS && messages.size() > 2) {
-            messages.remove(1);
+            messages.remove(0);
             currentTokens = calculateTokens(messages);
         }
     }
@@ -58,69 +75,16 @@ public class SessionManager {
         return tokens;
     }
 
-    public Session getSession(String sessionId) {
+    public Session getSession(String userId) {
 
-        return sessions.get(sessionId);
+        return sessions.get(userId);
     }
 
 
-    public void deleteSession(String sessionId) {
+    public void deleteSession(String userId) {
 
-        sessions.remove(sessionId);
+        sessions.remove(userId);
     }
 
-}
-
-@Getter
-class Session {
-
-    // Getters and Setters
-    //private final String userId;
-
-    private final String sessionId;
-
-    private final String systemPrompt;
-
-    private final List<Message> messages;
-
-    private final String model = "qianwen";
-
-    public Session(String sessionId, String systemPrompt) {
-
-        this.sessionId = sessionId;
-        this.systemPrompt = systemPrompt;
-        this.messages = new ArrayList<>();
-        initializeSystemMessage();
-    }
-
-    private void initializeSystemMessage() {
-
-        messages.add(new Message("system", systemPrompt));
-    }
-
-}
-
-class Message {
-
-    private final String role;
-
-    private final String content;
-
-    public Message(String role, String content) {
-
-        this.role = role;
-        this.content = content;
-    }
-
-    // Getters
-    public String getRole() {
-
-        return role;
-    }
-
-    public String getContent() {
-
-        return content;
-    }
 
 }

@@ -1,10 +1,14 @@
 package com.wechat.bot.service.impl;
 
+import com.alibaba.fastjson2.JSONObject;
+import com.wechat.ai.session.Session;
 import com.wechat.ai.session.SessionManager;
 import com.wechat.bot.entity.BotConfig;
 import com.wechat.bot.entity.ChatMessage;
 import com.wechat.bot.service.MsgSourceService;
 import com.wechat.bot.service.ReplyMsgService;
+import com.wechat.gewechat.service.MessageApi;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +20,7 @@ import java.util.List;
  * @since 2025/2/19 09:49
  * <p></p>
  */
+@Slf4j
 @Service
 public class MsgSourceServiceImpl implements MsgSourceService {
 
@@ -33,25 +38,41 @@ public class MsgSourceServiceImpl implements MsgSourceService {
     //@Async
     @Override
     public void personalMsg(ChatMessage chatMessage) {
+        // 会话清理的逻辑
+        String content = chatMessage.getContent();
+        if (content.equals("#清除记忆")) {
+            sessionManager.deleteSession(chatMessage.getFromUserId());
+            // 直接回复，清除记忆成功
+            JSONObject jsonObject = MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), "清理成功", chatMessage.getToUserId());
+            if (jsonObject.getInteger("ret") == 200) {
+                log.info("gewechat服务回复成功");
+            }
+            return;
+        }
         // 第一次 触发逻辑，判断，会话管理里面是否有消息，没有就创建会话
         // 第二次进行，直接取消息，然后进行回复
-        if (sessionManager.getSession(chatMessage.getFromUserId()) == null) {
+        Session session = sessionManager.getSession(chatMessage.getFromUserId());
+        if (session == null) {
             // 聊天前缀过滤
             List<String> singleChatPrefix = botconfig.getSingleChatPrefix();
-            if (!singleChatPrefix.isEmpty()) {
+            if (singleChatPrefix.isEmpty()) {
+                log.error("聊天前缀过滤失败,直接返回");
+                return;
+            } else {
                 // 单独聊天前缀过滤
                 for (String chatPrefix : singleChatPrefix) {
                     if (!chatMessage.getContent().contains(chatPrefix)) {
                         return;
                     }
                 }
-                sessionManager.createSession(chatMessage.getContent(), chatMessage.getFromUserId());
-            } else {
-                return;
+                // 创建一个新的会话
+                sessionManager.createSession(chatMessage.getFromUserId(), botconfig.getSystemPrompt());
+                session = sessionManager.getSession(chatMessage.getFromUserId());
+
             }
         }
-
-        replyMsgService.replyType(chatMessage);
+        session.addQuery(chatMessage.getContent());
+        replyMsgService.replyType(chatMessage, session);
 
 
     }
@@ -108,7 +129,7 @@ public class MsgSourceServiceImpl implements MsgSourceService {
             //消息如何拼接，是否需要艾特人，等等之类的，还有各种各样的欢迎语
 
             // 判断一下消息的类型
-            replyMsgService.replyType(chatMessage);
+            //replyMsgService.replyType(chatMessage);
             return;
         }
 

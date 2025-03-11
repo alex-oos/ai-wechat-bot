@@ -1,5 +1,7 @@
 package com.wechat.ai.service;
 
+import com.wechat.ai.session.Session;
+
 import java.util.List;
 
 /**
@@ -10,9 +12,9 @@ import java.util.List;
 public interface AIService {
 
 
-    List<String> textToText(String content);
+    String textToText(Session session);
 
-    List<String>  textToImage(String content);
+    List<String> textToImage(String content);
 
     String imageToText(String content);
 
@@ -23,7 +25,6 @@ public interface AIService {
     String imageToImage(String content, String style, String prompt);
 
     String imageToImage(String content, String style, String prompt, String negativePrompt);
-
 
 
 }

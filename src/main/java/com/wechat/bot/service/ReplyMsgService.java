@@ -1,6 +1,8 @@
 package com.wechat.bot.service;
 
 import com.wechat.ai.service.AIService;
+import com.wechat.ai.session.Session;
+import com.wechat.ai.session.SessionManager;
 import com.wechat.bot.entity.ChatMessage;
 
 /**
@@ -16,7 +18,7 @@ public interface ReplyMsgService {
     void replyTextMsg(ChatMessage chatMessage);
 
 
-    void replyType(ChatMessage chatMessage);
+    void replyType(ChatMessage chatMessage, Session session);
 
     void replyImageMsg(ChatMessage chatMessage);
 

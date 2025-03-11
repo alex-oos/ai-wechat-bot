@@ -1,6 +1,7 @@
 package com.wechat.ai.service;
 
 import com.wechat.ai.enums.AiEnum;
+import com.wechat.ai.session.Session;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -26,9 +27,9 @@ public abstract class AbstractAiService implements AIService {
 
 
     @Override
-    public List<String> textToText(String content) {
+    public String textToText(Session session) {
 
-        return List.of();
+        return null;
     }
 
     @Override

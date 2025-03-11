@@ -4,6 +4,8 @@ import com.alibaba.fastjson2.JSONObject;
 import com.wechat.ai.enums.AiEnum;
 import com.wechat.ai.factory.AiServiceFactory;
 import com.wechat.ai.service.AIService;
+import com.wechat.ai.session.Session;
+import com.wechat.ai.session.SessionManager;
 import com.wechat.bot.entity.BotConfig;
 import com.wechat.bot.entity.ChatMessage;
 import com.wechat.bot.service.ReplyMsgService;
@@ -31,17 +33,14 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
     @Resource
     private BotConfig botconfig;
 
-    //@Resource
     private AIService aiService;
 
-    // 匿名代码块，用来初始化aiService
-    //{
-    //    aiService = this.chooseAiService();
-    //}
+    private Session session = new Session();
 
     @Override
-    public void replyType(ChatMessage chatMessage) {
+    public void replyType(ChatMessage chatMessage, Session session1) {
 
+        session = session1;
         aiService = chooseAiService();
         // 判断类型
         switch (chatMessage.getCtype()) {
@@ -65,28 +64,13 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
     @Override
     public void replyTextMsg(ChatMessage chatMessage) {
 
+        String replayMsg = aiService.textToText(session);
 
-        //CompletableFuture.supplyAsync(() -> {
-        //    log.info("请求AI服务");
-        //    return aiService.textToText(chatMessage.getContent());
-        //}, executor).thenApplyAsync((res) -> {
-        //    res.forEach(msg -> {
-        //        log.info("请求gewechat服务：{}", msg);
-        //        JSONObject jsonObject = MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), msg, chatMessage.getToUserId());
-        //        if (jsonObject.getInteger("ret") == 200) {
-        //            log.info("gewechat服务回复成功");
-        //        }
-        //    });
-        //    return null;
-        //}, executor);
-        List<String> list = aiService.textToText(chatMessage.getContent());
-        list.forEach(msg -> {
-            log.info("请求gewechat服务：{}", msg);
-            JSONObject jsonObject = MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), msg, chatMessage.getToUserId());
-            if (jsonObject.getInteger("ret") == 200) {
-                log.info("gewechat服务回复成功");
-            }
-        });
+        log.info("请求gewechat服务：{}", replayMsg);
+        JSONObject jsonObject = MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), replayMsg, chatMessage.getToUserId());
+        if (jsonObject.getInteger("ret") == 200) {
+            log.info("gewechat服务回复成功");
+        }
 
 
     }
