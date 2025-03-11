@@ -2,7 +2,8 @@ package com.wechat.bot.service;
 
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.InitializingBean;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -18,15 +19,17 @@ import java.util.concurrent.TimeUnit;
  */
 @Slf4j
 @Component
-public class BotInitializeService implements InitializingBean {
+public class BotInitializeService implements ApplicationRunner {
 
 
     @Resource
     private LoginService loginService;
 
 
+
+
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void run(ApplicationArguments args) throws Exception {
 
         loginService.login();
         TimeUnit.SECONDS.sleep(5);

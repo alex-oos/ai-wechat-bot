@@ -20,7 +20,7 @@ public class TaskProcessor {
     @Resource
     private TaskQueue taskQueue;
 
-    @Resource
+    @Resource(name = "commonThreadPool")
     private TaskExecutor threadPool;
 
 
