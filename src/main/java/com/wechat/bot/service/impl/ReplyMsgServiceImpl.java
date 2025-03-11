@@ -14,6 +14,7 @@ import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
@@ -67,19 +68,28 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
     public void replyTextMsg(ChatMessage chatMessage) {
 
 
-        CompletableFuture.supplyAsync(() -> {
-            log.info("请求AI服务");
-            return aiService.textToText(chatMessage.getContent());
-        }, executor).thenApplyAsync((res) -> {
-            res.forEach(msg -> {
-                log.info("请求gewechat服务：{}", msg);
-                JSONObject jsonObject = MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), msg, chatMessage.getToUserId());
-                if (jsonObject.getInteger("ret") == 200) {
-                    log.info("gewechat服务回复成功");
-                }
-            });
-            return null;
-        }, executor);
+        //CompletableFuture.supplyAsync(() -> {
+        //    log.info("请求AI服务");
+        //    return aiService.textToText(chatMessage.getContent());
+        //}, executor).thenApplyAsync((res) -> {
+        //    res.forEach(msg -> {
+        //        log.info("请求gewechat服务：{}", msg);
+        //        JSONObject jsonObject = MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), msg, chatMessage.getToUserId());
+        //        if (jsonObject.getInteger("ret") == 200) {
+        //            log.info("gewechat服务回复成功");
+        //        }
+        //    });
+        //    return null;
+        //}, executor);
+        List<String> list = aiService.textToText(chatMessage.getContent());
+        list.forEach(msg -> {
+            log.info("请求gewechat服务：{}", msg);
+            JSONObject jsonObject = MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), msg, chatMessage.getToUserId());
+            if (jsonObject.getInteger("ret") == 200) {
+                log.info("gewechat服务回复成功");
+            }
+        });
+
     }
 
 
