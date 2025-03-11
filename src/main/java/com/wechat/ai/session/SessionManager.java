@@ -8,8 +8,11 @@ package com.wechat.ai.session;
 
 import lombok.Getter;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
 
 public class SessionManager {
 
@@ -17,9 +20,9 @@ public class SessionManager {
 
     private static final int MAX_TOKENS = 4096;
 
-    public String createSession(String systemPrompt) {
+    public String createSession(String systemPrompt, String userId) {
 
-        String sessionId = UUID.randomUUID().toString();
+        String sessionId = userId;
         Session session = new Session(sessionId, systemPrompt);
         sessions.put(sessionId, session);
         return sessionId;
@@ -60,6 +63,7 @@ public class SessionManager {
         return sessions.get(sessionId);
     }
 
+
     public void deleteSession(String sessionId) {
 
         sessions.remove(sessionId);
@@ -71,6 +75,7 @@ public class SessionManager {
 class Session {
 
     // Getters and Setters
+    //private final String userId;
 
     private final String sessionId;
 

@@ -15,12 +15,15 @@ import java.nio.file.Path;
  */
 public class FileUtil {
 
+
     /**
      * config 文件默认路径
      */
     public static Path configFilePath = Path.of("src/main/resources/static/config.json");
 
     public static BotConfig readFile() {
+
+
 
         if (!configFilePath.toFile().exists()) {
             return null;

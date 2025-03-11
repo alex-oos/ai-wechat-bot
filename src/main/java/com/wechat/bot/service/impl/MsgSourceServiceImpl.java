@@ -1,5 +1,6 @@
 package com.wechat.bot.service.impl;
 
+import com.wechat.ai.session.SessionManager;
 import com.wechat.bot.entity.BotConfig;
 import com.wechat.bot.entity.ChatMessage;
 import com.wechat.bot.service.MsgSourceService;
@@ -21,10 +22,10 @@ public class MsgSourceServiceImpl implements MsgSourceService {
     @Resource
     BotConfig botconfig;
 
+    SessionManager sessionManager = new SessionManager();
+
     @Resource
     private ReplyMsgService replyMsgService;
-
-
 
     /**
      * 个人消息
@@ -32,14 +33,21 @@ public class MsgSourceServiceImpl implements MsgSourceService {
     //@Async
     @Override
     public void personalMsg(ChatMessage chatMessage) {
-        // 聊天前缀过滤
-        List<String> singleChatPrefix = botconfig.getSingleChatPrefix();
-        if (!singleChatPrefix.isEmpty()) {
-            // 单独聊天前缀过滤
-            for (String chatPrefix : singleChatPrefix) {
-                if (!chatMessage.getContent().startsWith(chatPrefix)) {
-                    return;
+        // 第一次 触发逻辑，判断，会话管理里面是否有消息，没有就创建会话
+        // 第二次进行，直接取消息，然后进行回复
+        if (sessionManager.getSession(chatMessage.getFromUserId()) == null) {
+            // 聊天前缀过滤
+            List<String> singleChatPrefix = botconfig.getSingleChatPrefix();
+            if (!singleChatPrefix.isEmpty()) {
+                // 单独聊天前缀过滤
+                for (String chatPrefix : singleChatPrefix) {
+                    if (!chatMessage.getContent().contains(chatPrefix)) {
+                        return;
+                    }
                 }
+                sessionManager.createSession(chatMessage.getContent(), chatMessage.getFromUserId());
+            } else {
+                return;
             }
         }
 

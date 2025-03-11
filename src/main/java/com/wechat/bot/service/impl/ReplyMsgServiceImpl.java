@@ -8,14 +8,12 @@ import com.wechat.bot.entity.BotConfig;
 import com.wechat.bot.entity.ChatMessage;
 import com.wechat.bot.service.ReplyMsgService;
 import com.wechat.gewechat.service.MessageApi;
-import com.wechat.util.FileUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -90,6 +88,7 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
             }
         });
 
+
     }
 
 
@@ -143,8 +142,8 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
     public AIService chooseAiService() {
 
         // 找到正常的服务，然后取出枚举值
-        AiEnum aiEnum = AiEnum.getByBotType(Objects.requireNonNull(FileUtil.readFile()).getAiType());
-        //AiEnum aiEnum = AiEnum.getByBotType(botconfig.getAiType());
+        //AiEnum aiEnum = AiEnum.getByBotType(Objects.requireNonNull(FileUtil.readFile()).getAiType());
+        AiEnum aiEnum = AiEnum.getByBotType(botconfig.getAiType());
         return AiServiceFactory.getAiService(aiEnum);
     }
 
