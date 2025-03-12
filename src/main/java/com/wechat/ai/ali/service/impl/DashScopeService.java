@@ -6,6 +6,7 @@ import com.alibaba.dashscope.aigc.imagesynthesis.ImageSynthesisParam;
 import com.alibaba.dashscope.aigc.imagesynthesis.ImageSynthesisResult;
 import com.alibaba.dashscope.common.Message;
 import com.alibaba.dashscope.common.Role;
+import com.alibaba.dashscope.common.TaskStatus;
 import com.alibaba.dashscope.exception.ApiException;
 import com.alibaba.dashscope.exception.InputRequiredException;
 import com.alibaba.dashscope.exception.NoApiKeyException;
@@ -105,7 +106,7 @@ public class DashScopeService extends AbstractAiService {
         //System.out.println(JsonUtils.toJson(result));
         log.info(JsonUtils.toJson(result));
         String taskStatus = result.getOutput().getTaskStatus();
-        if (!"SUCCEEDED".equals(taskStatus)) {
+        if (!TaskStatus.SUCCEEDED.getValue().equals(taskStatus)) {
             log.error("taskStatus is not SUCCESS, taskStatus: {}", taskStatus);
             return null;
         }
