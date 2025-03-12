@@ -10,7 +10,7 @@ import javax.annotation.Resource;
  * @author Alex
  * @since 2025/1/25 19:02
  * <p>
- *     任务管理器
+ * 任务管理器
  * </p>
  */
 @Slf4j
@@ -41,7 +41,7 @@ public class TaskProcessor {
                         task.run();
                         log.info("线程执行成功");
                     } catch (Exception e) {
-                        log.error("线程执行失败",e.getMessage());
+                        log.error("线程执行失败，错误原因为：{}", e.getMessage());
                         //e.printStackTrace();
                     }
                 }

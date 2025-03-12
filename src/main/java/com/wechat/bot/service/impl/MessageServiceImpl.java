@@ -61,6 +61,7 @@ public class MessageServiceImpl implements MessageService {
             case IMAGE:
                 //图片保存一下
                 // 提取图片缩略图的Base64并保存为文件
+
                 String imgBuf = data.getJSONObject("ImgBuf").getString("buffer");
                 byte[] imageBytes = Base64.getDecoder().decode(imgBuf);
                 String dateStr = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyddMM"));
@@ -76,6 +77,12 @@ public class MessageServiceImpl implements MessageService {
                     System.out.println("保存图片缩略图失败");
                     e.printStackTrace();
                 }
+
+                //try {
+                //    WechatImageDecoder.decryptWechatImage(content, imagePath.toString());
+                //} catch (Exception e) {
+                //    throw new RuntimeException(e);
+                //}
                 break;
             case VOICE:
                 break;
