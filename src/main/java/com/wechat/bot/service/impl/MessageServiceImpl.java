@@ -8,7 +8,6 @@ import com.wechat.bot.enums.MsgTypeEnum;
 import com.wechat.bot.service.MessageService;
 import com.wechat.bot.service.MsgSourceService;
 import com.wechat.gewechat.service.ContactApi;
-import com.wechat.task.TaskQueue;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -16,10 +15,8 @@ import javax.annotation.Resource;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Alex
@@ -30,15 +27,14 @@ import java.util.List;
 @Service
 public class MessageServiceImpl implements MessageService {
 
+    Map<String, String> contactMap = new ConcurrentHashMap<>();
+
     @Resource
     private MsgSourceService msgSourceService;
-
 
     @Resource
     private BotConfig botConfig;
 
-    @Resource
-    private TaskQueue taskQueue;
 
     //@Async
     @Override
@@ -100,23 +96,26 @@ public class MessageServiceImpl implements MessageService {
             return;
         }
 
-        log.info("收到消息{}", chatMessage.getRawMsg());
         this.updateMsgType(chatMessage);
-        // 获取好友的信息
-        JSONObject briefInfo = ContactApi.getBriefInfo(appid, Collections.singletonList(chatMessage.getFromUserId()));
-        if (briefInfo.getInteger("ret") == 200) {
-            JSONArray dataList = briefInfo.getJSONArray("data");
-            JSONObject userInfo = dataList.getJSONObject(0);
-            String remark = userInfo.getString("remark");
-            String nickname = remark != null ? remark : userInfo.getString("nickName");
-            chatMessage.setFromUserNickname(nickname);
+        if (!contactMap.containsKey(chatMessage.getFromUserId())) {
+            // 存到一个map里面不用每次都重新获取，降低请求次数
+            // 获取好友的信息
+            String nickName =null;
+            JSONObject briefInfo = ContactApi.getBriefInfo(appid, Collections.singletonList(chatMessage.getFromUserId()));
+            if (briefInfo.getInteger("ret") == 200) {
+                JSONArray dataList = briefInfo.getJSONArray("data");
+                JSONObject userInfo = dataList.getJSONObject(0);
+                String remark = userInfo.getString("remark");
+                nickName = remark != null ? remark : userInfo.getString("nickName");
+            }
+            contactMap.put(chatMessage.getFromUserId(), nickName);
         }
-
+        chatMessage.setFromUserNickname(contactMap.get(chatMessage.getFromUserId()));
         if (chatMessage.getIsGroup()) {
-            log.info("群消息类型");
+            log.info("收到群消息");
             msgSourceService.groupMsg(chatMessage);
         } else {
-            log.info("个人消息");
+            log.info("收到个人消息：来自：{}，消息内容为：{}", chatMessage.getFromUserNickname(), chatMessage.getContent());
             msgSourceService.personalMsg(chatMessage);
         }
 
