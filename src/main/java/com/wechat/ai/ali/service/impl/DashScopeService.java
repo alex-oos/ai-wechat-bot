@@ -51,6 +51,7 @@ public class DashScopeService extends AbstractAiService {
         Generation gen = new Generation();
         try {
             DashScopeStreamService.streamCallWithMessage(gen, session.getMessages());
+
             Message assistantMsg = Message.builder().role(Role.ASSISTANT.getValue()).content(DashScopeStreamService.fullContent.toString()).build();
             session.addReply(assistantMsg.getContent());
         } catch (NoApiKeyException | InputRequiredException e) {

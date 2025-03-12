@@ -30,6 +30,7 @@ import java.util.Scanner;
 @Slf4j
 public class DashScopeStreamService {
 
+
     public static StringBuilder fullContent = new StringBuilder();
 
     public static BotConfig botConfig = null;
@@ -48,7 +49,7 @@ public class DashScopeStreamService {
 
     public static void streamCallWithMessage(Generation gen, List<Message> messages) throws NoApiKeyException, ApiException, InputRequiredException {
 
-        fullContent = new StringBuilder();
+        fullContent.setLength(0);
         GenerationParam param = buildGenerationParam(messages);
         Flowable<GenerationResult> result = gen.streamCall(param);
         result.blockingForEach(DashScopeStreamService::handleGenerationResult);
@@ -110,7 +111,7 @@ public class DashScopeStreamService {
      * @throws NoApiKeyException
      * @throws InputRequiredException
      */
-    public static String callWithMessage(List<Message> messages){
+    public static String callWithMessage(List<Message> messages) {
 
         Instant now = Instant.now();
         Generation gen = new Generation();
@@ -125,7 +126,7 @@ public class DashScopeStreamService {
         try {
             result = gen.call(param);
         } catch (NoApiKeyException | InputRequiredException e) {
-            log.error("An exception occurred: {}", e.getMessage(),e);
+            log.error("An exception occurred: {}", e.getMessage(), e);
             throw new RuntimeException(e);
         }
         List<GenerationOutput.Choice> choices = result.getOutput().getChoices();
