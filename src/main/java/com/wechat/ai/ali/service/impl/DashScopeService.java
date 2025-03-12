@@ -104,6 +104,11 @@ public class DashScopeService extends AbstractAiService {
         }
         //System.out.println(JsonUtils.toJson(result));
         log.info(JsonUtils.toJson(result));
+        String taskStatus = result.getOutput().getTaskStatus();
+        if (!"SUCCEEDED".equals(taskStatus)) {
+            log.error("taskStatus is not SUCCESS, taskStatus: {}", taskStatus);
+            return null;
+        }
         List<Map<String, String>> results = result.getOutput().getResults();
 
         return results.get(0);
