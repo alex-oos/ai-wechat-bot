@@ -74,6 +74,7 @@ public class DeepSeekService extends AbstractAiService {
             List<Message> messages = session.getMessages();
             GenerationResult result = callWithMessage(messages);
             System.out.println("思考过程：");
+            log.info("思考过程：");
             System.out.println(result.getOutput().getChoices().get(0).getMessage().getReasoningContent());
             System.out.println("回复内容：");
             System.out.println(result.getOutput().getChoices().get(0).getMessage().getContent());

@@ -28,15 +28,11 @@ public class TaskQueue {
         }
     }
 
-    public Runnable dequeue() {
+    public Runnable dequeue() throws InterruptedException {
 
-        try {
-            return queue.take();
-        } catch (InterruptedException e) {
-            log.error("异常：", e);
-            //throw new RuntimeException(e);
-        }
-        return null;
+
+        return queue.take();
+
     }
 
     public int size() {

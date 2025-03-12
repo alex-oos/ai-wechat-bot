@@ -5,6 +5,7 @@ import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Alex
@@ -35,14 +36,16 @@ public class TaskProcessor {
                 while (true) {
                     try {
                         Runnable task = taskQueue.dequeue();
-                        if (task == null) {
-                            continue;
-                        }
                         task.run();
                         log.info("任务开始执行~");
                     } catch (Exception e) {
+                        try {
+                            TimeUnit.MINUTES.sleep(1);
+                        } catch (InterruptedException ex) {
+                            throw new RuntimeException(ex);
+                        }
                         log.error("线程执行失败，错误原因为：{}", e.getMessage());
-                        //e.printStackTrace();
+
                     }
                 }
             });

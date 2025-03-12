@@ -72,7 +72,7 @@ public class MessageServiceImpl implements MessageService {
         }
         //TODO 先过滤掉所有的群消息,等个人开发完毕之后，再去处理群消息
         if (chatMessage.getIsGroup()) {
-            log.info("收到群消息");
+            //log.info("收到群消息");
             return;
         }
         // 消息内容进行处理
