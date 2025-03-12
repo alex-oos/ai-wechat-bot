@@ -96,12 +96,10 @@ public class OkhttpUtil {
             String res = json(baseUrl + route, header, param.toJSONString(), okHttpClient());
             log.debug("响应为：{}", res);
             JSONObject jsonObject = JSONObject.parse(res);
-            if (jsonObject.getInteger("ret") == 200) {
-                return jsonObject;
-            } else {
+            if (jsonObject.getInteger("ret") != 200) {
                 log.error("请求失败，响应为：{}", res);
-                return jsonObject;
             }
+            return jsonObject;
         } catch (Exception e) {
             System.out.println("url=" + baseUrl + route);
             throw new RuntimeException(e);
