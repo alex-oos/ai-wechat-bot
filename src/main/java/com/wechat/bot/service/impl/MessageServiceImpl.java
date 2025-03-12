@@ -8,6 +8,8 @@ import com.wechat.bot.enums.MsgTypeEnum;
 import com.wechat.bot.service.MessageService;
 import com.wechat.bot.service.MsgSourceService;
 import com.wechat.gewechat.service.ContactApi;
+import com.wechat.gewechat.service.DownloadApi;
+import com.wechat.util.IpUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -172,42 +174,27 @@ public class MessageServiceImpl implements MessageService {
      * @param chatMessage
      */
     private void messageContentProcessing(ChatMessage chatMessage) {
-        //// 判断消息类型，进行一系列的操作
-        //switch (chatMessage.getCtype()) {
-        //    case TEXT:
-        //        break;
-        //    case IMAGE:
-        //        //图片保存一下
-        //        // 提取图片缩略图的Base64并保存为文件
-        //
-        //        //String imgBuf = data.getJSONObject("ImgBuf").getString("buffer");
-        //        //byte[] imageBytes = Base64.getDecoder().decode(imgBuf);
-        //        //String dateStr = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyddMM"));
-        //        //Path imagesPath = Path.of("data", "images", dateStr, fromUserName);
-        //        //imagesPath.toFile().mkdirs();
-        //        //String time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
-        //        //Path imagePath = imagesPath.resolve(time + ".jpg");
-        //        //
-        //        //try (FileOutputStream fos = new FileOutputStream(imagePath.toFile())) {
-        //        //    fos.write(imageBytes);
-        //        //    System.out.println("图片缩略图已保存为: " + imagePath.toFile().getAbsolutePath());
-        //        //} catch (IOException e) {
-        //        //    System.out.println("保存图片缩略图失败");
-        //        //    e.printStackTrace();
-        //        //}
-        //
-        //        //try {
-        //        //    WechatImageDecoder.decryptWechatImage(content, imagePath.toString());
-        //        //} catch (Exception e) {
-        //        //    throw new RuntimeException(e);
-        //        //}
-        //        break;
-        //    case VOICE:
-        //        break;
-        //    default:
-        //        break;
-        //
-        //}
+        //判断消息类型，进行一系列的操作
+        switch (chatMessage.getCtype()) {
+            case TEXT:
+                break;
+            case IMAGE:
+                //图片保存一下
+                JSONObject jsonObject = DownloadApi.downloadImage(chatMessage.getAppId(),  chatMessage.getContent(), 2);
+                if (jsonObject.getInteger("ret") != 200) {
+                    break;
+                }
+                String imagePath = jsonObject.getJSONObject("data").getString("fileUrl");
+                imagePath = "http://" + IpUtil.getIp() + ":2532/download" + imagePath;
+                chatMessage.setContent(imagePath);
+                break;
+            case VOICE:
+
+                break;
+            default:
+                break;
+
+        }
         String content = chatMessage.getContent();
         List<String> imageCreatePrefix = botConfig.getImageCreatePrefix();
         for (String createPrefix : imageCreatePrefix) {
