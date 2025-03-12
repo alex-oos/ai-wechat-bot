@@ -15,8 +15,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+
 
 /**
  * @author Alex
@@ -53,7 +56,7 @@ public class DeepSeekService extends AbstractAiService {
         //        .build();
         GenerationParam param = GenerationParam.builder()
                 .apiKey(botConfig.getDashscopeApiKey())
-                .model(botConfig.getModel())
+                .model(AiEnum.DEEPSEEK.getModel().get(0))
                 .messages(message)
                 .resultFormat(GenerationParam.ResultFormat.MESSAGE)
                 .build();
@@ -63,6 +66,7 @@ public class DeepSeekService extends AbstractAiService {
     @Override
     public String textToText(Session session) {
 
+        Instant now = Instant.now();
         List<String> messgaeList = new ArrayList<>();
         String content = null;
 
@@ -81,6 +85,7 @@ public class DeepSeekService extends AbstractAiService {
             //System.err.println("An error occurred while calling the generation service: " + e.getMessage());
             log.error("An error occurred while calling the generation service: " + e.getMessage());
         }
+        log.info("本次请求耗时：{}ms", Duration.between(now, Instant.now()).toMillis());
 
         return content;
     }
