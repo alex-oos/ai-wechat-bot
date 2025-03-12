@@ -1,30 +1,19 @@
 package com.wechat.ai.ali.service.impl;
 
 import com.alibaba.dashscope.aigc.generation.Generation;
-import com.alibaba.dashscope.aigc.generation.GenerationOutput;
-import com.alibaba.dashscope.aigc.generation.GenerationParam;
-import com.alibaba.dashscope.aigc.generation.GenerationResult;
-import com.alibaba.dashscope.aigc.imagesynthesis.ImageSynthesis;
-import com.alibaba.dashscope.aigc.imagesynthesis.ImageSynthesisParam;
-import com.alibaba.dashscope.aigc.imagesynthesis.ImageSynthesisResult;
 import com.alibaba.dashscope.common.Message;
 import com.alibaba.dashscope.common.Role;
 import com.alibaba.dashscope.exception.ApiException;
 import com.alibaba.dashscope.exception.InputRequiredException;
 import com.alibaba.dashscope.exception.NoApiKeyException;
-import com.alibaba.dashscope.utils.JsonUtils;
 import com.wechat.ai.enums.AiEnum;
 import com.wechat.ai.service.AbstractAiService;
 import com.wechat.ai.session.Session;
-import com.wechat.bot.entity.BotConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.time.Instant;
 import java.util.List;
-import java.util.Map;
 
 
 /**
@@ -56,8 +45,9 @@ public class DashScopeService extends AbstractAiService {
      * @throws NoApiKeyException
      * @throws InputRequiredException
      */
-    public Session streamMessage(Session session) {
+    public String streamMessage(Session session) {
 
+        Instant now = Instant.now();
         Generation gen = new Generation();
         try {
             DashScopeStreamService.streamCallWithMessage(gen, session.getMessages());
@@ -67,15 +57,17 @@ public class DashScopeService extends AbstractAiService {
             log.error("An exception occurred: {}", e.getMessage(), e);
             throw new RuntimeException(e);
         }
-        return session;
+        log.info("本次对话总耗时：{} ms", Instant.now().toEpochMilli() - now.toEpochMilli());
+        return DashScopeStreamService.fullContent.toString();
 
     }
 
     @Override
     public String textToText(Session session) {
-
-        session = streamMessage(session);
-        return session.getMessages().get(session.getMessages().size() - 1).getContent();
+        // 流式消息
+        return streamMessage(session);
+        // 非流式消息
+        //return DashScopeStreamService.callWithMessage(session.getMessages());
 
     }
 
