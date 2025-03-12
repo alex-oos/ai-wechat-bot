@@ -100,7 +100,7 @@ public class MessageServiceImpl implements MessageService {
         if (!contactMap.containsKey(chatMessage.getFromUserId())) {
             // 存到一个map里面不用每次都重新获取，降低请求次数
             // 获取好友的信息
-            String nickName =null;
+            String nickName = null;
             JSONObject briefInfo = ContactApi.getBriefInfo(appid, Collections.singletonList(chatMessage.getFromUserId()));
             if (briefInfo.getInteger("ret") == 200) {
                 JSONArray dataList = briefInfo.getJSONArray("data");
@@ -113,7 +113,8 @@ public class MessageServiceImpl implements MessageService {
         chatMessage.setFromUserNickname(contactMap.get(chatMessage.getFromUserId()));
         if (chatMessage.getIsGroup()) {
             log.info("收到群消息");
-            msgSourceService.groupMsg(chatMessage);
+            return;
+            //msgSourceService.groupMsg(chatMessage);
         } else {
             log.info("收到个人消息：来自：{}，消息内容为：{}", chatMessage.getFromUserNickname(), chatMessage.getContent());
             msgSourceService.personalMsg(chatMessage);
