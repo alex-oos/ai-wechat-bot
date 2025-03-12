@@ -9,6 +9,7 @@ import com.alibaba.dashscope.common.Role;
 import com.alibaba.dashscope.exception.ApiException;
 import com.alibaba.dashscope.exception.InputRequiredException;
 import com.alibaba.dashscope.exception.NoApiKeyException;
+import com.wechat.ai.config.AiConfig;
 import com.wechat.bot.entity.BotConfig;
 import com.wechat.util.FileUtil;
 import io.reactivex.Flowable;
@@ -27,14 +28,8 @@ import java.util.List;
  * </p>
  */
 @Slf4j
-public class TextService {
+public class TextToText {
 
-
-    public static BotConfig botConfig = null;
-
-    static {
-        botConfig = FileUtil.readFile();
-    }
 
     public StringBuilder fullContent = new StringBuilder();
 
@@ -43,9 +38,9 @@ public class TextService {
         return GenerationParam.builder()
                 // 若没有配置环境变量，请用百炼API Key将下行替换为：.apiKey("sk-xxx")
                 //.apiKey(System.getenv("DASHSCOPE_API_KEY"))
-                .apiKey(botConfig.getDashscopeApiKey())
+                .apiKey(AiConfig.botConfig.getDashscopeApiKey())
                 // 此处以qwen-plus为例，可按需更换模型名称。模型列表：https://help.aliyun.com/zh/model-studio/getting-started/models
-                .model(botConfig.getModel())
+                .model(AiConfig.botConfig.getModel())
                 .messages(messages)
                 .resultFormat(GenerationParam.ResultFormat.MESSAGE)
                 .incrementalOutput(true)
@@ -96,8 +91,8 @@ public class TextService {
         Instant now = Instant.now();
         Generation gen = new Generation();
         GenerationParam param = GenerationParam.builder()
-                .apiKey(botConfig.getDashscopeApiKey())
-                .model(botConfig.getModel())
+                .apiKey(AiConfig.botConfig.getDashscopeApiKey())
+                .model(AiConfig.botConfig.getModel())
                 .messages(messages)
                 .resultFormat(GenerationParam.ResultFormat.MESSAGE)
                 .build();

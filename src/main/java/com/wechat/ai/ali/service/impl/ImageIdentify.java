@@ -9,30 +9,27 @@ import com.alibaba.dashscope.exception.ApiException;
 import com.alibaba.dashscope.exception.NoApiKeyException;
 import com.alibaba.dashscope.exception.UploadFileException;
 import com.alibaba.dashscope.utils.Constants;
-import com.wechat.bot.entity.BotConfig;
-import com.wechat.util.FileUtil;
+import com.wechat.ai.config.AiConfig;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Alex
  * @since 2025/3/12 17:45
- * <p></p>
+ * <p>
+ *     图片识别：
+ * </p>
  */
 @Slf4j
-public class ImageService {
+public class ImageIdentify {
 
     private static final String modelName = "qwen-vl-max-latest";
 
-    public static BotConfig botConfig = null;
 
     static {
         Constants.baseHttpApiUrl = "https://dashscope-intl.aliyuncs.com/api/v1";
-        botConfig = FileUtil.readFile();
+
     }
 
     /**
@@ -43,7 +40,7 @@ public class ImageService {
      * @throws NoApiKeyException
      * @throws UploadFileException
      */
-    public static void simpleMultiModalConversationCall(List<java.util.Map<String, Object>> content)
+    public static void simpleMultiModalConversationCall(List<Map<String, Object>> content)
             throws ApiException, NoApiKeyException, UploadFileException {
 
         MultiModalConversation conv = new MultiModalConversation();
@@ -57,7 +54,7 @@ public class ImageService {
         MultiModalConversationParam param = MultiModalConversationParam.builder()
                 // 若没有配置环境变量，请用百炼API Key将下行替换为：.apiKey("sk-
                 //.apiKey(System.getenv("DASHSCOPE_API_KEY"))
-                .apiKey(botConfig.getDashscopeApiKey())
+                .apiKey(AiConfig.botConfig.getDashscopeApiKey())
                 .model(MultiModalConversation.Models.QWEN_VL_PLUS)
                 .messages(Arrays.asList(systemMessage, userMessage))
                 .build();
@@ -85,7 +82,7 @@ public class ImageService {
         MultiModalConversationParam param = MultiModalConversationParam.builder()
                 // 若没有配置环境变量，请用百炼API Key将下行替换为：.apiKey("sk-xxx")
                 //.apiKey(System.getenv("DASHSCOPE_API_KEY"))
-                .apiKey(botConfig.getDashscopeApiKey())
+                .apiKey(AiConfig.botConfig.getDashscopeApiKey())
                 .model("qwen-vl-max-latest")
                 .messages(Arrays.asList(systemMessage, userMessage))
                 .build();

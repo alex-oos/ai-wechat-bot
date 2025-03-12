@@ -46,14 +46,6 @@ public class DeepSeekService extends AbstractAiService {
     public GenerationResult callWithMessage(List<Message> message) throws ApiException, NoApiKeyException, InputRequiredException {
 
         Generation gen = new Generation();
-        //Message systemMsg = Message.builder()
-        //        .role(Role.SYSTEM.getValue())
-        //        .content(botConfig.getSystemPrompt())
-        //        .build();
-        //Message userMsg = Message.builder()
-        //        .role(Role.USER.getValue())
-        //        .content(content)
-        //        .build();
         GenerationParam param = GenerationParam.builder()
                 .apiKey(botConfig.getDashscopeApiKey())
                 .model(AiEnum.DEEPSEEK.getModel().get(0))

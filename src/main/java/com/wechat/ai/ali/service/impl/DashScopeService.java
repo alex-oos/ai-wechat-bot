@@ -39,6 +39,7 @@ public class DashScopeService extends AbstractAiService {
 
     @Resource
     private BotConfig botConfig;
+
     public DashScopeService() {
 
         super(AiEnum.ALI);
@@ -58,7 +59,7 @@ public class DashScopeService extends AbstractAiService {
 
         Instant now = Instant.now();
         Generation gen = new Generation();
-        TextService dashScopeStreamService = new TextService();
+        TextToText dashScopeStreamService = new TextToText();
         try {
             dashScopeStreamService.streamCallWithMessage(gen, session.getMessages());
 
@@ -74,18 +75,17 @@ public class DashScopeService extends AbstractAiService {
     }
 
     @Override
-    public  String textToText(Session session) {
+    public String textToText(Session session) {
         // 流式消息
         return streamMessage(session);
         // 非流式消息
-        //return TextService.callWithMessage(session.getMessages());
+        //return TextToText.callWithMessage(session.getMessages());
 
     }
 
     @Override
-    public  Map<String, String> textToImage(String content) {
+    public Map<String, String> textToImage(String content) {
 
-        //String prompt = content;
         ImageSynthesisParam param =
                 ImageSynthesisParam.builder()
                         .apiKey(botConfig.getDashscopeApiKey())
@@ -120,6 +120,18 @@ public class DashScopeService extends AbstractAiService {
     public String imageToText(String content) {
 
         return super.imageToText(content);
+    }
+
+    @Override
+    public String textToVideo(String content) {
+
+        try {
+            Text2Video.text2Video(content);
+        } catch (NoApiKeyException | InputRequiredException e) {
+            throw new RuntimeException(e);
+        }
+
+        return "";
     }
 
 

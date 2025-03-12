@@ -68,5 +68,11 @@ public abstract class AbstractAiService implements AIService {
         return "";
     }
 
+    @Override
+    public String textToVideo(String content) {
+
+        return "";
+    }
+
 
 }
