@@ -27,7 +27,7 @@ public class MsgSourceServiceImpl implements MsgSourceService {
     @Resource
     BotConfig botconfig;
 
-    SessionManager sessionManager = new SessionManager();
+    private final SessionManager sessionManager = new SessionManager();
 
     @Resource
     private ReplyMsgService replyMsgService;

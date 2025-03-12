@@ -33,15 +33,16 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
     @Resource
     private BotConfig botconfig;
 
-    private AIService aiService;
+    private AIService aiService = chooseAiService();
 
-    private Session session = new Session();
+
+    private Session session;
 
     @Override
     public void replyType(ChatMessage chatMessage, Session session1) {
 
         session = session1;
-        aiService = chooseAiService();
+        //aiService =
         // 判断类型
         switch (chatMessage.getCtype()) {
             case TEXT:
@@ -127,7 +128,10 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
 
         // 找到正常的服务，然后取出枚举值
         //AiEnum aiEnum = AiEnum.getByBotType(Objects.requireNonNull(FileUtil.readFile()).getAiType());
-        AiEnum aiEnum = AiEnum.getByBotType(botconfig.getAiType());
+        AiEnum aiEnum = null;
+        if (botconfig != null) {
+            aiEnum = AiEnum.getByBotType(botconfig.getAiType());
+        }
         return AiServiceFactory.getAiService(aiEnum);
     }
 

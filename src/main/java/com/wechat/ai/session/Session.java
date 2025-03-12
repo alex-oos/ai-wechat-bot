@@ -80,9 +80,5 @@ public class Session {
         throw new UnsupportedOperationException("Not implemented");
     }
 
-    public List<Message> getMessages() {
-
-        return new ArrayList<>(messages);
-    }
 
 }
