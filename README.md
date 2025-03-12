@@ -81,21 +81,20 @@ docker compose up -d
 
 ```bash
 {
-    "channel_type": "gewechat"   # 通道类型，请设置为gewechat    
-    "gewechat_token": "",        # gewechat服务的token，用于接口认证
-    "gewechat_app_id": "",       # gewechat服务的应用ID
-    "gewechat_base_url": "http://本机ip:2531/v2/api",  # gewechat服务的API基础URL
-    "gewechat_callback_url": "http://本机ip:9919/v2/api/callback/collect", # 回调URL，用于接收消息
-    "gewechat_download_url": "http://本机ip:2532/download", # 文件下载URL
+    "token": "",        # gewechat服务的token，用于接口认证
+    "appId": "",       # gewechat服务的应用ID
+    "baseUrl": "http://本机ip:2531/v2/api",  # gewechat服务的API基础URL
+    "callbackUrl": "http://本机ip:9919/v2/api/callback/collect", # 回调URL，用于接收消息
+    "downloadUrl": "http://本机ip:2532/download", # 文件下载URL
 }
 ```
 
 参数说明：
-- `gewechat_token`: gewechat服务的认证token，首次登录时，可以留空，启动ai-wechat-bot服务时，会**自动获取token**并**自动保存到config.json**中
-- `gewechat_app_id`: gewechat服务分配的设备ID，首次登录时，可以留空，启动ai-wechat-bot服务时，会**自动获取appid**并**自动保存到config.json**中
-- `gewechat_base_url`: gewechat服务的API基础地址，请根据实际情况配置，如果gewechat服务与ai-wechat-bot服务部署在同一台机器上，可以配置为`http://本机ip:2531/v2/api`
-- `gewechat_callback_url`: 接收gewechat消息的回调地址，请根据实际情况配置，如果gewechat服务与ai-wechat-bot服务部署在同一台机器上，可以配置为`http://本机ip:9919/v2/api/callback/collect`，如无特殊需要，请使用9919端口号
-- `gewechat_download_url`: 文件下载地址，用于下载语音、图片等文件，请根据实际部署情况配置，如果gewechat服务与ai-wechat-bot服务部署在同一台机器上，可以配置为`http://本机ip:2532/download`
+- `token`: gewechat服务的认证token，首次登录时，可以留空，启动ai-wechat-bot服务时，会**自动获取token**并**自动保存到config.json**中
+- `appId`: gewechat服务分配的设备ID，首次登录时，可以留空，启动ai-wechat-bot服务时，会**自动获取appid**并**自动保存到config.json**中
+- `baseUrl`: gewechat服务的API基础地址，请根据实际情况配置，如果gewechat服务与ai-wechat-bot服务部署在同一台机器上，可以配置为`http://本机ip:2531/v2/api`
+- `callbackUrl`: 接收gewechat消息的回调地址，请根据实际情况配置，如果gewechat服务与ai-wechat-bot服务部署在同一台机器上，可以配置为`http://本机ip:9919/v2/api/callback/collect`，如无特殊需要，请使用9919端口号
+- `downloadUrl`: 文件下载地址，用于下载语音、图片等文件，请根据实际部署情况配置，如果gewechat服务与ai-wechat-bot服务部署在同一台机器上，可以配置为`http://本机ip:2532/download`
 
 注意：请确保您的回调地址(callback_url)，即ai-wechat-bot启动的回调服务可以被gewechat服务正常访问到。如果您使用Docker部署，需要注意网络配置，确保容器之间可以正常通信。
 
@@ -105,12 +104,11 @@ docker compose up -d
 
 ```bash
 {
-  "channel_type": "gewechat",                   # 通道类型设置为gewechat
-  "model": "dify",                              # 模型名称设置为dify
-  "single_chat_prefix": [""],                   # 私聊触发前缀
-  "single_chat_reply_prefix": "",               # 私聊回复前缀
-  "group_chat_prefix": ["@bot"],                # 群聊触发前缀
-  "group_name_white_list": ["ALL_GROUP"],       # 允许响应的群组
+  "model": "ali",                              # 模型名称设置为ali
+  "singleChatPrefix": [""],                   # 私聊触发前缀
+  "singleChatReplyPrefix": "",               # 私聊回复前缀
+  "groupChatPrefix": ["@bot"],                # 群聊触发前缀
+  "groupNameWhiteList": ["ALL_GROUP"],       # 允许响应的群组
 }
 ```
 
@@ -128,27 +126,41 @@ mvn run ai-wechat-bot.jar
 <img width="700" src="/docs/gewechat/gewechat_login.jpg">
 </div>
 
-## 3.4 利用gewechat发送语音条消息
+[//]: # (## 3.4 利用gewechat发送语音条消息)
 
-语音相关配置如下，另外需要在dify应用中开启语音转文字以及文字转语音功能，注意语音功能需要**安装ffmpeg依赖**
+[//]: # ()
+[//]: # (语音相关配置如下，另外需要在应用中开启语音转文字以及文字转语音功能)
 
-```bash
-{
-  "channel_type": "gewechat",  # 通道类型设置为gewechat
-  "model": "ai",    
-  "speech_recognition": true,  # 是否开启语音识别
-  "voice_reply_voice": true,   # 是否使用语音回复语音
-  "always_reply_voice": false, # 是否一直使用语音回复
-  "voice_to_text": "ai",     # 语音识别引擎
-  "text_to_voice": "ai"      # 语音合成引擎
-}
-```
+[//]: # ()
+[//]: # (```bash)
 
-gewechat支持**发送语音条消息**，但是gewechat服务只能获取到**20s**以内的语音，所以**你只能给bot发送20s以内的语音**，而**bot给你发送语音时无此限制**。
+[//]: # ({)
 
-<div align="center">
-<img width="700" src="/docs/gewechat/gewechat_voice.jpg">
-</div>
+[//]: # (  "model": "qwen-plus",    )
+
+[//]: # (  "speech_recognition": true,  # 是否开启语音识别)
+
+[//]: # (  "voice_reply_voice": true,   # 是否使用语音回复语音)
+
+[//]: # (  "always_reply_voice": false, # 是否一直使用语音回复)
+
+[//]: # (  "voice_to_text": "ai",     # 语音识别引擎)
+
+[//]: # (  "text_to_voice": "ai"      # 语音合成引擎)
+
+[//]: # (})
+
+[//]: # (```)
+
+[//]: # ()
+[//]: # (gewechat支持**发送语音条消息**，但是gewechat服务只能获取到**20s**以内的语音，所以**你只能给bot发送20s以内的语音**，而**bot给你发送语音时无此限制**。)
+
+[//]: # ()
+[//]: # (<div align="center">)
+
+[//]: # (<img width="700" src="/docs/gewechat/gewechat_voice.jpg">)
+
+[//]: # (</div>)
 
 
 # 4. gewechat_channel 服务的限制
