@@ -1,19 +1,27 @@
 package com.wechat.ai.ali.service.impl;
 
 import com.alibaba.dashscope.aigc.generation.Generation;
+import com.alibaba.dashscope.aigc.imagesynthesis.ImageSynthesis;
+import com.alibaba.dashscope.aigc.imagesynthesis.ImageSynthesisParam;
+import com.alibaba.dashscope.aigc.imagesynthesis.ImageSynthesisResult;
 import com.alibaba.dashscope.common.Message;
 import com.alibaba.dashscope.common.Role;
 import com.alibaba.dashscope.exception.ApiException;
 import com.alibaba.dashscope.exception.InputRequiredException;
 import com.alibaba.dashscope.exception.NoApiKeyException;
+import com.alibaba.dashscope.utils.JsonUtils;
 import com.wechat.ai.enums.AiEnum;
 import com.wechat.ai.service.AbstractAiService;
 import com.wechat.ai.session.Session;
+import com.wechat.bot.entity.BotConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -29,7 +37,8 @@ import java.util.List;
 @Service
 public class DashScopeService extends AbstractAiService {
 
-
+    @Resource
+    private BotConfig botConfig;
     public DashScopeService() {
 
         super(AiEnum.ALI);
@@ -74,35 +83,36 @@ public class DashScopeService extends AbstractAiService {
     }
 
     @Override
-    public List<String> textToImage(String content) {
+    public  Map<String, String> textToImage(String content) {
 
-        //String prompt = "一间有着精致窗户的花店，漂亮的木质门，摆放着花朵";
         //String prompt = content;
-        //ImageSynthesisParam param =
-        //        ImageSynthesisParam.builder()
-        //                .apiKey(botConfig.getDashscopeApiKey())
-        //                .model("wanx2.1-t2i-turbo")
-        //                .prompt(prompt)
-        //                .n(1)
-        //                .size("1024*1024")
-        //                .build();
-        //
-        //ImageSynthesis imageSynthesis = new ImageSynthesis();
-        //ImageSynthesisResult result = null;
-        //try {
-        //    System.out.println("---sync call, please wait a moment----");
-        //    result = imageSynthesis.call(param);
-        //} catch (ApiException | NoApiKeyException e) {
-        //    throw new RuntimeException(e.getMessage());
-        //}
-        //System.out.println(JsonUtils.toJson(result));
-        //List<Map<String, String>> results = result.getOutput().getResults();
-        //List<String> imageUrlList = new ArrayList<>();
-        //results.forEach(e -> {
-        //    imageUrlList.add(e.get("url"));
-        //});
+        ImageSynthesisParam param =
+                ImageSynthesisParam.builder()
+                        .apiKey(botConfig.getDashscopeApiKey())
+                        .model("wanx2.1-t2i-turbo")
+                        .prompt(content)
+                        .n(1)
+                        .size("1024*1024")
+                        .build();
 
-        return null;
+        ImageSynthesis imageSynthesis = new ImageSynthesis();
+        ImageSynthesisResult result = null;
+        try {
+            log.info("---sync call, please wait a moment----");
+            result = imageSynthesis.call(param);
+        } catch (ApiException | NoApiKeyException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+        //System.out.println(JsonUtils.toJson(result));
+        log.info(JsonUtils.toJson(result));
+        List<Map<String, String>> results = result.getOutput().getResults();
+        List<String> imageUrlList = new ArrayList<>();
+        results.forEach(e -> {
+            imageUrlList.add(e.get("url"));
+        });
+        Map<String, String> map = results.get(0);
+
+        return map;
     }
 
 

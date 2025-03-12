@@ -2,7 +2,7 @@ package com.wechat.ai.service;
 
 import com.wechat.ai.session.Session;
 
-import java.util.List;
+import java.util.Map;
 
 /**
  * @author Alex
@@ -14,7 +14,7 @@ public interface AIService {
 
     String textToText(Session session);
 
-    List<String> textToImage(String content);
+     Map<String, String> textToImage(String content);
 
     String imageToText(String content);
 

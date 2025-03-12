@@ -39,7 +39,7 @@ public class TaskProcessor {
                             continue;
                         }
                         task.run();
-                        log.info("线程执行成功");
+                        log.info("任务开始执行~");
                     } catch (Exception e) {
                         log.error("线程执行失败，错误原因为：{}", e.getMessage());
                         //e.printStackTrace();

@@ -4,6 +4,7 @@ import com.wechat.ai.session.Session;
 import com.wechat.ai.session.SessionManager;
 import com.wechat.bot.entity.BotConfig;
 import com.wechat.bot.entity.ChatMessage;
+import com.wechat.bot.enums.MsgTypeEnum;
 import com.wechat.bot.service.MsgSourceService;
 import com.wechat.bot.service.ReplyMsgService;
 import com.wechat.gewechat.service.MessageApi;
@@ -48,26 +49,30 @@ public class MsgSourceServiceImpl implements MsgSourceService {
         // 第一次 触发逻辑，判断，会话管理里面是否有消息，没有就创建会话
         // 第二次进行，直接取消息，然后进行回复
         Session session = sessionManager.getSession(chatMessage.getFromUserId());
-        if (session == null) {
-            // 聊天前缀过滤
-            List<String> singleChatPrefix = botconfig.getSingleChatPrefix();
-            if (singleChatPrefix.isEmpty()) {
-                log.error("聊天前缀过滤失败,直接返回");
-                return;
-            } else {
-                // 单独聊天前缀过滤
-                for (String chatPrefix : singleChatPrefix) {
-                    if (!chatMessage.getContent().contains(chatPrefix)) {
-                        return;
+        if (chatMessage.getCtype().equals(MsgTypeEnum.TEXT)) {
+            if (session == null) {
+                // 聊天前缀过滤
+                List<String> singleChatPrefix = botconfig.getSingleChatPrefix();
+                if (singleChatPrefix.isEmpty()) {
+                    log.error("聊天前缀过滤失败,直接返回");
+                    return;
+                } else {
+                    // 单独聊天前缀过滤
+                    for (String chatPrefix : singleChatPrefix) {
+                        if (!chatMessage.getContent().contains(chatPrefix)) {
+                            return;
+                        }
                     }
-                }
-                // 创建一个新的会话
-                sessionManager.createSession(chatMessage.getFromUserId(), botconfig.getSystemPrompt());
-                session = sessionManager.getSession(chatMessage.getFromUserId());
+                    // 创建一个新的会话
+                    sessionManager.createSession(chatMessage.getFromUserId(), botconfig.getSystemPrompt());
+                    session = sessionManager.getSession(chatMessage.getFromUserId());
 
+                }
             }
+            session.addQuery(chatMessage.getContent());
+
         }
-        session.addQuery(chatMessage.getContent());
+
         replyMsgService.replyType(chatMessage, session);
 
 

@@ -5,7 +5,7 @@ import com.wechat.ai.session.Session;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.List;
+import java.util.Map;
 
 /**
  * @author Alex
@@ -33,9 +33,9 @@ public abstract class AbstractAiService implements AIService {
     }
 
     @Override
-    public List<String> textToImage(String content) {
+    public Map<String, String> textToImage(String content) {
 
-        return List.of();
+        return null;
     }
 
     @Override

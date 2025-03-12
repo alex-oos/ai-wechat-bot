@@ -12,13 +12,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -53,44 +50,6 @@ public class MessageServiceImpl implements MessageService {
         String msgId = data.getString("'NewMsgId'");
         // 消息类型
         Integer msgType = data.getInteger("MsgType");
-        MsgTypeEnum msgTypeEnum = MsgTypeEnum.getMsgTypeEnum(msgType);
-        // 判断消息类型，进行一系列的操作
-        switch (msgTypeEnum) {
-            case TEXT:
-                break;
-            case IMAGE:
-                //图片保存一下
-                // 提取图片缩略图的Base64并保存为文件
-
-                String imgBuf = data.getJSONObject("ImgBuf").getString("buffer");
-                byte[] imageBytes = Base64.getDecoder().decode(imgBuf);
-                String dateStr = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyddMM"));
-                Path imagesPath = Path.of("data", "images", dateStr, fromUserName);
-                imagesPath.toFile().mkdirs();
-                String time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
-                Path imagePath = imagesPath.resolve(time + ".jpg");
-
-                try (FileOutputStream fos = new FileOutputStream(imagePath.toFile())) {
-                    fos.write(imageBytes);
-                    System.out.println("图片缩略图已保存为: " + imagePath.toFile().getAbsolutePath());
-                } catch (IOException e) {
-                    System.out.println("保存图片缩略图失败");
-                    e.printStackTrace();
-                }
-
-                //try {
-                //    WechatImageDecoder.decryptWechatImage(content, imagePath.toString());
-                //} catch (Exception e) {
-                //    throw new RuntimeException(e);
-                //}
-                break;
-            case VOICE:
-                break;
-            default:
-                break;
-
-        }
-        boolean isGroup = fromUserName.contains("@chatroom");
         ChatMessage chatMessage = ChatMessage.builder()
                 .msgId(msgId)
                 .createTime(data.getLong("CreateTime"))
@@ -99,7 +58,7 @@ public class MessageServiceImpl implements MessageService {
                 .fromUserId(fromUserName)
                 .toUserId(toUserName)
                 .isMyMsg(wxid.equals(fromUserName))
-                .isGroup(isGroup)
+                .isGroup(fromUserName.contains("@chatroom"))
                 .isAt(content.contains("@"))
                 .actualUserId(wxid)
                 .appId(appid)
@@ -111,9 +70,14 @@ public class MessageServiceImpl implements MessageService {
         if (isFilter) {
             return;
         }
+        // 先过滤掉所有的群消息
+        if (chatMessage.getIsGroup()) {
+            log.info("收到群消息");
+            return;
+        }
 
         this.updateMsgType(chatMessage);
-        if (!contactMap.containsKey(chatMessage.getFromUserId()) && !chatMessage.getIsGroup()) {
+        if (!contactMap.containsKey(chatMessage.getFromUserId())) {
             // 存到一个map里面不用每次都重新获取，降低请求次数
             // 获取好友的信息
             String nickName = null;
@@ -208,7 +172,42 @@ public class MessageServiceImpl implements MessageService {
      * @param chatMessage
      */
     private void updateMsgType(ChatMessage chatMessage) {
+        // 判断消息类型，进行一系列的操作
+        switch (chatMessage.getCtype()) {
+            case TEXT:
+                break;
+            case IMAGE:
+                //图片保存一下
+                // 提取图片缩略图的Base64并保存为文件
 
+                //String imgBuf = data.getJSONObject("ImgBuf").getString("buffer");
+                //byte[] imageBytes = Base64.getDecoder().decode(imgBuf);
+                //String dateStr = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyddMM"));
+                //Path imagesPath = Path.of("data", "images", dateStr, fromUserName);
+                //imagesPath.toFile().mkdirs();
+                //String time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+                //Path imagePath = imagesPath.resolve(time + ".jpg");
+                //
+                //try (FileOutputStream fos = new FileOutputStream(imagePath.toFile())) {
+                //    fos.write(imageBytes);
+                //    System.out.println("图片缩略图已保存为: " + imagePath.toFile().getAbsolutePath());
+                //} catch (IOException e) {
+                //    System.out.println("保存图片缩略图失败");
+                //    e.printStackTrace();
+                //}
+
+                //try {
+                //    WechatImageDecoder.decryptWechatImage(content, imagePath.toString());
+                //} catch (Exception e) {
+                //    throw new RuntimeException(e);
+                //}
+                break;
+            case VOICE:
+                break;
+            default:
+                break;
+
+        }
         String content = chatMessage.getContent();
         List<String> imageCreatePrefix = botConfig.getImageCreatePrefix();
         for (String createPrefix : imageCreatePrefix) {

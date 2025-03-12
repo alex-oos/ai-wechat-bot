@@ -1,6 +1,5 @@
 package com.wechat.bot.service.impl;
 
-import com.alibaba.fastjson2.JSONObject;
 import com.wechat.ai.enums.AiEnum;
 import com.wechat.ai.factory.AiServiceFactory;
 import com.wechat.ai.service.AIService;
@@ -14,7 +13,7 @@ import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.concurrent.CompletableFuture;
+import java.util.Map;
 
 /**
  * @author Alex
@@ -72,20 +71,10 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
     @Override
     public void replyImageMsg(ChatMessage chatMessage) {
 
+        Map<String, String> map = aiService.textToImage(chatMessage.getContent());
+        MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), map.get("actual_prompt"), chatMessage.getToUserId());
+        MessageApi.postImage(chatMessage.getAppId(), chatMessage.getFromUserId(), map.get("url"));
 
-        CompletableFuture.supplyAsync(() -> {
-            log.info("请求AI服务");
-            return aiService.textToImage(chatMessage.getContent());
-        }, executor).thenApplyAsync((res) -> {
-            res.forEach(msg -> {
-                log.info("请求gewechat服务：{}", msg);
-                JSONObject jsonObject = MessageApi.postImage(chatMessage.getAppId(), chatMessage.getFromUserId(), msg);
-                if (jsonObject.getInteger("ret") == 200) {
-                    log.info("gewechat服务回复成功");
-                }
-            });
-            return null;
-        }, executor);
 
     }
 
