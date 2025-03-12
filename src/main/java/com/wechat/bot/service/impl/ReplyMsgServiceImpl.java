@@ -64,14 +64,8 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
     public void replyTextMsg(ChatMessage chatMessage) {
 
         String replayMsg = aiService.textToText(session);
-
-        log.info("请求gewechat服务：{}", replayMsg);
-        JSONObject jsonObject = MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), replayMsg, chatMessage.getToUserId());
-        if (jsonObject.getInteger("ret") == 200) {
-            log.info("gewechat服务回复成功");
-        }
-
-
+        MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), replayMsg, chatMessage.getToUserId());
+        log.info("消息回复成功，回复人：{}，回复内容为：{}", chatMessage.getFromUserNickname(), replayMsg);
     }
 
 

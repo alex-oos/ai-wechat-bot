@@ -1,6 +1,5 @@
 package com.wechat.bot.service.impl;
 
-import com.alibaba.fastjson2.JSONObject;
 import com.wechat.ai.session.Session;
 import com.wechat.ai.session.SessionManager;
 import com.wechat.bot.entity.BotConfig;
@@ -24,10 +23,10 @@ import java.util.List;
 @Service
 public class MsgSourceServiceImpl implements MsgSourceService {
 
+    private final SessionManager sessionManager = new SessionManager();
+
     @Resource
     BotConfig botconfig;
-
-    private final SessionManager sessionManager = new SessionManager();
 
     @Resource
     private ReplyMsgService replyMsgService;
@@ -40,13 +39,10 @@ public class MsgSourceServiceImpl implements MsgSourceService {
     public void personalMsg(ChatMessage chatMessage) {
         // 会话清理的逻辑
         String content = chatMessage.getContent();
-        if (content.equals("#清除记忆")) {
+        if (content.equals("#清除记忆") || content.equals("#退出") || content.equals("#清除") || content.equals("#清除记忆并退出") || content.equals("#人工")) {
             sessionManager.deleteSession(chatMessage.getFromUserId());
             // 直接回复，清除记忆成功
-            JSONObject jsonObject = MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), "清理成功", chatMessage.getToUserId());
-            if (jsonObject.getInteger("ret") == 200) {
-                log.info("gewechat服务回复成功");
-            }
+            MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), "恢复真人模式", chatMessage.getToUserId());
             return;
         }
         // 第一次 触发逻辑，判断，会话管理里面是否有消息，没有就创建会话

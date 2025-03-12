@@ -94,7 +94,7 @@ public class OkhttpUtil {
                 throw new RuntimeException("baseUrl 未配置");
             }
             String res = json(baseUrl + route, header, param.toJSONString(), okHttpClient());
-            System.out.println(res);
+            log.debug("响应为：{}", res);
             JSONObject jsonObject = JSONObject.parse(res);
             if (jsonObject.getInteger("ret") == 200) {
                 return jsonObject;
