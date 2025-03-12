@@ -27,7 +27,7 @@ import java.util.List;
  * </p>
  */
 @Slf4j
-public class DashScopeStreamService {
+public class TextService {
 
 
     public static BotConfig botConfig = null;

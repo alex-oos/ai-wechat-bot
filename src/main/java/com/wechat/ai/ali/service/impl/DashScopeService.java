@@ -19,7 +19,6 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -58,7 +57,7 @@ public class DashScopeService extends AbstractAiService {
 
         Instant now = Instant.now();
         Generation gen = new Generation();
-        DashScopeStreamService dashScopeStreamService = new DashScopeStreamService();
+        TextService dashScopeStreamService = new TextService();
         try {
             dashScopeStreamService.streamCallWithMessage(gen, session.getMessages());
 
@@ -78,7 +77,7 @@ public class DashScopeService extends AbstractAiService {
         // 流式消息
         return streamMessage(session);
         // 非流式消息
-        //return DashScopeStreamService.callWithMessage(session.getMessages());
+        //return TextService.callWithMessage(session.getMessages());
 
     }
 
@@ -106,13 +105,8 @@ public class DashScopeService extends AbstractAiService {
         //System.out.println(JsonUtils.toJson(result));
         log.info(JsonUtils.toJson(result));
         List<Map<String, String>> results = result.getOutput().getResults();
-        List<String> imageUrlList = new ArrayList<>();
-        results.forEach(e -> {
-            imageUrlList.add(e.get("url"));
-        });
-        Map<String, String> map = results.get(0);
 
-        return map;
+        return results.get(0);
     }
 
 
@@ -120,30 +114,6 @@ public class DashScopeService extends AbstractAiService {
     public String imageToText(String content) {
 
         return super.imageToText(content);
-    }
-
-    @Override
-    public String imageToImage(String content) {
-
-        return super.imageToImage(content);
-    }
-
-    @Override
-    public String imageToImage(String content, String style) {
-
-        return super.imageToImage(content, style);
-    }
-
-    @Override
-    public String imageToImage(String content, String style, String prompt) {
-
-        return super.imageToImage(content, style, prompt);
-    }
-
-    @Override
-    public String imageToImage(String content, String style, String prompt, String negativePrompt) {
-
-        return super.imageToImage(content, style, prompt, negativePrompt);
     }
 
 
