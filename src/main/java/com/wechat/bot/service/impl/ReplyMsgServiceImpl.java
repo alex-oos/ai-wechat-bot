@@ -24,6 +24,7 @@ import java.util.Map;
 @Service
 public class ReplyMsgServiceImpl implements ReplyMsgService {
 
+
     @Resource(name = "commonThreadPool")
     private TaskExecutor executor;
 
@@ -31,7 +32,6 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
     private BotConfig botconfig;
 
     private AIService aiService;
-
 
     private Session session;
 
@@ -46,6 +46,10 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
                 this.replyTextMsg(chatMessage);
                 break;
             case IMAGE:
+                // TODO 先过滤掉，图片识别，后期再来做
+                if (chatMessage.getContent().contains("xml")){
+                    return;
+                }
                 this.replyImageMsg(chatMessage);
                 break;
             case VOICE:

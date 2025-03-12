@@ -70,13 +70,13 @@ public class MessageServiceImpl implements MessageService {
         if (isFilter) {
             return;
         }
-        // 先过滤掉所有的群消息
+        //TODO 先过滤掉所有的群消息,等个人开发完毕之后，再去处理群消息
         if (chatMessage.getIsGroup()) {
             log.info("收到群消息");
             return;
         }
-
-        this.updateMsgType(chatMessage);
+        // 消息内容进行处理
+        this.messageContentProcessing(chatMessage);
         if (!contactMap.containsKey(chatMessage.getFromUserId())) {
             // 存到一个map里面不用每次都重新获取，降低请求次数
             // 获取好友的信息
@@ -167,47 +167,47 @@ public class MessageServiceImpl implements MessageService {
     }
 
     /**
-     * 将类型修改为图片类型
+     * 消息内容进行一系列的处理，处理逻辑比较复杂
      *
      * @param chatMessage
      */
-    private void updateMsgType(ChatMessage chatMessage) {
-        // 判断消息类型，进行一系列的操作
-        switch (chatMessage.getCtype()) {
-            case TEXT:
-                break;
-            case IMAGE:
-                //图片保存一下
-                // 提取图片缩略图的Base64并保存为文件
-
-                //String imgBuf = data.getJSONObject("ImgBuf").getString("buffer");
-                //byte[] imageBytes = Base64.getDecoder().decode(imgBuf);
-                //String dateStr = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyddMM"));
-                //Path imagesPath = Path.of("data", "images", dateStr, fromUserName);
-                //imagesPath.toFile().mkdirs();
-                //String time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
-                //Path imagePath = imagesPath.resolve(time + ".jpg");
-                //
-                //try (FileOutputStream fos = new FileOutputStream(imagePath.toFile())) {
-                //    fos.write(imageBytes);
-                //    System.out.println("图片缩略图已保存为: " + imagePath.toFile().getAbsolutePath());
-                //} catch (IOException e) {
-                //    System.out.println("保存图片缩略图失败");
-                //    e.printStackTrace();
-                //}
-
-                //try {
-                //    WechatImageDecoder.decryptWechatImage(content, imagePath.toString());
-                //} catch (Exception e) {
-                //    throw new RuntimeException(e);
-                //}
-                break;
-            case VOICE:
-                break;
-            default:
-                break;
-
-        }
+    private void messageContentProcessing(ChatMessage chatMessage) {
+        //// 判断消息类型，进行一系列的操作
+        //switch (chatMessage.getCtype()) {
+        //    case TEXT:
+        //        break;
+        //    case IMAGE:
+        //        //图片保存一下
+        //        // 提取图片缩略图的Base64并保存为文件
+        //
+        //        //String imgBuf = data.getJSONObject("ImgBuf").getString("buffer");
+        //        //byte[] imageBytes = Base64.getDecoder().decode(imgBuf);
+        //        //String dateStr = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyddMM"));
+        //        //Path imagesPath = Path.of("data", "images", dateStr, fromUserName);
+        //        //imagesPath.toFile().mkdirs();
+        //        //String time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+        //        //Path imagePath = imagesPath.resolve(time + ".jpg");
+        //        //
+        //        //try (FileOutputStream fos = new FileOutputStream(imagePath.toFile())) {
+        //        //    fos.write(imageBytes);
+        //        //    System.out.println("图片缩略图已保存为: " + imagePath.toFile().getAbsolutePath());
+        //        //} catch (IOException e) {
+        //        //    System.out.println("保存图片缩略图失败");
+        //        //    e.printStackTrace();
+        //        //}
+        //
+        //        //try {
+        //        //    WechatImageDecoder.decryptWechatImage(content, imagePath.toString());
+        //        //} catch (Exception e) {
+        //        //    throw new RuntimeException(e);
+        //        //}
+        //        break;
+        //    case VOICE:
+        //        break;
+        //    default:
+        //        break;
+        //
+        //}
         String content = chatMessage.getContent();
         List<String> imageCreatePrefix = botConfig.getImageCreatePrefix();
         for (String createPrefix : imageCreatePrefix) {

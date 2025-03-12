@@ -74,7 +74,7 @@ public class DashScopeService extends AbstractAiService {
     }
 
     @Override
-    public String textToText(Session session) {
+    public  String textToText(Session session) {
         // 流式消息
         return streamMessage(session);
         // 非流式消息
