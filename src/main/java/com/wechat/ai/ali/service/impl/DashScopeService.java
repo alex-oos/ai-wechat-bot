@@ -49,17 +49,18 @@ public class DashScopeService extends AbstractAiService {
 
         Instant now = Instant.now();
         Generation gen = new Generation();
+        DashScopeStreamService dashScopeStreamService = new DashScopeStreamService();
         try {
-            DashScopeStreamService.streamCallWithMessage(gen, session.getMessages());
+            dashScopeStreamService.streamCallWithMessage(gen, session.getMessages());
 
-            Message assistantMsg = Message.builder().role(Role.ASSISTANT.getValue()).content(DashScopeStreamService.fullContent.toString()).build();
+            Message assistantMsg = Message.builder().role(Role.ASSISTANT.getValue()).content(dashScopeStreamService.fullContent.toString()).build();
             session.addReply(assistantMsg.getContent());
         } catch (NoApiKeyException | InputRequiredException e) {
             log.error("An exception occurred: {}", e.getMessage(), e);
             throw new RuntimeException(e);
         }
         log.info("本次对话总耗时：{} ms", Instant.now().toEpochMilli() - now.toEpochMilli());
-        return DashScopeStreamService.fullContent.toString();
+        return dashScopeStreamService.fullContent.toString();
 
     }
 

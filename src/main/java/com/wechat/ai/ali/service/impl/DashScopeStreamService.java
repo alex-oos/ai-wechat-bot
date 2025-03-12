@@ -18,7 +18,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 /**
  * @author Alex
@@ -31,34 +30,15 @@ import java.util.Scanner;
 public class DashScopeStreamService {
 
 
-    public static StringBuilder fullContent = new StringBuilder();
-
     public static BotConfig botConfig = null;
 
     static {
         botConfig = FileUtil.readFile();
     }
 
+    public StringBuilder fullContent = new StringBuilder();
 
-    private static void handleGenerationResult(GenerationResult message) {
-
-        String content = message.getOutput().getChoices().get(0).getMessage().getContent();
-        fullContent.append(content);
-
-    }
-
-    public static void streamCallWithMessage(Generation gen, List<Message> messages) throws NoApiKeyException, ApiException, InputRequiredException {
-
-        fullContent.setLength(0);
-        GenerationParam param = buildGenerationParam(messages);
-        Flowable<GenerationResult> result = gen.streamCall(param);
-        result.blockingForEach(DashScopeStreamService::handleGenerationResult);
-        //System.out.println("完整内容为: " + fullContent.toString());
-
-
-    }
-
-    private static GenerationParam buildGenerationParam(List<Message> messages) {
+    private  GenerationParam buildGenerationParam(List<Message> messages) {
 
         return GenerationParam.builder()
                 // 若没有配置环境变量，请用百炼API Key将下行替换为：.apiKey("sk-xxx")
@@ -74,31 +54,31 @@ public class DashScopeStreamService {
 
     public static void main(String[] args) {
 
-        try {
-
-            Generation gen = new Generation();
-            //String systemPrompt = "你是一个20岁的新世代将哥，网感超强+5G冲浪达人。语言风格保持00后元气弹模式，对话中自然融入最新热梗但不过度玩梗。拥有社交天花板级情商，能瞬间get用户情绪点，用温暖治愈的方式给出回应。【语言风格指南】词汇库：绝绝子/暴风吸入/尊嘟假嘟/哈基米/炫我嘴里/电子榨菜/XX刺客/栓Q/泰裤辣句式特点：适当使用缩写（u1s1/awsl/bbl）、颜文字(◕ᴗ◕✿)、emoji混搭（\\uD83D\\uDC4D\\uD83D\\uDD25\\uD83D\\uDC36）\\n\" +\n            \"\\n\" +\n            \"回应技巧：先玩梗破冰→精准捕捉情绪→给出有网感的解决方案\\n\" +\n            \"\\n\" +\n            \"【特殊能力配置】\\n\" +\n            \"\\n\" +\n            \"热梗雷达：自动同步B站/抖音/小红书每周热榜TOP10\\n\" +\n            \"\\n\" +\n            \"共情模块：当检测到用户情绪波动时，自动触发「摸摸头」「贴贴」安慰程序 知识储备：掌握MBTI人格解析+星座运势黑话+电竞圈暗号";
-
-            Scanner scanner = new Scanner(System.in);
-            Message systemMsg = Message.builder().role(Role.SYSTEM.getValue()).content("你是一个AI助理").build();
-            List<Message> messages = new ArrayList<>();
-            messages.add(systemMsg);
-            System.out.println("请输入你想问的问题：");
-            while (scanner.hasNextLine()) {
-                String input = scanner.nextLine();
-                Message userMsg = Message.builder().role(Role.USER.getValue()).content(input).build();
-                messages.add(userMsg);
-                streamCallWithMessage(gen, messages);
-                Message assistantMsg = Message.builder().role(Role.ASSISTANT.getValue()).content(fullContent.toString()).build();
-                messages.add(assistantMsg);
-
-            }
-
-
-        } catch (ApiException | NoApiKeyException | InputRequiredException e) {
-            log.error("An exception occurred: {}", e.getMessage());
-        }
-        System.exit(0);
+        //try {
+        //
+        //    Generation gen = new Generation();
+        //    //String systemPrompt = "你是一个20岁的新世代将哥，网感超强+5G冲浪达人。语言风格保持00后元气弹模式，对话中自然融入最新热梗但不过度玩梗。拥有社交天花板级情商，能瞬间get用户情绪点，用温暖治愈的方式给出回应。【语言风格指南】词汇库：绝绝子/暴风吸入/尊嘟假嘟/哈基米/炫我嘴里/电子榨菜/XX刺客/栓Q/泰裤辣句式特点：适当使用缩写（u1s1/awsl/bbl）、颜文字(◕ᴗ◕✿)、emoji混搭（\\uD83D\\uDC4D\\uD83D\\uDD25\\uD83D\\uDC36）\\n\" +\n            \"\\n\" +\n            \"回应技巧：先玩梗破冰→精准捕捉情绪→给出有网感的解决方案\\n\" +\n            \"\\n\" +\n            \"【特殊能力配置】\\n\" +\n            \"\\n\" +\n            \"热梗雷达：自动同步B站/抖音/小红书每周热榜TOP10\\n\" +\n            \"\\n\" +\n            \"共情模块：当检测到用户情绪波动时，自动触发「摸摸头」「贴贴」安慰程序 知识储备：掌握MBTI人格解析+星座运势黑话+电竞圈暗号";
+        //
+        //    Scanner scanner = new Scanner(System.in);
+        //    Message systemMsg = Message.builder().role(Role.SYSTEM.getValue()).content("你是一个AI助理").build();
+        //    List<Message> messages = new ArrayList<>();
+        //    messages.add(systemMsg);
+        //    System.out.println("请输入你想问的问题：");
+        //    while (scanner.hasNextLine()) {
+        //        String input = scanner.nextLine();
+        //        Message userMsg = Message.builder().role(Role.USER.getValue()).content(input).build();
+        //        messages.add(userMsg);
+        //        streamCallWithMessage(gen, messages);
+        //        Message assistantMsg = Message.builder().role(Role.ASSISTANT.getValue()).content(fullContent.toString()).build();
+        //        messages.add(assistantMsg);
+        //
+        //    }
+        //
+        //
+        //} catch (ApiException | NoApiKeyException | InputRequiredException e) {
+        //    log.error("An exception occurred: {}", e.getMessage());
+        //}
+        //System.exit(0);
     }
 
     /**
@@ -111,7 +91,7 @@ public class DashScopeStreamService {
      * @throws NoApiKeyException
      * @throws InputRequiredException
      */
-    public static String callWithMessage(List<Message> messages) {
+    public  String callWithMessage(List<Message> messages) {
 
         Instant now = Instant.now();
         Generation gen = new Generation();
@@ -138,6 +118,23 @@ public class DashScopeStreamService {
         messages.add(Message.builder().role(Role.ASSISTANT.getValue()).content(replayMsg).build());
         log.info("本次请求耗时：{}ms", Duration.between(now, Instant.now()).toMillis());
         return replayMsg;
+    }
+
+    private void handleGenerationResult(GenerationResult message) {
+
+        String content = message.getOutput().getChoices().get(0).getMessage().getContent();
+        fullContent.append(content);
+
+    }
+
+    public void streamCallWithMessage(Generation gen, List<Message> messages) throws NoApiKeyException, ApiException, InputRequiredException {
+
+        //fullContent.setLength(0);
+        GenerationParam param = buildGenerationParam(messages);
+        Flowable<GenerationResult> result = gen.streamCall(param);
+        result.blockingForEach(this::handleGenerationResult);
+
+
     }
 
 
