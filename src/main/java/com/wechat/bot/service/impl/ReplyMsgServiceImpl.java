@@ -5,7 +5,6 @@ import com.wechat.ai.enums.AiEnum;
 import com.wechat.ai.factory.AiServiceFactory;
 import com.wechat.ai.service.AIService;
 import com.wechat.ai.session.Session;
-import com.wechat.ai.session.SessionManager;
 import com.wechat.bot.entity.BotConfig;
 import com.wechat.bot.entity.ChatMessage;
 import com.wechat.bot.service.ReplyMsgService;
@@ -15,7 +14,6 @@ import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -33,7 +31,7 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
     @Resource
     private BotConfig botconfig;
 
-    private AIService aiService = chooseAiService();
+    private AIService aiService;
 
 
     private Session session;
@@ -42,7 +40,7 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
     public void replyType(ChatMessage chatMessage, Session session1) {
 
         session = session1;
-        //aiService =
+        aiService = chooseAiService();
         // 判断类型
         switch (chatMessage.getCtype()) {
             case TEXT:
