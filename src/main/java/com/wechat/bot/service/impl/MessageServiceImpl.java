@@ -113,7 +113,7 @@ public class MessageServiceImpl implements MessageService {
         }
 
         this.updateMsgType(chatMessage);
-        if (!contactMap.containsKey(chatMessage.getFromUserId())) {
+        if (!contactMap.containsKey(chatMessage.getFromUserId()) && !chatMessage.getIsGroup()) {
             // 存到一个map里面不用每次都重新获取，降低请求次数
             // 获取好友的信息
             String nickName = null;
