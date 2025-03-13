@@ -2,7 +2,6 @@ package com.wechat.gewechat.service;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.wechat.gewechat.util.OkhttpUtil;
-import com.wechat.gewechat.util.OkhttpUtilDownLoad;
 
 /**
  * 下载模块
@@ -17,7 +16,7 @@ public class DownloadApi {
         param.put("appId",appId);
         param.put("xml",xml);
         param.put("type",type);
-        return OkhttpUtilDownLoad.postJSON("/message/downloadImage",param);
+        return OkhttpUtil.postJSON("/message/downloadImage",param);
     }
 
     /**

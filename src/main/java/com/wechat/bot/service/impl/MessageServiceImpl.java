@@ -182,7 +182,7 @@ public class MessageServiceImpl implements MessageService {
         //判断消息类型，进行一系列的操作
         switch (chatMessage.getCtype()) {
             case TEXT:
-                // 个人的文本消息，进行一系列的处理，群的文本消息是否需要处理，这里想想后面如何校验一下
+                // 文本消息进行处理
                 String content = chatMessage.getContent();
                 List<String> imageCreatePrefix = botConfig.getImageCreatePrefix();
                 for (String createPrefix : imageCreatePrefix) {
