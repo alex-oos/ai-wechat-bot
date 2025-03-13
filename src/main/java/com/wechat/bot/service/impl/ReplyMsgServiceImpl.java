@@ -114,6 +114,7 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
     public void imageRecognition(ChatMessage chatMessage) {
 
         String s = aiService.imageToText(session);
+        log.info("图片识别成功，图片内容：{}", s);
         MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), s, chatMessage.getToUserId());
     }
 

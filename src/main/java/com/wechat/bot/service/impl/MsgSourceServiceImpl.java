@@ -15,10 +15,8 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Alex
@@ -85,12 +83,20 @@ public class MsgSourceServiceImpl implements MsgSourceService {
             //MultiModalMessage userMessage = MultiModalMessage.builder().role(Role.USER.getValue())
             //        .content(List.of(Collections.singletonMap("text", chatMessage.getContent()))).build();
             //imageMessages.add(userMessage);
-            for (MultiModalMessage imageMessage : imageMessages) {
-                boolean equals = imageMessage.getRole().equals(Role.USER.getValue());
-                if (equals) {
+            List<MultiModalMessage> collect = imageMessages.stream().filter(e -> e.getRole().equals(Role.USER.getValue())).collect(Collectors.toList());
+            for (MultiModalMessage imageMessage : collect) {
+                List<Map<String, Object>> contentList = imageMessage.getContent();
+                long count = contentList.stream().filter(e -> e.get("text") != null).count();
+                if (count == 0) {
                     List<Map<String, Object>> content1 = imageMessage.getContent();
                     content1.add(Collections.singletonMap("text", chatMessage.getContent()));
+                } else {
+                    MultiModalMessage msg = MultiModalMessage.builder().role(Role.USER.getValue())
+                            .content(List.of(Collections.singletonMap("text", "做一首诗描述这个场景"))).build();
+                    imageMessages.add(msg);
                 }
+
+
             }
 
             chatMessage.setCtype(MsgTypeEnum.IMAGERECOGNITION);
@@ -104,7 +110,7 @@ public class MsgSourceServiceImpl implements MsgSourceService {
             // 不同的操作系统，需要区分一下路径
             // Linux或macOS系统   file://{文件的绝对路径} file:///home/images/test.png
             // Windows系统 file:///{文件的绝对路径} file:///D:images/test.png
-           List<Map<String, Object>> list = new ArrayList<>();
+            List<Map<String, Object>> list = new ArrayList<>();
             list.add(Collections.singletonMap("image", "file://" + chatMessage.getContent()));
             MultiModalMessage userMessage = MultiModalMessage.builder().role(Role.USER.getValue())
                     .content(list).build();
