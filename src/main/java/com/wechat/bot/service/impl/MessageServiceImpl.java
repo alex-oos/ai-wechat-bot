@@ -42,77 +42,6 @@ public class MessageServiceImpl implements MessageService {
     @Resource
     private BotConfig botConfig;
 
-    public static String download(String imageUrl) {
-
-        try {
-
-            // 创建连接
-            URL url = new URL(imageUrl);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestProperty("User-Agent", "Mozilla/5.0");
-
-            // 下载图片
-            BufferedImage originalImage = ImageIO.read(connection.getInputStream());
-            if (originalImage == null) {
-                throw new IOException("Failed to read image from URL");
-            }
-
-            // 创建一个新的RGB格式的BufferedImage
-            BufferedImage newImage = new BufferedImage(
-                    originalImage.getWidth(),
-                    originalImage.getHeight(),
-                    BufferedImage.TYPE_INT_RGB
-            );
-
-            // 创建Graphics2D对象并设置背景色
-            Graphics2D g2d = newImage.createGraphics();
-            g2d.setColor(Color.WHITE);
-            g2d.fillRect(0, 0, newImage.getWidth(), newImage.getHeight());
-
-            // 将原图绘制到新图上
-            g2d.drawImage(originalImage, 0, 0, null);
-            g2d.dispose();
-
-            // 转换为JPEG格式
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
-            // 使用"jpg"而不是"JPEG"
-            boolean success = ImageIO.write(newImage, "jpg", baos);
-
-
-            if (!success) {
-                throw new IOException("Failed to convert image to JPEG format");
-            }
-
-            baos.flush();
-            byte[] imageBytes = baos.toByteArray();
-
-            // 检查图片字节数组
-            if (imageBytes == null || imageBytes.length == 0) {
-                throw new IOException("Image bytes are empty");
-            }
-
-
-            // 获取MIME类型
-            String mimeType = "image/jpeg";
-
-            // 转换为Base64
-            String base64Image = Base64.getEncoder().encodeToString(imageBytes);
-
-            // 关闭资源
-            baos.close();
-
-            //return MessageImg.builder()
-            //        .mimeType(mimeType)
-            //        .base64String(base64Image)
-            //        .build();
-            return base64Image;
-
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
     //@Async
     @Override
     public void receiveMsg(JSONObject requestBody) {
@@ -278,7 +207,7 @@ public class MessageServiceImpl implements MessageService {
                     break;
                 }
                 String imagePath = jsonObject.getJSONObject("data").getString("fileUrl");
-                imagePath = "http://" + IpUtil.getIp() + ":2532/download" + imagePath;
+                imagePath = "http://" + IpUtil.getIp() + ":2532/download/" + imagePath;
                 String base64Image = download(imagePath);
                 chatMessage.setContent(base64Image);
                 break;
@@ -294,6 +223,78 @@ public class MessageServiceImpl implements MessageService {
         }
 
 
+    }
+
+    private String download(String imageUrl) {
+
+        try {
+
+            // 创建连接
+            URL url = new URL(imageUrl);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestProperty("User-Agent", "Mozilla/5.0");
+
+            // 下载图片
+            BufferedImage originalImage = ImageIO.read(connection.getInputStream());
+            if (originalImage == null) {
+                throw new IOException("Failed to read image from URL");
+            }
+
+            // 创建一个新的RGB格式的BufferedImage
+            BufferedImage newImage = new BufferedImage(
+                    originalImage.getWidth(),
+                    originalImage.getHeight(),
+                    BufferedImage.TYPE_INT_RGB
+            );
+
+            // 创建Graphics2D对象并设置背景色
+            Graphics2D g2d = newImage.createGraphics();
+            g2d.setColor(Color.WHITE);
+            g2d.fillRect(0, 0, newImage.getWidth(), newImage.getHeight());
+
+            // 将原图绘制到新图上
+            g2d.drawImage(originalImage, 0, 0, null);
+            g2d.dispose();
+
+            // 转换为JPEG格式
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+            // 使用"jpg"而不是"JPEG"
+            boolean success = ImageIO.write(newImage, "jpg", baos);
+
+
+            if (!success) {
+                throw new IOException("Failed to convert image to JPEG format");
+            }
+
+            baos.flush();
+            byte[] imageBytes = baos.toByteArray();
+
+            // 检查图片字节数组
+            if (imageBytes == null || imageBytes.length == 0) {
+                throw new IOException("Image bytes are empty");
+            }
+
+
+            // 获取MIME类型
+            String mimeType = "image/jpeg";
+
+            // 转换为Base64
+            String base64Image = Base64.getEncoder().encodeToString(imageBytes);
+
+            // 关闭资源
+            baos.close();
+
+            //return MessageImg.builder()
+            //        .mimeType(mimeType)
+            //        .base64String(base64Image)
+            //        .build();
+            return base64Image;
+
+        } catch (Exception e) {
+            log.error("图片下载失败,地址为：{},异常信息为：{}", imageUrl, e.getMessage());
+            throw new RuntimeException(String.format("图片下载失败，地址为：%s", imageUrl), e);
+        }
     }
 
 
