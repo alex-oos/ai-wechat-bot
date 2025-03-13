@@ -166,3 +166,4 @@ buildNumber.properties
 out
 gen
 *.json
+src/main/resources/static/config.json
