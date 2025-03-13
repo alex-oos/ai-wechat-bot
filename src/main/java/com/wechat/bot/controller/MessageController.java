@@ -31,14 +31,13 @@ public class MessageController {
 
         // 直接添加到任务中，单个线程去处理，增加，同时处理的数量
 
-        taskQueue.enqueue(() -> {
-            //log.info("接收到消息");
-            Boolean filterOther = messageService.filterErrorMessage(requestBody);
-            if (filterOther) {
-                return;
-            }
-            messageService.receiveMsg(JSONObject.parseObject(requestBody));
-        });
+
+        Boolean filterOther = messageService.filterErrorMessage(requestBody);
+        if (filterOther) {
+            return;
+        }
+        messageService.receiveMsg(JSONObject.parseObject(requestBody));
+
 
 
     }

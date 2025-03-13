@@ -167,6 +167,7 @@ public class MessageServiceImpl implements MessageService {
         if (!response.containsKey("Data")) {
             return true;
         }
+        // 过滤掉不包含NewMsgId字段的信息
         if (!response.getJSONObject("Data").containsKey("NewMsgId")) {
             return true;
         }

@@ -10,8 +10,13 @@ import com.wechat.bot.entity.ChatMessage;
  */
 public interface MessageService {
 
-
-    Boolean filterNotUserMessage(ChatMessage chatMessage,String msgSource);
+    /**
+     * 过滤掉非用户消息
+     * @param chatMessage
+     * @param msgSource
+     * @return
+     */
+    Boolean filterNotUserMessage(ChatMessage chatMessage, String msgSource);
 
     /**
      * 过滤错误消息
@@ -21,6 +26,11 @@ public interface MessageService {
      */
     Boolean filterErrorMessage(String requestBody);
 
+    /**
+     * 接收消息
+     *
+     * @param requestBody
+     */
 
     void receiveMsg(JSONObject requestBody);
 
