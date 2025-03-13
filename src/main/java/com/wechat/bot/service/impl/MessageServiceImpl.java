@@ -201,7 +201,7 @@ public class MessageServiceImpl implements MessageService {
                 // 图片下载处理为base64位
                 JSONObject jsonObject = DownloadApi.downloadImage(chatMessage.getAppId(), chatMessage.getContent(), 2);
                 if (jsonObject.getInteger("ret") != 200) {
-                    break;
+                    throw new RuntimeException("图片下载失败");
                 }
                 String imageStr = jsonObject.getJSONObject("data").getString("fileUrl");
                 String imageUrl = "http://" + IpUtil.getIp() + ":2532/download/" + imageStr;

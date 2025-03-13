@@ -127,7 +127,7 @@ public class ImageUtil {
      * @param imagePath 保存图片的本地路径
      * @throws IOException 如果下载或保存过程中发生错误
      */
-    public static void downloadImage(String imageUrl, String imagePath)  {
+    public static void downloadImage(String imageUrl, String imagePath) {
 
         try {
             URL url = new URL(imageUrl);
@@ -137,7 +137,8 @@ public class ImageUtil {
                 Files.copy(inputStream, Paths.get(imagePath), StandardCopyOption.REPLACE_EXISTING);
             }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            log.error("图片转化失败,url地址为：{},本地路径为：{}，异常信息为：{}", imageUrl, imagePath, e.getMessage());
+            throw new RuntimeException("图片转化异常", e);
         }
     }
 
