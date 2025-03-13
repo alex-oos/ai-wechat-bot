@@ -165,4 +165,4 @@ buildNumber.properties
 *.iml
 out
 gen
-src/main/resources/static/config.json
+/src/main/resources/static/config.json

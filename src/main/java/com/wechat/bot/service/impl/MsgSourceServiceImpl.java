@@ -38,18 +38,19 @@ public class MsgSourceServiceImpl implements MsgSourceService {
     //@Async
     @Override
     public void personalMsg(ChatMessage chatMessage) {
-        // 会话清理的逻辑
-        String content = chatMessage.getContent();
-        if (content.equals("#清除记忆") || content.equals("#退出") || content.equals("#清除") || content.equals("#清除记忆并退出") || content.equals("#人工")) {
-            sessionManager.deleteSession(chatMessage.getFromUserId());
-            // 直接回复，清除记忆成功
-            MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), "恢复真人模式", chatMessage.getToUserId());
-            return;
-        }
+
         // 第一次 触发逻辑，判断，会话管理里面是否有消息，没有就创建会话
         // 第二次进行，直接取消息，然后进行回复
         Session session = sessionManager.getSession(chatMessage.getFromUserId());
         if (chatMessage.getCtype().equals(MsgTypeEnum.TEXT)) {
+            // 会话清理的逻辑
+            String content = chatMessage.getContent();
+            if (content.equals("#清除记忆") || content.equals("#退出") || content.equals("#清除") || content.equals("#清除记忆并退出") || content.equals("#人工")) {
+                sessionManager.deleteSession(chatMessage.getFromUserId());
+                // 直接回复，清除记忆成功
+                MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), "恢复真人模式", chatMessage.getToUserId());
+                return;
+            }
             if (session == null) {
                 // 聊天前缀过滤
                 List<String> singleChatPrefix = botconfig.getSingleChatPrefix();
