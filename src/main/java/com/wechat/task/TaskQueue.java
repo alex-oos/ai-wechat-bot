@@ -1,7 +1,6 @@
 package com.wechat.task;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -13,7 +12,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 
 @Slf4j
-@Component
+//@Component
 public class TaskQueue {
 
     private final BlockingQueue<Runnable> queue = new LinkedBlockingQueue<>();

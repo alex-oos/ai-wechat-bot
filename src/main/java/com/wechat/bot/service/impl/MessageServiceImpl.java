@@ -209,6 +209,7 @@ public class MessageServiceImpl implements MessageService {
                 String imagePath = jsonObject.getJSONObject("data").getString("fileUrl");
                 imagePath = "http://" + IpUtil.getIp() + ":2532/download/" + imagePath;
                 String base64Image = download(imagePath);
+                // 图片下载可能会出现下载失败，而报错，请检查一下你的容器，容器内是否有问题
                 chatMessage.setContent(base64Image);
                 break;
             case VOICE:

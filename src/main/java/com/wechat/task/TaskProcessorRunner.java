@@ -16,7 +16,7 @@ import javax.annotation.Resource;
  * </p>
  */
 @Slf4j
-@Component
+//@Component
 public class TaskProcessorRunner implements CommandLineRunner {
 
     @Resource

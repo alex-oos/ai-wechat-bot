@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
  * </p>
  */
 @Slf4j
-@Component
+//@Component
 public class TaskProcessor {
 
     @Resource

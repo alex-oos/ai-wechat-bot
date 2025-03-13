@@ -23,7 +23,7 @@ public class MessageController {
     @Resource
     private MessageService messageService;
 
-    @Resource
+    //@Resource
     private TaskQueue taskQueue;
 
     @PostMapping("/callback/collect")
