@@ -205,7 +205,7 @@ public class MessageServiceImpl implements MessageService {
                 }
                 String imageStr = jsonObject.getJSONObject("data").getString("fileUrl");
                 String imageUrl = "http://" + IpUtil.getIp() + ":2532/download/" + imageStr;
-                Path imagePath = Path.of("data", imageStr);
+                Path imagePath = Path.of("data","images", imageStr);
                 imagePath.getParent().toFile().mkdirs();
                 ImageUtil.downloadImage(imageUrl, imagePath.toString());
                 // 图片下载可能会出现下载失败，而报错，请检查一下你的容器，容器内是否有问题
