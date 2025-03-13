@@ -80,10 +80,14 @@ public class Session {
         reset();
     }
 
-    public void addQuery(String query) {
+    public void addQuery(String queryText) {
 
-        Message userMsg = Message.builder().role(Role.USER.getValue()).content(query).build();
-        this.textMessages.add(userMsg);
+        if (queryText != null) {
+            Message userMsg = Message.builder().role(Role.USER.getValue()).content(queryText).build();
+            this.textMessages.add(userMsg);
+        }
+
+
     }
 
     public void addReply(String reply) {

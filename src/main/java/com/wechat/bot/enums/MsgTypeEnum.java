@@ -23,7 +23,9 @@ public enum MsgTypeEnum {
     FORWARD(9, "forward", null),
     LINK(10, "link", null),
     NAME_CARD(11, "namecard", null),
-    UNKNOWN(12, "unknown", null);
+    UNKNOWN(12, "unknown", null),
+    IMAGERECOGNITION(12, "unknown", "图片识别");
+
 
     private final Integer msgType;
 

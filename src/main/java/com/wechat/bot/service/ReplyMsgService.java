@@ -2,7 +2,6 @@ package com.wechat.bot.service;
 
 import com.wechat.ai.service.AIService;
 import com.wechat.ai.session.Session;
-import com.wechat.ai.session.SessionManager;
 import com.wechat.bot.entity.ChatMessage;
 
 /**
@@ -31,5 +30,7 @@ public interface ReplyMsgService {
     void replyLocationMsg(ChatMessage chatMessage);
 
     void replyLinkMsg(ChatMessage chatMessage);
+
+    void imageRecognition(ChatMessage chatMessage);
 
 }

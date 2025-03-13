@@ -15,8 +15,10 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Alex
@@ -73,7 +75,25 @@ public class MsgSourceServiceImpl implements MsgSourceService {
 
                 }
             }
-            session.addQuery(chatMessage.getContent());
+
+            // 先去追溯一下，是否有图片消息，如果有的话， 修改类型，进行一些列操作，如果没有的话，添加文本类型
+            List<MultiModalMessage> imageMessages = session.getImageMessages();
+            if (imageMessages.size() == 1) {
+                session.addQuery(chatMessage.getContent());
+            }
+            //  添加到图片消息里面
+            //MultiModalMessage userMessage = MultiModalMessage.builder().role(Role.USER.getValue())
+            //        .content(List.of(Collections.singletonMap("text", chatMessage.getContent()))).build();
+            //imageMessages.add(userMessage);
+            for (MultiModalMessage imageMessage : imageMessages) {
+                boolean equals = imageMessage.getRole().equals(Role.USER.getValue());
+                if (equals) {
+                    List<Map<String, Object>> content1 = imageMessage.getContent();
+                    content1.add(Collections.singletonMap("text", chatMessage.getContent()));
+                }
+            }
+
+            chatMessage.setCtype(MsgTypeEnum.IMAGERECOGNITION);
 
         } else if (chatMessage.getCtype().equals(MsgTypeEnum.IMAGE)) {
             if (session == null) {
@@ -81,10 +101,15 @@ public class MsgSourceServiceImpl implements MsgSourceService {
                 sessionManager.createSession(chatMessage.getFromUserId(), botconfig.getSystemPrompt());
                 session = sessionManager.getSession(chatMessage.getFromUserId());
             }
-
+            // 不同的操作系统，需要区分一下路径
+            // Linux或macOS系统   file://{文件的绝对路径} file:///home/images/test.png
+            // Windows系统 file:///{文件的绝对路径} file:///D:images/test.png
+           List<Map<String, Object>> list = new ArrayList<>();
+            list.add(Collections.singletonMap("image", "file://" + chatMessage.getContent()));
             MultiModalMessage userMessage = MultiModalMessage.builder().role(Role.USER.getValue())
-                    .content(List.of(Collections.singletonMap("image", "https://help-static-aliyun-doc.aliyuncs.com/file-manage-files/zh-CN/20241022/emyrja/dog_and_girl.jpeg"))).build();
+                    .content(list).build();
             session.getImageMessages().add(userMessage);
+            return;
         }
 
         replyMsgService.replyType(chatMessage, session);

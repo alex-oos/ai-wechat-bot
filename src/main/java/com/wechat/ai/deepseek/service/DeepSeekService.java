@@ -63,7 +63,7 @@ public class DeepSeekService extends AbstractAiService {
         String content = null;
 
         try {
-            List<Message> messages = session.getImageMessages();
+            List<Message> messages = session.getTextMessages();
             GenerationResult result = callWithMessage(messages);
             System.out.println("思考过程：");
             log.info("思考过程：");

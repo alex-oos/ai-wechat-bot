@@ -58,6 +58,9 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
             case VIDEO:
                 this.replyVideoMsg(chatMessage);
                 break;
+            case IMAGERECOGNITION:
+                this.imageRecognition(chatMessage);
+                break;
             default:
                 break;
         }
@@ -105,6 +108,13 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
     @Override
     public void replyLinkMsg(ChatMessage chatMessage) {
 
+    }
+
+    @Override
+    public void imageRecognition(ChatMessage chatMessage) {
+
+        String s = aiService.imageToText(session);
+        MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), s, chatMessage.getToUserId());
     }
 
 
