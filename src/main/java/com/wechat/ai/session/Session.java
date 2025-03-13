@@ -61,7 +61,7 @@ public class Session {
         textMessages.add(sysMsg);
 
         MultiModalMessage systemMessage = MultiModalMessage.builder().role(Role.SYSTEM.getValue())
-                .content(List.of(Collections.singletonMap("text", systemPrompt))).build();
+                .content(List.of(Collections.singletonMap("text", "你是一个图片识别助手，请根据图片描述，输出图片的描述信息"))).build();
         //MultiModalMessage userMessage = MultiModalMessage.builder().role(Role.USER.getValue())
         //        .content(Arrays.asList(Collections.singletonMap("image", "https://help-static-aliyun-doc.aliyuncs.com/file-manage-files/zh-CN/20241022/emyrja/dog_and_girl.jpeg"), Collections.singletonMap("text", "图中描绘的是什么景象？"))).build();
         imageMessages.add(systemMessage);

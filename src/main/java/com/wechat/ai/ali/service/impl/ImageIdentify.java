@@ -57,12 +57,12 @@ public class ImageIdentify {
 
         try {
 
-            // must create mutable map.
+
             MultiModalMessage systemMessage = MultiModalMessage.builder().role(Role.SYSTEM.getValue())
-                    .content(Arrays.asList(Collections.singletonMap("text", "You are a helpful assistant."))).build();
+                    .content(Arrays.asList(Collections.singletonMap("text", "你是一个图片识别助手，请根据图片描述，输出图片的描述信息"))).build();
             MultiModalMessage userMessage = MultiModalMessage.builder().role(Role.USER.getValue())
 
-                    .content(Arrays.asList(Collections.singletonMap("image", "file:///home/alex/github/wechat-bot/data/20250313/wx_00zu2UQIaF1sJayYl2LHg/0dd3bf06-1cf8-4e2a-b668-cccf03916c73.png"),
+                     .content(Arrays.asList(Collections.singletonMap("image", "file:///home/alex/github/wechat-bot/data/20250313/wx_00zu2UQIaF1sJayYl2LHg/0dd3bf06-1cf8-4e2a-b668-cccf03916c73.png"),
                             Collections.singletonMap("text", "图中描绘的是什么景象？"))).build();
             List<MultiModalMessage> messages = Arrays.asList(systemMessage, userMessage);
             streamCall(messages);
