@@ -16,7 +16,7 @@ public interface AIService {
 
      Map<String, String> textToImage(String content);
 
-    String imageToText(String content);
+    String imageToText(Session session);
 
     String imageToImage(String content);
 

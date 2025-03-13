@@ -1,5 +1,6 @@
 package com.wechat.bot.service;
 
+import com.wechat.ai.session.SessionManager;
 import com.wechat.bot.entity.ChatMessage;
 
 /**
@@ -13,5 +14,7 @@ public interface MsgSourceService {
 
 
     void personalMsg(ChatMessage chatMessage);
+
+    SessionManager getSessionMessage();
 
 }

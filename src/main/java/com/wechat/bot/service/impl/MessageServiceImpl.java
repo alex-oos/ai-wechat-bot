@@ -209,7 +209,7 @@ public class MessageServiceImpl implements MessageService {
                 imagePath.getParent().toFile().mkdirs();
                 ImageUtil.downloadImage(imageUrl, imagePath.toString());
                 // 图片下载可能会出现下载失败，而报错，请检查一下你的容器，容器内是否有问题
-                chatMessage.setContent(imagePath.toString());
+                chatMessage.setContent(imagePath.toAbsolutePath().toString());
                 break;
             case VOICE:
                 break;

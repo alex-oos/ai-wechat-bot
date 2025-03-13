@@ -3,8 +3,10 @@ package com.wechat.ai.session;
 
 import com.alibaba.dashscope.common.Message;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -32,8 +34,8 @@ public class SessionManager {
 
         Session session = sessions.get(userId);
         if (session != null) {
-            session.getMessages().addAll(messages);
-            int currentTokens = calculateTokens(session.getMessages());
+            session.getTextMessages().addAll(messages);
+            int currentTokens = calculateTokens(session.getTextMessages());
             if (currentTokens > MAX_TOKENS) {
                 trimSession(session, currentTokens);
             }
@@ -50,7 +52,7 @@ public class SessionManager {
             if (reply != null) {
                 session.addReply(reply);
             }
-            int currentTokens = calculateTokens(session.getMessages());
+            int currentTokens = calculateTokens(session.getTextMessages());
             if (currentTokens > MAX_TOKENS) {
                 trimSession(session, currentTokens);
             }
@@ -59,7 +61,7 @@ public class SessionManager {
 
     private void trimSession(Session session, int currentTokens) {
 
-        List<Message> messages = session.getMessages();
+        List<Message> messages = session.getTextMessages();
         while (currentTokens > MAX_TOKENS && messages.size() > 2) {
             messages.remove(0);
             currentTokens = calculateTokens(messages);
@@ -85,6 +87,24 @@ public class SessionManager {
 
         sessions.remove(userId);
     }
+
+    /**
+     * 自动清除过期会话
+     */
+    public void clearExpiredSessions() {
+
+        Set<String> userSet = sessions.keySet();
+        Instant now = Instant.now();
+        for (String userId : userSet) {
+            Session session = sessions.get(userId);
+            Instant createTime = session.getCreateTime();
+            // 当前时间是否在10分钟之内，如果超过10分钟，则删除会话
+            if (now.isAfter(createTime.plusSeconds(60 * 10))) {
+                sessions.remove(userId);
+            }
+        }
+    }
+
 
 
 }

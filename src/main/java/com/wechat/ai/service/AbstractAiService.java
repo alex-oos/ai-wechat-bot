@@ -39,7 +39,7 @@ public abstract class AbstractAiService implements AIService {
     }
 
     @Override
-    public String imageToText(String content) {
+    public String imageToText(Session session) {
 
         return "";
     }

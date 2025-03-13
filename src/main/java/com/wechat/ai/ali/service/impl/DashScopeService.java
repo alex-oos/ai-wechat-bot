@@ -10,6 +10,7 @@ import com.alibaba.dashscope.common.TaskStatus;
 import com.alibaba.dashscope.exception.ApiException;
 import com.alibaba.dashscope.exception.InputRequiredException;
 import com.alibaba.dashscope.exception.NoApiKeyException;
+import com.alibaba.dashscope.exception.UploadFileException;
 import com.alibaba.dashscope.utils.JsonUtils;
 import com.wechat.ai.enums.AiEnum;
 import com.wechat.ai.service.AbstractAiService;
@@ -61,7 +62,7 @@ public class DashScopeService extends AbstractAiService {
         Generation gen = new Generation();
         TextToText dashScopeStreamService = new TextToText();
         try {
-            dashScopeStreamService.streamCallWithMessage(gen, session.getMessages());
+            dashScopeStreamService.streamCallWithMessage(gen, session.getTextMessages());
 
             Message assistantMsg = Message.builder().role(Role.ASSISTANT.getValue()).content(dashScopeStreamService.fullContent.toString()).build();
             session.addReply(assistantMsg.getContent());
@@ -117,9 +118,16 @@ public class DashScopeService extends AbstractAiService {
 
 
     @Override
-    public String imageToText(String content) {
+    public String imageToText(Session session) {
 
-        return super.imageToText(content);
+        try {
+            String s = ImageIdentify.streamCall(session.getImageMessages());
+            return s;
+        } catch (NoApiKeyException | UploadFileException e) {
+            throw new RuntimeException(e);
+        }
+
+
     }
 
     @Override

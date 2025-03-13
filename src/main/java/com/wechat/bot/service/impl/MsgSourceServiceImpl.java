@@ -1,5 +1,7 @@
 package com.wechat.bot.service.impl;
 
+import com.alibaba.dashscope.common.MultiModalMessage;
+import com.alibaba.dashscope.common.Role;
 import com.wechat.ai.session.Session;
 import com.wechat.ai.session.SessionManager;
 import com.wechat.bot.entity.BotConfig;
@@ -13,6 +15,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -24,10 +27,10 @@ import java.util.List;
 @Service
 public class MsgSourceServiceImpl implements MsgSourceService {
 
-    private final SessionManager sessionManager = new SessionManager();
-
     @Resource
     BotConfig botconfig;
+
+    private SessionManager sessionManager = new SessionManager();
 
     @Resource
     private ReplyMsgService replyMsgService;
@@ -72,6 +75,16 @@ public class MsgSourceServiceImpl implements MsgSourceService {
             }
             session.addQuery(chatMessage.getContent());
 
+        } else if (chatMessage.getCtype().equals(MsgTypeEnum.IMAGE)) {
+            if (session == null) {
+                // 创建一个新的会话
+                sessionManager.createSession(chatMessage.getFromUserId(), botconfig.getSystemPrompt());
+                session = sessionManager.getSession(chatMessage.getFromUserId());
+            }
+
+            MultiModalMessage userMessage = MultiModalMessage.builder().role(Role.USER.getValue())
+                    .content(List.of(Collections.singletonMap("image", "https://help-static-aliyun-doc.aliyuncs.com/file-manage-files/zh-CN/20241022/emyrja/dog_and_girl.jpeg"))).build();
+            session.getImageMessages().add(userMessage);
         }
 
         replyMsgService.replyType(chatMessage, session);
@@ -136,6 +149,12 @@ public class MsgSourceServiceImpl implements MsgSourceService {
         }
 
 
+    }
+
+    @Override
+    public SessionManager getSessionMessage() {
+
+        return this.sessionManager;
     }
 
 }

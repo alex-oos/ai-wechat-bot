@@ -1,11 +1,18 @@
 package com.wechat.ai.session;
 
 import com.alibaba.dashscope.common.Message;
+import com.alibaba.dashscope.common.MultiModalMessage;
 import com.alibaba.dashscope.common.Role;
 import com.wechat.util.FileUtil;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.util.*;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
 
 /**
@@ -18,13 +25,21 @@ import java.util.*;
 @Data
 public class Session {
 
+    private Instant createTime;
 
     private String sessionId;
 
     private String systemPrompt;
 
-    private List<Message> messages;
+    /**
+     * 文本对话信息
+     */
+    private List<Message> textMessages;
 
+    /**
+     * 图片对话信息
+     */
+    private List<MultiModalMessage> imageMessages;
 
     public Session(String sessionId, String systemPrompt) {
 
@@ -32,8 +47,10 @@ public class Session {
         if (systemPrompt == null) {
             systemPrompt = Objects.requireNonNull(FileUtil.readFile()).getSystemPrompt();
         }
+        this.createTime = Instant.now();
         this.systemPrompt = systemPrompt;
-        this.messages = new ArrayList<>();
+        this.textMessages = new ArrayList<>();
+        this.imageMessages = new ArrayList<>();
         initializeSystemMessage();
     }
 
@@ -41,14 +58,20 @@ public class Session {
 
 
         Message sysMsg = Message.builder().role(Role.SYSTEM.getValue()).content(systemPrompt).build();
-        messages.add(sysMsg);
+        textMessages.add(sysMsg);
+
+        MultiModalMessage systemMessage = MultiModalMessage.builder().role(Role.SYSTEM.getValue())
+                .content(List.of(Collections.singletonMap("text", systemPrompt))).build();
+        //MultiModalMessage userMessage = MultiModalMessage.builder().role(Role.USER.getValue())
+        //        .content(Arrays.asList(Collections.singletonMap("image", "https://help-static-aliyun-doc.aliyuncs.com/file-manage-files/zh-CN/20241022/emyrja/dog_and_girl.jpeg"), Collections.singletonMap("text", "图中描绘的是什么景象？"))).build();
+        imageMessages.add(systemMessage);
     }
 
     public void reset() {
 
-        this.messages.clear();
+        this.textMessages.clear();
         Message sysMsg = Message.builder().role(Role.SYSTEM.getValue()).content(systemPrompt).build();
-        this.messages.add(sysMsg);
+        this.textMessages.add(sysMsg);
     }
 
     public void setSystemPrompt(String systemPrompt) {
@@ -60,14 +83,14 @@ public class Session {
     public void addQuery(String query) {
 
         Message userMsg = Message.builder().role(Role.USER.getValue()).content(query).build();
-        this.messages.add(userMsg);
+        this.textMessages.add(userMsg);
     }
 
     public void addReply(String reply) {
 
         Message assistantMsg = Message.builder().role(Role.ASSISTANT.getValue()).content(reply).build();
 
-        this.messages.add(assistantMsg);
+        this.textMessages.add(assistantMsg);
     }
 
     public void discardExceeding(Integer maxTokens, Integer currentTokens) {
