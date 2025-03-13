@@ -14,10 +14,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Collections;
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -177,19 +182,24 @@ public class MessageServiceImpl implements MessageService {
         //判断消息类型，进行一系列的操作
         switch (chatMessage.getCtype()) {
             case TEXT:
+                // 个人的文本消息，进行一系列的处理，群的文本消息是否需要处理，这里想想后面如何校验一下
                 break;
             case IMAGE:
-                //图片保存一下
-                JSONObject jsonObject = DownloadApi.downloadImage(chatMessage.getAppId(),  chatMessage.getContent(), 2);
+                // 图片下载处理为base64位
+                JSONObject jsonObject = DownloadApi.downloadImage(chatMessage.getAppId(), chatMessage.getContent(), 2);
                 if (jsonObject.getInteger("ret") != 200) {
                     break;
                 }
                 String imagePath = jsonObject.getJSONObject("data").getString("fileUrl");
                 imagePath = "http://" + IpUtil.getIp() + ":2532/download" + imagePath;
-                chatMessage.setContent(imagePath);
+                String base64Image = download(imagePath);
+                chatMessage.setContent(base64Image);
                 break;
             case VOICE:
-
+                break;
+            case LINK:
+                break;
+            case VIDEO:
                 break;
             default:
                 break;
@@ -213,6 +223,78 @@ public class MessageServiceImpl implements MessageService {
         }
 
 
+    }
+
+
+    public static String download(String imageUrl) {
+
+        try {
+
+            // 创建连接
+            URL url = new URL(imageUrl);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestProperty("User-Agent", "Mozilla/5.0");
+
+            // 下载图片
+            BufferedImage originalImage = ImageIO.read(connection.getInputStream());
+            if (originalImage == null) {
+                throw new IOException("Failed to read image from URL");
+            }
+
+            // 创建一个新的RGB格式的BufferedImage
+            BufferedImage newImage = new BufferedImage(
+                    originalImage.getWidth(),
+                    originalImage.getHeight(),
+                    BufferedImage.TYPE_INT_RGB
+            );
+
+            // 创建Graphics2D对象并设置背景色
+            Graphics2D g2d = newImage.createGraphics();
+            g2d.setColor(Color.WHITE);
+            g2d.fillRect(0, 0, newImage.getWidth(), newImage.getHeight());
+
+            // 将原图绘制到新图上
+            g2d.drawImage(originalImage, 0, 0, null);
+            g2d.dispose();
+
+            // 转换为JPEG格式
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+            // 使用"jpg"而不是"JPEG"
+            boolean success = ImageIO.write(newImage, "jpg", baos);
+
+
+            if (!success) {
+                throw new IOException("Failed to convert image to JPEG format");
+            }
+
+            baos.flush();
+            byte[] imageBytes = baos.toByteArray();
+
+            // 检查图片字节数组
+            if (imageBytes == null || imageBytes.length == 0) {
+                throw new IOException("Image bytes are empty");
+            }
+
+
+            // 获取MIME类型
+            String mimeType = "image/jpeg";
+
+            // 转换为Base64
+            String base64Image = Base64.getEncoder().encodeToString(imageBytes);
+
+            // 关闭资源
+            baos.close();
+
+            //return MessageImg.builder()
+            //        .mimeType(mimeType)
+            //        .base64String(base64Image)
+            //        .build();
+            return base64Image;
+
+        } catch (Exception e) {
+            return null;
+        }
     }
 
 

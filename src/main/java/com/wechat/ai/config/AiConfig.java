@@ -3,7 +3,6 @@ package com.wechat.ai.config;
 import com.wechat.bot.entity.BotConfig;
 import com.wechat.util.FileUtil;
 import lombok.Getter;
-import org.springframework.web.bind.annotation.GetMapping;
 
 /**
  * @author Alex
