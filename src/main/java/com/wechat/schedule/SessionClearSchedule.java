@@ -22,8 +22,8 @@ public class SessionClearSchedule {
     MsgSourceService msgSourceService;
 
     @Async
-    //@Scheduled(cron = "*/50 * * * * ?")
-    @Scheduled(fixedRate = 10 * 60 * 1000) // 每10分钟清理一次
+    @Scheduled(cron = "0 */10 * * * ?")
+    //@Scheduled(fixedRate = 10 * 60 * 1000) // 每10分钟清理一次
     public void clearExpiredSessions() {
 
         SessionManager sessionMessage = msgSourceService.getSessionMessage();
