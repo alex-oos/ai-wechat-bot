@@ -96,7 +96,7 @@ public class MsgSourceServiceImpl implements MsgSourceService {
 
             }
 
-        } else if (chatMessage.getCtype().equals(MsgTypeEnum.IMAGE)) {
+        } else if (chatMessage.getCtype().equals(MsgTypeEnum.IMAGERECOGNITION)) {
             if (session == null) {
                 // 创建一个新的会话
                 sessionManager.createSession(chatMessage.getFromUserId(), botconfig.getSystemPrompt());
