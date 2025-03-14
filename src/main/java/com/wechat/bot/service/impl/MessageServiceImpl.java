@@ -12,6 +12,7 @@ import com.wechat.gewechat.service.DownloadApi;
 import com.wechat.util.ImageUtil;
 import com.wechat.util.IpUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -39,16 +40,16 @@ public class MessageServiceImpl implements MessageService {
     @Resource
     private BotConfig botConfig;
 
-    //@Async
+    @Async
     @Override
     public void receiveMsg(JSONObject requestBody) {
 
         String appid = requestBody.getString("Appid");
         String wxid = requestBody.getString("Wxid");
         JSONObject data = requestBody.getJSONObject("Data");
-        String fromUserName = data.getJSONObject("FromUserName").getString("string");
-        String toUserName = data.getJSONObject("ToUserName").getString("string");
-        String content = data.getJSONObject("Content").getString("string");
+        String fromUserId = data.getJSONObject("FromUserName").getString("string");
+        String toUserId = data.getJSONObject("ToUserName").getString("string");
+        String receiveMsg = data.getJSONObject("Content").getString("string");
         String msgSource = data.getString("MsgSource");
         String msgId = data.getString("'NewMsgId'");
         // 消息类型
@@ -57,12 +58,13 @@ public class MessageServiceImpl implements MessageService {
                 .msgId(msgId)
                 .createTime(data.getLong("CreateTime"))
                 .ctype(MsgTypeEnum.getMsgTypeEnum(msgType))
-                .content(content)
-                .fromUserId(fromUserName)
-                .toUserId(toUserName)
-                .isMyMsg(wxid.equals(fromUserName))
-                .isGroup(fromUserName.contains("@chatroom"))
-                .isAt(content.contains("@"))
+                .receiveContent(receiveMsg)
+                .fromUserId(fromUserId)
+                .toUserId(toUserId)
+                .isMyMsg(wxid.equals(fromUserId))
+                .isGroup(fromUserId.contains("@chatroom"))
+                .groupId(fromUserId)
+                .isAt(receiveMsg.contains("@"))
                 .actualUserId(wxid)
                 .appId(appid)
                 .rawMsg(requestBody)
@@ -75,7 +77,7 @@ public class MessageServiceImpl implements MessageService {
         }
         //TODO 先过滤掉所有的群消息,等个人开发完毕之后，再去处理群消息
         if (chatMessage.getIsGroup()) {
-            //log.info("收到群消息");
+            //log.info("收到群消息{}",requestBody.toJSONString());
             return;
         }
         // 消息内容进行处理
@@ -84,7 +86,7 @@ public class MessageServiceImpl implements MessageService {
             // 存到一个map里面不用每次都重新获取，降低请求次数
             // 获取好友的信息
             String nickName = null;
-            JSONObject briefInfo = ContactApi.getBriefInfo(appid, Collections.singletonList(chatMessage.getFromUserId()));
+            JSONObject briefInfo = ContactApi.getBriefInfo(chatMessage.getAppId(), Collections.singletonList(chatMessage.getFromUserId()));
             if (briefInfo.getInteger("ret") == 200) {
                 JSONArray dataList = briefInfo.getJSONArray("data");
                 JSONObject userInfo = dataList.getJSONObject(0);
@@ -95,11 +97,12 @@ public class MessageServiceImpl implements MessageService {
         }
         chatMessage.setFromUserNickname(contactMap.get(chatMessage.getFromUserId()));
         if (chatMessage.getIsGroup()) {
-            log.info("收到群消息");
-            return;
-            //msgSourceService.groupMsg(chatMessage);
+            log.info("群消息:来自{}，消息内容为：{}", chatMessage.getFromUserNickname(), chatMessage.getReceiveContent());
+            chatMessage.setGroupId(chatMessage.getFromUserId());
+            //return;
+            msgSourceService.groupMsg(chatMessage);
         } else {
-            log.info("收到个人消息：来自：{}，消息内容为：{}", chatMessage.getFromUserNickname(), chatMessage.getContent());
+            log.info("收到个人消息：来自：{}，消息内容为：{}", chatMessage.getFromUserNickname(), chatMessage.getReceiveContent());
             msgSourceService.personalMsg(chatMessage);
         }
 
@@ -180,7 +183,7 @@ public class MessageServiceImpl implements MessageService {
         switch (chatMessage.getCtype()) {
             case TEXT:
                 // 文本消息进行处理
-                String content = chatMessage.getContent();
+                String content = chatMessage.getReceiveContent();
                 List<String> imageCreatePrefix = botConfig.getImageCreatePrefix();
                 for (String createPrefix : imageCreatePrefix) {
                     if (content.contains(createPrefix)) {
@@ -199,17 +202,17 @@ public class MessageServiceImpl implements MessageService {
                 break;
             case IMAGE:
                 // 图片下载处理为base64位
-                JSONObject jsonObject = DownloadApi.downloadImage(chatMessage.getAppId(), chatMessage.getContent(), 2);
+                JSONObject jsonObject = DownloadApi.downloadImage(chatMessage.getAppId(), chatMessage.getReceiveContent(), 2);
                 if (jsonObject.getInteger("ret") != 200) {
                     throw new RuntimeException("图片下载失败");
                 }
                 String imageStr = jsonObject.getJSONObject("data").getString("fileUrl");
                 String imageUrl = "http://" + IpUtil.getIp() + ":2532/download/" + imageStr;
-                Path imagePath = Path.of("data","images", imageStr);
+                Path imagePath = Path.of("data", "images", imageStr);
                 imagePath.getParent().toFile().mkdirs();
                 ImageUtil.downloadImage(imageUrl, imagePath.toString());
                 // 图片下载可能会出现下载失败，而报错，请检查一下你的容器，容器内是否有问题
-                chatMessage.setContent(imagePath.toAbsolutePath().toString());
+                chatMessage.setReceiveContent(imagePath.toAbsolutePath().toString());
                 chatMessage.setCtype(MsgTypeEnum.IMAGERECOGNITION);
                 break;
             case VOICE:

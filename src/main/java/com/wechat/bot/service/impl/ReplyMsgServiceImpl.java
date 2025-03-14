@@ -47,7 +47,7 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
                 break;
             case IMAGE:
                 // TODO 先过滤掉，图片识别，后期再来做
-                if (chatMessage.getContent().contains("xml")){
+                if (chatMessage.getReceiveContent().contains("xml")) {
                     return;
                 }
                 this.replyImageMsg(chatMessage);
@@ -78,10 +78,10 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
     @Override
     public void replyImageMsg(ChatMessage chatMessage) {
 
-        Map<String, String> map = aiService.textToImage(chatMessage.getContent());
+        Map<String, String> map = aiService.textToImage(chatMessage.getReceiveContent());
         MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), map.get("actual_prompt"), chatMessage.getToUserId());
         MessageApi.postImage(chatMessage.getAppId(), chatMessage.getFromUserId(), map.get("url"));
-
+        chatMessage.setPrepared(true);
 
     }
 
@@ -116,6 +116,7 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
         String s = aiService.imageToText(session);
         log.info("图片识别成功，图片内容：{}", s);
         MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), s, chatMessage.getToUserId());
+        chatMessage.setPrepared(true);
     }
 
 

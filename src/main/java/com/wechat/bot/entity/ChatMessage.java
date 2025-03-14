@@ -24,22 +24,48 @@ public class ChatMessage {
 
     private Long createTime;
 
+    /**
+     * 消息类型
+     */
     private MsgTypeEnum ctype;
 
-    private String content;
+    /**
+     * 消息内容
+     */
+    private String receiveContent;
 
+    /**
+     * 消息发送者id
+     */
     private String fromUserId;
 
+    /**
+     * 消息发送者昵称
+     */
     private String fromUserNickname;
 
+    /**
+     * 消息接收者id
+     */
     private String toUserId;
 
+    /**
+     * 消息接收者昵称
+     */
     private String toUserNickname;
 
-    private String otherUserId;
+    /**
+     * 群id
+     */
+    private String groupId;
 
-    private String otherUserNickname;
-
+    /**
+     * 群昵称
+     */
+    private String groupIdNickName;
+    /**
+     * 是否是自己发的消息
+     */
     private Boolean isMyMsg;
 
     private String selfDisplayName;
@@ -47,15 +73,25 @@ public class ChatMessage {
     private Boolean isGroup;
 
     private Boolean isAt;
-
+    /**
+     * 实际发送者id
+     */
     private String actualUserId;
-
+    /**
+     * 实际发送者昵称
+     */
     private String actualUserNickname;
-
-    private List<String>  atList;
-
+    /**
+     * 被@的用户id
+     */
+    private List<String> atList;
+    /**
+     * 消息预处理函数
+     */
     private Runnable prepareFn;
-
+    /**
+     * 消息是否已经处理过了
+     */
     private Boolean prepared;
 
     /**
@@ -84,13 +120,13 @@ public class ChatMessage {
                 "id=" + msgId +
                 ", create_time=" + createTime +
                 ", ctype=" + ctype +
-                ", content=" + content +
+                ", content=" + receiveContent +
                 ", from_user_id=" + fromUserId +
                 ", from_user_nickname=" + fromUserNickname +
                 ", to_user_id=" + toUserId +
                 ", to_user_nickname=" + toUserNickname +
-                ", other_user_id=" + otherUserId +
-                ", other_user_nickname=" + otherUserNickname +
+                ", other_user_id=" + groupId +
+                ", other_user_nickname=" + groupIdNickName +
                 ", is_group=" + isGroup +
                 ", is_at=" + isAt +
                 ", actual_user_id=" + actualUserId +
