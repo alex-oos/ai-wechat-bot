@@ -41,6 +41,7 @@ public class EveryDaySchedule {
 
     @Resource
     private BotConfig botConfig;
+
     @Async
     @Scheduled(cron = "0 0 8 * * ?")
     public void morningReport() {
@@ -129,10 +130,25 @@ public class EveryDaySchedule {
             return;
         }
         JSONObject data = responseJsonObject.getJSONObject("data");
+        StringBuilder replayMsg = new StringBuilder();
+        replayMsg.append("【天气预报】\n")
+                .append("\uD83D\uDD52 日期:").append(data.getString("date")).append("\n")
+                .append("\uD83C\uDF26️ 天气:").append(data.getString("weather")).append("\n")
+                .append("\uD83C\uDFD9️ 城市:").append(data.getString("province")).append(" ").append(data.getString("city")).append("\n")
+                .append("\uD83C\uDF21️ 温度：").append(data.getString("min_temp")).append("℃").append("\n")
+                .append("\uD83C\uDF2C️ 风向：").append(data.getString("wind")).append("\n")
+                .append("\uD83C\uDF05 日出/日落:：").append(data.getString("sunrise")).append("/").append(data.getString("sunset")).append("\n")
+                //.append("风向：").append(data.getString("win")).append("\n")
+                //.append("风力：").append(data.getString("win_speed")).append("\n")
+                //.append("湿度：").append(data.getString("humidity")).append("\n")
+                .append("空气质量：").append(data.getString("air_level")).append("\n");
+        //.append("空气质量指数：").append(data.getString("air_index")).append("\n");
+        //.append("空气质量描述：").append(data.getString("air_tips")).append("\n")
+        //.append("紫外线指数：").append(data.getString("air_index_24h")).append("\n")
+        //.append()
 
 
-        String replayMsg = null;
-        MessageApi.postText(botConfig.getAppId(), null, replayMsg, null);
+        MessageApi.postText(botConfig.getAppId(), null, replayMsg.toString(), null);
 
     }
 
