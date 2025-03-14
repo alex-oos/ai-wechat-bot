@@ -42,7 +42,7 @@ public class EveryDaySchedule {
     private BotConfig botConfig;
 
     @Scheduled(cron = "0 0 8 * * ?")
-    public void morningReport() {
+    public void goodMorning() {
 
         List<String> contactList = new ArrayList<>();
         // 早安寄语的制定人
@@ -75,7 +75,7 @@ public class EveryDaySchedule {
     }
 
     @Scheduled(cron = "0 0 22 * * ?")
-    public void eveningReport() {
+    public void goodNight() {
 
         List<String> contactList = new ArrayList<>();
         // 早安寄语的制定人
@@ -106,7 +106,8 @@ public class EveryDaySchedule {
     }
 
     /**
-     * 每日天气提醒
+     * 每日天气提醒:
+     * 调用接口
      * https://www.alapi.cn
      */
     @Scheduled(cron = "0 30 8 * * ?")
