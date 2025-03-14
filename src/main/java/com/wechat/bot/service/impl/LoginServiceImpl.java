@@ -209,10 +209,9 @@ public class LoginServiceImpl implements LoginService {
         String callbackUrl = "http://" + IpUtil.getIp() + ":9919/v2/api/callback/collect";
 
         // 设置一下回调地址
-        //System.out.println(callbackUrl);
-        JSONObject setCallback = LoginApi.setCallback(botConfig.getToken(), callbackUrl);
-        if (setCallback.getInteger("ret") != 200) {
-            throw new RuntimeException("设置回调地址失败");
+        JSONObject callbackResponse = LoginApi.setCallback(botConfig.getToken(), callbackUrl);
+        if (callbackResponse.getInteger("ret") != 200) {
+            throw new RuntimeException(String.format("设置回调地址失败,项目启动失败，请检查相关配置，返回结果为：%s", callbackResponse.toJSONString()));
         }
         log.info("设置回调地址成功");
     }

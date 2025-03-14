@@ -11,7 +11,9 @@ import java.util.concurrent.ThreadPoolExecutor;
 /**
  * @author Alex
  * @since 2025/1/27 00:00
- * <p></p>
+ * <p>
+ * 自定义异步线程池，为了更快进行处理
+ * </p>
  */
 
 @EnableAsync
@@ -41,6 +43,8 @@ public class AsyncConfig {
         // 线程之间传递对象
         executor.setTaskDecorator(null);
         executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+        executor.setAwaitTerminationSeconds(300); // 手动设置等待时间,等待300s
+        executor.setWaitForTasksToCompleteOnShutdown(true); // 等待任务完成再关闭
         executor.initialize();
         return executor;
     }

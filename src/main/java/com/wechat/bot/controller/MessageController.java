@@ -25,6 +25,7 @@ public class MessageController {
 
     //@Resource
     private TaskQueue taskQueue;
+
     @PostMapping("/callback/collect")
     public void receiveMessages(@RequestBody String requestBody) {
 
@@ -34,7 +35,6 @@ public class MessageController {
             return;
         }
         messageService.receiveMsg(JSONObject.parseObject(requestBody));
-
 
 
     }

@@ -31,7 +31,10 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 public class MessageServiceImpl implements MessageService {
 
-    Map<String, String> contactMap = new ConcurrentHashMap<>();
+    /**
+     * 联系人map，用线程安全的map
+     */
+    private final Map<String, String> contactMap = new ConcurrentHashMap<>();
 
     @Resource
     private MsgSourceService msgSourceService;

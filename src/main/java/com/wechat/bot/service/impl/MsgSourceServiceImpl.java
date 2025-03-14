@@ -11,9 +11,11 @@ import com.wechat.bot.service.MsgSourceService;
 import com.wechat.bot.service.ReplyMsgService;
 import com.wechat.gewechat.service.MessageApi;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -29,10 +31,10 @@ import java.util.stream.Collectors;
 @Service
 public class MsgSourceServiceImpl implements MsgSourceService {
 
+    private final SessionManager sessionManager = new SessionManager();
+
     @Resource
     BotConfig botconfig;
-
-    private  SessionManager sessionManager = new SessionManager();
 
     @Resource
     private ReplyMsgService replyMsgService;
@@ -40,7 +42,7 @@ public class MsgSourceServiceImpl implements MsgSourceService {
     /**
      * 个人消息
      */
-    //@Async
+    @Async
     @Override
     public void personalMsg(ChatMessage chatMessage) {
 
@@ -114,7 +116,7 @@ public class MsgSourceServiceImpl implements MsgSourceService {
             session.getImageMessages().add(userMessage);
             return;
         }
-
+        session.setCreateTime(Instant.now());
         replyMsgService.replyType(chatMessage, session);
 
 
@@ -124,6 +126,7 @@ public class MsgSourceServiceImpl implements MsgSourceService {
     /**
      * 群消息，如何回复
      */
+
     @Override
     public void groupMsg(ChatMessage chatMessage) {
         // 拿到群里面的session
