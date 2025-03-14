@@ -11,7 +11,6 @@ import com.wechat.bot.service.MsgSourceService;
 import com.wechat.bot.service.ReplyMsgService;
 import com.wechat.gewechat.service.MessageApi;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -42,7 +41,6 @@ public class MsgSourceServiceImpl implements MsgSourceService {
     /**
      * 个人消息
      */
-    @Async
     @Override
     public void personalMsg(ChatMessage chatMessage) {
 
