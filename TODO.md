@@ -30,7 +30,9 @@
 
 ## 六、定时任务
 - [X] 定时清理会话记录
-- [ ] 每日早上天气提醒
+- [X] 每日早上天气提醒
+- [X] 每日早安
+- [X] 每日晚安
 
 ## 七、流程图
 https://www.edrawmax.cn/online/app.html?pc5BDoIwEIXh07ytSbHUsmy1rF24J1XGBFMooSXi7Z0Sb+Bu8n+TzMT7C8fLO8mqFlopIVG1V1pSnHzgEa6GdTAOTsK2MAJOoTnDmkJNA6N3MntRsDU075xK1/ZAfb+hUs8hUJfiujyIr9E2pOxYWs6smcY5+Exd/szFp5hvv8Q6+bHEPz/5Ag==
