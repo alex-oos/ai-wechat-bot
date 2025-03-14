@@ -1,6 +1,7 @@
 package com.wechat.schedule;
 
 import com.wechat.ai.session.Session;
+import com.wechat.bot.entity.BotConfig;
 import com.wechat.bot.entity.ChatMessage;
 import com.wechat.bot.enums.MsgTypeEnum;
 import com.wechat.bot.service.MessageService;
@@ -30,6 +31,9 @@ public class MorningReportSchedule {
     @Resource
     private ReplyMsgService replyMsgService;
 
+    @Resource
+    private BotConfig botConfig;
+
     @Scheduled(cron = "0 0 8 * * ?")
     public void morningReport() {
 
@@ -47,16 +51,16 @@ public class MorningReportSchedule {
         }
         cantactSet.forEach(contact -> {
             String[] split = contact.split("-");
-            String content = "这是我的" + split[1] + "生成以" + split[1] + "为关键词的早安寄语";
+            String content = "生成以" + split[1] + "开头的早安寄语，幽默，风趣一些";
             ChatMessage chatMessage = ChatMessage.builder()
                     .fromUserId(split[0])
                     .toUserId(null)
                     .ctype(MsgTypeEnum.TEXT)
-                    //.content("这是我的" + split[1] + "生成以" + split[1] + "为关键词的早安寄语")
-                    .appId(null)
+                    .content(content)
+                    .appId(botConfig.getAppId())
                     .build();
             Session session = new Session(contact, null);
-            session.addQuery(content);
+            session.addQuery(chatMessage.getContent());
             replyMsgService.replyTextMsg(chatMessage, session);
         });
         log.info("早安寄语发送成功！");
