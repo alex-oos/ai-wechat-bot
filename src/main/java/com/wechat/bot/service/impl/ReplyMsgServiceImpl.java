@@ -74,6 +74,15 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
         log.info("消息回复成功，回复人：{}，回复内容为：{}", chatMessage.getFromUserNickname(), replayMsg);
     }
 
+    @Override
+    public void replyTextMsg(ChatMessage chatMessage, Session session) {
+
+        aiService = chooseAiService();
+        String replayMsg = aiService.textToText(session);
+        MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), replayMsg, chatMessage.getToUserId());
+        log.info("消息回复成功，回复人：{}，回复内容为：{}", chatMessage.getFromUserNickname(), replayMsg);
+    }
+
 
     @Override
     public void replyImageMsg(ChatMessage chatMessage) {

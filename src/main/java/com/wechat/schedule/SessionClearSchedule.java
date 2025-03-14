@@ -16,12 +16,13 @@ import javax.annotation.Resource;
  */
 @Slf4j
 @Component
-public class ScheduledTaskSessionClear {
+public class SessionClearSchedule {
 
     @Resource
     MsgSourceService msgSourceService;
 
     @Async
+    //@Scheduled(cron = "*/50 * * * * ?")
     @Scheduled(fixedRate = 10 * 60 * 1000) // 每10分钟清理一次
     public void clearExpiredSessions() {
 

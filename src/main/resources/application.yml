@@ -49,12 +49,6 @@ spring:
   mvc:
     path match:
       matching-strategy: ANT_PATH_MATCHER
-  # 异步任务线程池关闭时间
-  task:
-    execution:
-      shutdown:
-        await-termination: true
-        await-termination-period: 300
 
 
 # MyBatis-plus配置

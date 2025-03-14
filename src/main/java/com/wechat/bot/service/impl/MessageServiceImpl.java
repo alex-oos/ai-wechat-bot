@@ -110,6 +110,12 @@ public class MessageServiceImpl implements MessageService {
 
     }
 
+    @Override
+    public Map<String, String> getContactMap() {
+
+        return this.contactMap;
+    }
+
     /**
      * 过滤掉一些消息
      * 检查消息是否来自非用户账号（如公众号、腾讯游戏、微信团队等）
