@@ -80,26 +80,21 @@ public class MsgSourceServiceImpl implements MsgSourceService {
                 session.addQuery(chatMessage.getContent());
             }
             //  添加到图片消息里面
-            //MultiModalMessage userMessage = MultiModalMessage.builder().role(Role.USER.getValue())
-            //        .content(List.of(Collections.singletonMap("text", chatMessage.getContent()))).build();
-            //imageMessages.add(userMessage);
-            List<MultiModalMessage> collect = imageMessages.stream().filter(e -> e.getRole().equals(Role.USER.getValue())).collect(Collectors.toList());
-            for (MultiModalMessage imageMessage : collect) {
+            List<MultiModalMessage> multiModalMessages = imageMessages.stream().filter(e -> e.getRole().equals(Role.USER.getValue())).collect(Collectors.toList());
+            for (MultiModalMessage imageMessage : multiModalMessages) {
                 List<Map<String, Object>> contentList = imageMessage.getContent();
                 long count = contentList.stream().filter(e -> e.get("text") != null).count();
                 if (count == 0) {
-                    List<Map<String, Object>> content1 = imageMessage.getContent();
-                    content1.add(Collections.singletonMap("text", chatMessage.getContent()));
+                    List<Map<String, Object>> imageMessageContent = imageMessage.getContent();
+                    imageMessageContent.add(Collections.singletonMap("text", chatMessage.getContent()));
                 } else {
-                    MultiModalMessage msg = MultiModalMessage.builder().role(Role.USER.getValue())
-                            .content(List.of(Collections.singletonMap("text", "做一首诗描述这个场景"))).build();
-                    imageMessages.add(msg);
+                    MultiModalMessage userMsg = MultiModalMessage.builder().role(Role.USER.getValue())
+                            .content(List.of(Collections.singletonMap("text",  chatMessage.getContent()))).build();
+                    imageMessages.add(userMsg);
                 }
-
+                chatMessage.setCtype(MsgTypeEnum.IMAGERECOGNITION);
 
             }
-
-            chatMessage.setCtype(MsgTypeEnum.IMAGERECOGNITION);
 
         } else if (chatMessage.getCtype().equals(MsgTypeEnum.IMAGE)) {
             if (session == null) {

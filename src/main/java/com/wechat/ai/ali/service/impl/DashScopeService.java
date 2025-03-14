@@ -121,7 +121,7 @@ public class DashScopeService extends AbstractAiService {
     public String imageToText(Session session) {
 
         try {
-            return ImageIdentify.streamCall(session.getImageMessages());
+            return ImageIdentify.streamCall(session);
         } catch (NoApiKeyException | UploadFileException e) {
             log.error("AI 图片生成服务异常: {}", e.getMessage(), e);
             throw new RuntimeException(e);
