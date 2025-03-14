@@ -113,14 +113,16 @@ public class MsgSourceServiceImpl implements MsgSourceService {
                     .content(list).build();
             session.getImageMessages().add(userMessage);
             return;
+        }else{
+            return;
         }
         //还有很多类型没有处理，等后续有空处理
-        // 设置一个session,防止为空，报错，
-        if (session == null) {
-            // 创建一个新的会话
-            sessionManager.createSession(chatMessage.getFromUserId(), null);
-            session = sessionManager.getSession(chatMessage.getFromUserId());
-        }
+        //// 设置一个session,防止为空，报错，
+        //if (session == null) {
+        //    // 创建一个新的会话
+        //    sessionManager.createSession(chatMessage.getFromUserId(), null);
+        //    session = sessionManager.getSession(chatMessage.getFromUserId());
+        //}
         session.setCreateTime(Instant.now());
         replyMsgService.replyType(chatMessage, session);
 
