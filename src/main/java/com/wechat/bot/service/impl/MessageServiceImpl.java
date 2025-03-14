@@ -12,7 +12,6 @@ import com.wechat.gewechat.service.DownloadApi;
 import com.wechat.util.ImageUtil;
 import com.wechat.util.IpUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -40,7 +39,6 @@ public class MessageServiceImpl implements MessageService {
     @Resource
     private BotConfig botConfig;
 
-    @Async
     @Override
     public void receiveMsg(JSONObject requestBody) {
 
@@ -58,7 +56,7 @@ public class MessageServiceImpl implements MessageService {
                 .msgId(msgId)
                 .createTime(data.getLong("CreateTime"))
                 .ctype(MsgTypeEnum.getMsgTypeEnum(msgType))
-                .receiveContent(receiveMsg)
+                .content(receiveMsg)
                 .fromUserId(fromUserId)
                 .toUserId(toUserId)
                 .isMyMsg(wxid.equals(fromUserId))
@@ -67,7 +65,7 @@ public class MessageServiceImpl implements MessageService {
                 .isAt(receiveMsg.contains("@"))
                 .actualUserId(wxid)
                 .appId(appid)
-                .rawMsg(requestBody)
+                //.rawMsg(requestBody)
                 .build();
 
         // 过滤掉非用户信息
@@ -97,12 +95,12 @@ public class MessageServiceImpl implements MessageService {
         }
         chatMessage.setFromUserNickname(contactMap.get(chatMessage.getFromUserId()));
         if (chatMessage.getIsGroup()) {
-            log.info("群消息:来自{}，消息内容为：{}", chatMessage.getFromUserNickname(), chatMessage.getReceiveContent());
+            log.info("群消息:来自{}，消息内容为：{}", chatMessage.getFromUserNickname(), chatMessage.getContent());
             chatMessage.setGroupId(chatMessage.getFromUserId());
             //return;
             msgSourceService.groupMsg(chatMessage);
         } else {
-            log.info("收到个人消息：来自：{}，消息内容为：{}", chatMessage.getFromUserNickname(), chatMessage.getReceiveContent());
+            log.info("收到个人消息：来自：{}，消息内容为：{}", chatMessage.getFromUserNickname(), chatMessage.getContent());
             msgSourceService.personalMsg(chatMessage);
         }
 
@@ -183,7 +181,7 @@ public class MessageServiceImpl implements MessageService {
         switch (chatMessage.getCtype()) {
             case TEXT:
                 // 文本消息进行处理
-                String content = chatMessage.getReceiveContent();
+                String content = chatMessage.getContent();
                 List<String> imageCreatePrefix = botConfig.getImageCreatePrefix();
                 for (String createPrefix : imageCreatePrefix) {
                     if (content.contains(createPrefix)) {
@@ -202,7 +200,7 @@ public class MessageServiceImpl implements MessageService {
                 break;
             case IMAGE:
                 // 图片下载处理为base64位
-                JSONObject jsonObject = DownloadApi.downloadImage(chatMessage.getAppId(), chatMessage.getReceiveContent(), 2);
+                JSONObject jsonObject = DownloadApi.downloadImage(chatMessage.getAppId(), chatMessage.getContent(), 2);
                 if (jsonObject.getInteger("ret") != 200) {
                     throw new RuntimeException("图片下载失败");
                 }
@@ -212,7 +210,7 @@ public class MessageServiceImpl implements MessageService {
                 imagePath.getParent().toFile().mkdirs();
                 ImageUtil.downloadImage(imageUrl, imagePath.toString());
                 // 图片下载可能会出现下载失败，而报错，请检查一下你的容器，容器内是否有问题
-                chatMessage.setReceiveContent(imagePath.toAbsolutePath().toString());
+                chatMessage.setContent(imagePath.toAbsolutePath().toString());
                 chatMessage.setCtype(MsgTypeEnum.IMAGERECOGNITION);
                 break;
             case VOICE:

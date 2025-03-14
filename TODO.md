@@ -9,25 +9,28 @@
 
 ## 二、微信消息不同类型解析
 
-- [ ] 图片格式回复
+- [X] 图片格式回复
 - [ ] 语音格式回复
 - [ ] 视频格式回复
 - [ ] 文件格式回复
 
 ## 三、微信消息不同类型回复
 - [X] 文本格式回复 (多轮会话已经支持)
-- [X] 图片格式回复 (单个图片生成已经支持，图片识别还未支持)
+- [X] 图片格式回复 (多个图片生成已经支持)
 - [ ] 语音格式回复
 - [ ] 视频格式回复
 - [ ] 文件格式回复
 - [ ] 音乐格式回复
 
 ## 四、微信消息不同消息内容
-- [ ] 群里面消息开发
+- [ ] 群里面消息开发（目前暂时不开发，比较繁琐）
 
 ## 五、会话存储
-- [ ] 存储到数据库
+- [ ] 存储到数据库（目前暂时不开发，比较麻烦）
 
+## 六、定时任务
+- [X] 定时清理会话记录
+- [ ] 每日早上天气提醒
 
-## 六、流程图
+## 七、流程图
 https://www.edrawmax.cn/online/app.html?pc5BDoIwEIXh07ytSbHUsmy1rF24J1XGBFMooSXi7Z0Sb+Bu8n+TzMT7C8fLO8mqFlopIVG1V1pSnHzgEa6GdTAOTsK2MAJOoTnDmkJNA6N3MntRsDU075xK1/ZAfb+hUs8hUJfiujyIr9E2pOxYWs6smcY5+Exd/szFp5hvv8Q6+bHEPz/5Ag==

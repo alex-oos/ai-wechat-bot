@@ -20,8 +20,15 @@ import java.util.List;
 @Data
 public class ChatMessage {
 
+
+    /**
+     *  消息id
+     */
     private String msgId;
 
+    /**
+     * 消息创建时间
+     */
     private Long createTime;
 
     /**
@@ -32,7 +39,7 @@ public class ChatMessage {
     /**
      * 消息内容
      */
-    private String receiveContent;
+    private String content;
 
     /**
      * 消息发送者id
@@ -120,7 +127,7 @@ public class ChatMessage {
                 "id=" + msgId +
                 ", create_time=" + createTime +
                 ", ctype=" + ctype +
-                ", content=" + receiveContent +
+                ", content=" + content +
                 ", from_user_id=" + fromUserId +
                 ", from_user_nickname=" + fromUserNickname +
                 ", to_user_id=" + toUserId +

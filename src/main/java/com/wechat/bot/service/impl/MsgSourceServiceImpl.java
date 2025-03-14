@@ -11,11 +11,13 @@ import com.wechat.bot.service.MsgSourceService;
 import com.wechat.bot.service.ReplyMsgService;
 import com.wechat.gewechat.service.MessageApi;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -30,7 +32,7 @@ public class MsgSourceServiceImpl implements MsgSourceService {
     @Resource
     BotConfig botconfig;
 
-    private SessionManager sessionManager = new SessionManager();
+    private  SessionManager sessionManager = new SessionManager();
 
     @Resource
     private ReplyMsgService replyMsgService;
@@ -47,7 +49,7 @@ public class MsgSourceServiceImpl implements MsgSourceService {
         Session session = sessionManager.getSession(chatMessage.getFromUserId());
         if (chatMessage.getCtype().equals(MsgTypeEnum.TEXT)) {
             // 会话清理的逻辑
-            String content = chatMessage.getReceiveContent();
+            String content = chatMessage.getContent();
             if (content.equals("#清除记忆") || content.equals("#退出") || content.equals("#清除") || content.equals("#清除记忆并退出") || content.equals("#人工")) {
                 sessionManager.deleteSession(chatMessage.getFromUserId());
                 // 直接回复，清除记忆成功
@@ -63,7 +65,7 @@ public class MsgSourceServiceImpl implements MsgSourceService {
                 } else {
                     // 单独聊天前缀过滤
                     for (String chatPrefix : singleChatPrefix) {
-                        if (!chatMessage.getReceiveContent().contains(chatPrefix)) {
+                        if (!chatMessage.getContent().contains(chatPrefix)) {
                             return;
                         }
                     }
@@ -77,7 +79,7 @@ public class MsgSourceServiceImpl implements MsgSourceService {
             // 先去追溯一下，是否有图片消息，如果有的话， 修改类型，进行一些列操作，如果没有的话，添加文本类型
             List<MultiModalMessage> imageMessages = session.getImageMessages();
             if (imageMessages.size() == 1) {
-                session.addQuery(chatMessage.getReceiveContent());
+                session.addQuery(chatMessage.getContent());
             }
             //  添加到图片消息里面
             List<MultiModalMessage> multiModalMessages = imageMessages.stream().filter(e -> e.getRole().equals(Role.USER.getValue())).collect(Collectors.toList());
@@ -86,10 +88,10 @@ public class MsgSourceServiceImpl implements MsgSourceService {
                 long count = contentList.stream().filter(e -> e.get("text") != null).count();
                 if (count == 0) {
                     List<Map<String, Object>> imageMessageContent = imageMessage.getContent();
-                    imageMessageContent.add(Collections.singletonMap("text", chatMessage.getReceiveContent()));
+                    imageMessageContent.add(Collections.singletonMap("text", chatMessage.getContent()));
                 } else {
                     MultiModalMessage userMsg = MultiModalMessage.builder().role(Role.USER.getValue())
-                            .content(List.of(Collections.singletonMap("text", chatMessage.getReceiveContent()))).build();
+                            .content(List.of(Collections.singletonMap("text", chatMessage.getContent()))).build();
                     imageMessages.add(userMsg);
                 }
                 chatMessage.setCtype(MsgTypeEnum.IMAGERECOGNITION);
@@ -106,7 +108,7 @@ public class MsgSourceServiceImpl implements MsgSourceService {
             // Linux或macOS系统   file://{文件的绝对路径} file:///home/images/test.png
             // Windows系统 file:///{文件的绝对路径} file:///D:images/test.png
             List<Map<String, Object>> list = new ArrayList<>();
-            list.add(Collections.singletonMap("image", "file://" + chatMessage.getReceiveContent()));
+            list.add(Collections.singletonMap("image", "file://" + chatMessage.getContent()));
             MultiModalMessage userMessage = MultiModalMessage.builder().role(Role.USER.getValue())
                     .content(list).build();
             session.getImageMessages().add(userMessage);
@@ -122,7 +124,6 @@ public class MsgSourceServiceImpl implements MsgSourceService {
     /**
      * 群消息，如何回复
      */
-    @Async
     @Override
     public void groupMsg(ChatMessage chatMessage) {
         // 拿到群里面的session
@@ -130,7 +131,7 @@ public class MsgSourceServiceImpl implements MsgSourceService {
         Session session = sessionManager.getSession(chatMessage.getFromUserId());
         if (chatMessage.getCtype().equals(MsgTypeEnum.TEXT)) {
             // 会话清理的逻辑
-            String content = chatMessage.getReceiveContent();
+            String content = chatMessage.getContent();
             if (content.equals("#清除记忆") || content.equals("#退出") || content.equals("#清除") || content.equals("#清除记忆并退出") || content.equals("#人工")) {
                 sessionManager.deleteSession(chatMessage.getFromUserId());
                 // 直接回复，清除记忆成功
@@ -138,61 +139,61 @@ public class MsgSourceServiceImpl implements MsgSourceService {
                 return;
             }
         }
-            // 黑名单过滤
-            List<String> groupNameWhiteList = botconfig.getGroupNameWhiteList();
-            if (!groupNameWhiteList.isEmpty()) {
+        // 黑名单过滤
+        List<String> groupNameWhiteList = botconfig.getGroupNameWhiteList();
+        if (!groupNameWhiteList.isEmpty()) {
 
-                if (!groupNameWhiteList.get(0).equals("ALL_GROUP")) {
-                    // 判断群名是否在白名单中
-                    if (!groupNameWhiteList.contains(chatMessage.getToUserNickname())) {
-                        return;
-                    }
-                }
-                // 开始发消息
-                // 区分类型，先判断是否需要艾特
-                List<String> groupChatPrefix = botconfig.getGroupChatPrefix();
-                if (groupChatPrefix.isEmpty()) {
+            if (!groupNameWhiteList.get(0).equals("ALL_GROUP")) {
+                // 判断群名是否在白名单中
+                if (!groupNameWhiteList.contains(chatMessage.getToUserNickname())) {
                     return;
                 }
-                for (String chatPrefix : groupChatPrefix) {
-                    //如果包含ai, 则需要艾特
-                    //@bot 特殊校验一下
-                    if (chatPrefix.contains("@bot") && chatMessage.getIsAt()) {
-                        // TODO @bot
-                        if (chatMessage.getReceiveContent().contains(chatMessage.getSelfDisplayName())) {
-                            //  消息发送
-                            String replace = chatMessage.getReceiveContent().replace("@" + chatMessage.getSelfDisplayName(), "");
-                            chatMessage.setReceiveContent(replace);
-                            //this.replyTextMsg(chatMessage);
-
-                        }
-                    }
-
-                    if (!chatMessage.getReceiveContent().contains(chatPrefix)) {
-                        return;
-                    }
-                    // 消息发送
-                    String replace = chatMessage.getReceiveContent().replace(chatPrefix, "");
-                    chatMessage.setReceiveContent(replace);
-                    //this.replyTextMsg(chatMessage);
-
-                }
-
-                //TODO(群消息，如何回复)
-                //消息如何拼接，是否需要艾特人，等等之类的，还有各种各样的欢迎语
-
-                // 判断一下消息的类型
-                //replyMsgService.replyType(chatMessage);
+            }
+            // 开始发消息
+            // 区分类型，先判断是否需要艾特
+            List<String> groupChatPrefix = botconfig.getGroupChatPrefix();
+            if (groupChatPrefix.isEmpty()) {
                 return;
             }
+            for (String chatPrefix : groupChatPrefix) {
+                //如果包含ai, 则需要艾特
+                //@bot 特殊校验一下
+                if (chatPrefix.contains("@bot") && chatMessage.getIsAt()) {
+                    // TODO @bot
+                    if (chatMessage.getContent().contains(chatMessage.getSelfDisplayName())) {
+                        //  消息发送
+                        String replace = chatMessage.getContent().replace("@" + chatMessage.getSelfDisplayName(), "");
+                        chatMessage.setContent(replace);
+                        //this.replyTextMsg(chatMessage);
 
+                    }
+                }
 
+                if (!chatMessage.getContent().contains(chatPrefix)) {
+                    return;
+                }
+                // 消息发送
+                String replace = chatMessage.getContent().replace(chatPrefix, "");
+                chatMessage.setContent(replace);
+                //this.replyTextMsg(chatMessage);
+
+            }
+
+            //TODO(群消息，如何回复)
+            //消息如何拼接，是否需要艾特人，等等之类的，还有各种各样的欢迎语
+
+            // 判断一下消息的类型
+            //replyMsgService.replyType(chatMessage);
+            return;
         }
 
-        @Override
-        public SessionManager getSessionMessage () {
-
-            return this.sessionManager;
-        }
 
     }
+
+    @Override
+    public SessionManager getSessionMessage() {
+
+        return this.sessionManager;
+    }
+
+}

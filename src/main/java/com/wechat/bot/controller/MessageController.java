@@ -25,13 +25,10 @@ public class MessageController {
 
     //@Resource
     private TaskQueue taskQueue;
-
     @PostMapping("/callback/collect")
     public void receiveMessages(@RequestBody String requestBody) {
 
         // 直接添加到任务中，单个线程去处理，增加，同时处理的数量
-
-
         Boolean filterOther = messageService.filterErrorMessage(requestBody);
         if (filterOther) {
             return;
