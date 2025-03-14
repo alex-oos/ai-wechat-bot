@@ -13,6 +13,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -40,7 +41,7 @@ public class EveryDaySchedule {
 
     @Resource
     private BotConfig botConfig;
-
+    @Async
     @Scheduled(cron = "0 0 8 * * ?")
     public void morningReport() {
 
@@ -74,6 +75,7 @@ public class EveryDaySchedule {
 
     }
 
+    @Async
     @Scheduled(cron = "0 0 22 * * ?")
     public void eveningReport() {
 
@@ -109,6 +111,7 @@ public class EveryDaySchedule {
      * 每日天气提醒
      * https://www.alapi.cn
      */
+    @Async
     @Scheduled(cron = "0 30 8 * * ?")
     public void weatherReminder() throws IOException {
 
