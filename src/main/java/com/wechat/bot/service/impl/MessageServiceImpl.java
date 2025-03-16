@@ -2,6 +2,8 @@ package com.wechat.bot.service.impl;
 
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
+import com.wechat.ai.session.Session;
+import com.wechat.ai.session.SessionManager;
 import com.wechat.bot.entity.BotConfig;
 import com.wechat.bot.entity.ChatMessage;
 import com.wechat.bot.enums.MsgTypeEnum;
@@ -154,10 +156,7 @@ public class MessageServiceImpl implements MessageService {
         }
 
         // 过滤掉5分钟前的消息
-        if (chatMessage.getCreateTime() - (System.currentTimeMillis() / 1000) > 60 * 5) {
-            return true;
-        }
-        return false;
+        return chatMessage.getCreateTime() - (System.currentTimeMillis() / 1000) > 60 * 5;
 
 
     }
@@ -174,10 +173,7 @@ public class MessageServiceImpl implements MessageService {
             return true;
         }
         // 过滤掉不包含NewMsgId字段的信息
-        if (!response.getJSONObject("Data").containsKey("NewMsgId")) {
-            return true;
-        }
-        return false;
+        return !response.getJSONObject("Data").containsKey("NewMsgId");
     }
 
     /**
@@ -191,6 +187,12 @@ public class MessageServiceImpl implements MessageService {
             case TEXT:
                 // 文本消息进行处理
                 String content = chatMessage.getContent();
+                SessionManager sessionMessage = msgSourceService.getSessionMessage();
+                Session session = sessionMessage.getSession(chatMessage.getFromUserId());
+                // 如果里面已经有了图片信息了，这里就不需要修改为图片了，防止两个触发逻辑混淆
+                if (session.getImageMessages().size() > 1) {
+                    return;
+                }
                 List<String> imageCreatePrefix = botConfig.getImageCreatePrefix();
                 for (String createPrefix : imageCreatePrefix) {
                     if (content.contains(createPrefix)) {
