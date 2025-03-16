@@ -2,8 +2,6 @@ package com.wechat.bot.service.impl;
 
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
-import com.wechat.ai.session.Session;
-import com.wechat.ai.session.SessionManager;
 import com.wechat.bot.entity.BotConfig;
 import com.wechat.bot.entity.ChatMessage;
 import com.wechat.bot.enums.MsgTypeEnum;
@@ -82,14 +80,15 @@ public class MessageServiceImpl implements MessageService {
         updateContactMaps(chatMessage);
         chatMessage.setFromUserNickname(contactMap.get(chatMessage.getFromUserId()));
         chatMessage.setToUserNickname(contactMap.get(chatMessage.getToUserId()));
-        if (chatMessage.getIsGroup()) {
-            processGroupMessage(chatMessage);
-            logMessage("群消息:《{}》中，{}的消息内容为：{}", chatMessage.getGroupIdNickName(), chatMessage.getGroupMemberUserNickname(), chatMessage.getContent());
-            //msgSourceService.groupMsg(chatMessage);
-        } else {
+        if (!chatMessage.getIsGroup()) {
             logMessage("收到个人消息：来自：{}，消息内容为：{}", chatMessage.getFromUserNickname(), chatMessage.getContent());
             msgSourceService.personalMsg(chatMessage);
+            return;
         }
+        // 群消息
+        processGroupMessage(chatMessage);
+        logMessage("群消息:《{}》中，{}的消息内容为：{}", chatMessage.getGroupIdNickName(), chatMessage.getGroupMemberUserNickname(), chatMessage.getContent());
+        msgSourceService.groupMsg(chatMessage);
     }
 
     private void processGroupMessage(ChatMessage chatMessage) {
@@ -237,15 +236,15 @@ public class MessageServiceImpl implements MessageService {
             case TEXT:
                 // 文本消息进行处理
                 String content = chatMessage.getContent();
-                SessionManager sessionManager = msgSourceService.getSessionManager();
-                if (sessionManager == null) {
-                    return;
-                }
-                Session session = sessionManager.getSession(chatMessage.getFromUserId());
-                // 如果里面已经有了图片信息了，这里就不需要修改为图片了，防止两个触发逻辑混淆
-                if (session == null || session.getTextMessages().size() > 1) {
-                    return;
-                }
+                //SessionManager sessionManager = msgSourceService.getSessionManager();
+                //if (sessionManager == null) {
+                //    return;
+                //}
+                //Session session = sessionManager.getSession(chatMessage.getFromUserId());
+                //// 如果里面已经有了图片信息了，这里就不需要修改为图片了，防止两个触发逻辑混淆
+                //if (session.getTextMessages().size() > 1) {
+                //    return;
+                //}
                 List<String> imageCreatePrefix = botConfig.getImageCreatePrefix();
                 for (String createPrefix : imageCreatePrefix) {
                     if (content.contains(createPrefix)) {

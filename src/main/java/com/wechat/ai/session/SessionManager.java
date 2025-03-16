@@ -22,11 +22,12 @@ public class SessionManager {
 
     private static final int MAX_TOKENS = 8192;
 
-    public void createSession(String userId, String systemPrompt) {
+    public Session createSession(String userId, String systemPrompt) {
         // 目录这里sessionid AI 暂时不使用，用userid存储，方便群消息管理
         String sessionId = UUID.randomUUID().toString();
         Session session = new Session(userId, systemPrompt);
         sessions.put(userId, session);
+        return session;
 
     }
 
