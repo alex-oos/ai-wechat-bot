@@ -245,13 +245,18 @@ public class MessageServiceImpl implements MessageService {
                 //if (session.getTextMessages().size() > 1) {
                 //    return;
                 //}
-                List<String> imageCreatePrefix = botConfig.getImageCreatePrefix();
-                for (String createPrefix : imageCreatePrefix) {
-                    if (content.contains(createPrefix)) {
-                        chatMessage.setCtype(MsgTypeEnum.IMAGE);
-                        return;
-                    }
+                //画图，目前是强制写死，不然会冲突，必须包含画与图片两个关键字
+                if (content.contains("画") && content.contains("图片")) {
+                    chatMessage.setCtype(MsgTypeEnum.IMAGE);
+                    return;
                 }
+                //List<String> imageCreatePrefix = botConfig.getImageCreatePrefix();
+                //for (String createPrefix : imageCreatePrefix) {
+                //    if (content.contains(createPrefix)) {
+                //        chatMessage.setCtype(MsgTypeEnum.IMAGE);
+                //        return;
+                //    }
+                //}
                 if (content.contains("视频") && content.contains("生成")) {
                     chatMessage.setCtype(MsgTypeEnum.VIDEO);
                     return;
