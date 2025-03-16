@@ -45,19 +45,27 @@ public class MsgSourceServiceImpl implements MsgSourceService {
     public void personalMsg(ChatMessage chatMessage) {
 
         Session session = sessionManager.getSession(chatMessage.getFromUserId());
+        if (session == null) {
+            if (!prefixFilter(chatMessage, botconfig.getSingleChatPrefix())) {
+                return;
+            }
+            session = sessionManager.createSession(chatMessage.getFromUserId(), botconfig.getSystemPrompt());
+        }
         switch (chatMessage.getCtype()) {
             case TEXT:
-                session = handleTextMessage(chatMessage, session);
+                handleTextMessage(chatMessage, session);
                 break;
             case IMAGERECOGNITION:
-                session = handleImageRecognitionMessage(chatMessage, session);
+                handleImageRecognitionMessage(chatMessage, session);
                 if (session.getImageMessages().size() != 1) {
                     return;
                 }
                 break;
             case IMAGE:
-                session = handleImageMessage(chatMessage, session);
+                handleImageMessage(chatMessage, session);
                 break;
+            default:
+                return;
         }
         if (session == null) {
             return;
@@ -66,25 +74,17 @@ public class MsgSourceServiceImpl implements MsgSourceService {
         replyMsgService.replyType(chatMessage, session);
     }
 
-    private Session handleTextMessage(ChatMessage chatMessage, Session session) {
+    private void handleTextMessage(ChatMessage chatMessage, Session session) {
 
         String content = chatMessage.getContent();
         if (isClearMemoryCommand(content)) {
             clearSessionAndReply(chatMessage);
-            return null;
-        }
-        if (session == null) {
-            if (!prefixFilter(chatMessage, botconfig.getSingleChatPrefix())) {
-                return null;
-            }
-            session = sessionManager.createSession(chatMessage.getFromUserId(), botconfig.getSystemPrompt());
-            return session;
+            return;
         }
         handleImageMessages(chatMessage, session);
-        return session;
     }
 
-    private Session handleImageRecognitionMessage(ChatMessage chatMessage, Session session) {
+    private void handleImageRecognitionMessage(ChatMessage chatMessage, Session session) {
 
         if (session == null) {
             session = sessionManager.createSession(chatMessage.getFromUserId(), botconfig.getSystemPrompt());
@@ -95,14 +95,10 @@ public class MsgSourceServiceImpl implements MsgSourceService {
         MultiModalMessage userMessage = MultiModalMessage.builder().role(Role.USER.getValue())
                 .content(list).build();
         session.getImageMessages().add(userMessage);
-        return session;
     }
 
     private Session handleImageMessage(ChatMessage chatMessage, Session session) {
 
-        if (session == null) {
-            session = sessionManager.createSession(chatMessage.getFromUserId(), botconfig.getSystemPrompt());
-        }
         session.addQuery(chatMessage.getContent());
         return session;
     }
@@ -169,26 +165,26 @@ public class MsgSourceServiceImpl implements MsgSourceService {
     @Override
     public void groupMsg(ChatMessage chatMessage) {
 
-        Session session = sessionManager.getSession(chatMessage.getGroupId());
+        String groupIdAndUserId = chatMessage.getGroupId() + "-" + chatMessage.getFromUserId();
+        Session session = sessionManager.getSession(groupIdAndUserId);
         if (session == null) {
             if (!groupNameFilter(chatMessage) || !prefixFilter(chatMessage, botconfig.getGroupChatPrefix())) {
                 return;
             }
-            sessionManager.createSession(chatMessage.getFromUserId(), botconfig.getSystemPrompt());
-            session = sessionManager.getSession(chatMessage.getFromUserId());
+            session = sessionManager.createSession(groupIdAndUserId, botconfig.getSystemPrompt());
         }
         switch (chatMessage.getCtype()) {
             case TEXT:
-                session = handleTextMessage(chatMessage, session);
+                handleTextMessage(chatMessage, session);
                 break;
             case IMAGERECOGNITION:
-                session = handleImageRecognitionMessage(chatMessage, session);
+                handleImageRecognitionMessage(chatMessage, session);
                 if (session.getImageMessages().size() != 1) {
                     return;
                 }
                 break;
             case IMAGE:
-                session = handleImageMessage(chatMessage, session);
+                handleImageMessage(chatMessage, session);
                 break;
         }
         if (session == null) {
