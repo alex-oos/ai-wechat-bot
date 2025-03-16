@@ -22,7 +22,7 @@ public class ChatMessage {
 
 
     /**
-     *  消息id
+     * 消息id
      */
     private String msgId;
 
@@ -40,6 +40,10 @@ public class ChatMessage {
      * 消息内容
      */
     private String content;
+
+    // 个人聊天使用
+
+    private Boolean isMyMsg;
 
     /**
      * 消息发送者id
@@ -61,6 +65,14 @@ public class ChatMessage {
      */
     private String toUserNickname;
 
+
+    // 群聊使用
+
+    /**
+     * 是否是群聊
+     */
+    private Boolean isGroup;
+
     /**
      * 群id
      */
@@ -70,32 +82,32 @@ public class ChatMessage {
      * 群昵称
      */
     private String groupIdNickName;
+
     /**
-     * 是否是自己发的消息
+     * 是否被@
      */
-    private Boolean isMyMsg;
-
-    private String selfDisplayName;
-
-    private Boolean isGroup;
-
     private Boolean isAt;
+
     /**
-     * 实际发送者id
+     * 群成员用户id
      */
-    private String actualUserId;
+    private String groupMembersUserId;
+
     /**
-     * 实际发送者昵称
+     * 群成员昵称
      */
-    private String actualUserNickname;
+    private String groupMemberUserNickname;
+
     /**
      * 被@的用户id
      */
     private List<String> atList;
+
     /**
      * 消息预处理函数
      */
     private Runnable prepareFn;
+
     /**
      * 消息是否已经处理过了
      */
@@ -136,8 +148,8 @@ public class ChatMessage {
                 ", other_user_nickname=" + groupIdNickName +
                 ", is_group=" + isGroup +
                 ", is_at=" + isAt +
-                ", actual_user_id=" + actualUserId +
-                ", actual_user_nickname=" + actualUserNickname +
+                ", actual_user_id=" + groupMembersUserId +
+                ", actual_user_nickname=" + groupMemberUserNickname +
                 ", at_list=" + (atList != null ? String.join(", ", atList) : "null");
     }
 

@@ -54,10 +54,11 @@ public class MessageServiceImpl implements MessageService {
         String toUserId = data.getJSONObject("ToUserName").getString("string");
         String receiveMsg = data.getJSONObject("Content").getString("string");
         String msgSource = data.getString("MsgSource");
-        String msgId = data.getString("'NewMsgId'");
+        String msgId = data.getString("NewMsgId");
         // 消息类型
         Integer msgType = data.getInteger("MsgType");
         ChatMessage chatMessage = ChatMessage.builder()
+                .appId(appid)
                 .msgId(msgId)
                 .createTime(data.getLong("CreateTime"))
                 .ctype(MsgTypeEnum.getMsgTypeEnum(msgType))
@@ -68,48 +69,97 @@ public class MessageServiceImpl implements MessageService {
                 .isGroup(fromUserId.contains("@chatroom"))
                 .groupId(fromUserId)
                 .isAt(receiveMsg.contains("@"))
-                .actualUserId(wxid)
-                .appId(appid)
-                //.rawMsg(requestBody)
+                .groupMembersUserId(wxid)
+                .rawMsg(requestBody)
                 .build();
 
         // 过滤掉非用户信息
-        Boolean isFilter = this.filterNotUserMessage(chatMessage, msgSource);
-        if (isFilter) {
-            return;
-        }
-        //TODO 先过滤掉所有的群消息,等个人开发完毕之后，再去处理群消息
-        if (chatMessage.getIsGroup()) {
-            //log.info("收到群消息{}",requestBody.toJSONString());
+        if (filterNotUserMessage(chatMessage, msgSource)) {
             return;
         }
         // 消息内容进行处理
-        this.messageContentProcessing(chatMessage);
-        if (!contactMap.containsKey(chatMessage.getFromUserId())) {
-            // 存到一个map里面不用每次都重新获取，降低请求次数
-            // 获取好友的信息
-            String nickName = null;
-            JSONObject briefInfo = ContactApi.getBriefInfo(chatMessage.getAppId(), Collections.singletonList(chatMessage.getFromUserId()));
-            if (briefInfo.getInteger("ret") == 200) {
-                JSONArray dataList = briefInfo.getJSONArray("data");
-                JSONObject userInfo = dataList.getJSONObject(0);
-                String remark = userInfo.getString("remark");
-                nickName = remark != null ? remark : userInfo.getString("nickName");
-            }
-            contactMap.put(chatMessage.getFromUserId(), nickName);
-        }
+        messageContentProcessing(chatMessage);
+        updateContactMaps(chatMessage);
         chatMessage.setFromUserNickname(contactMap.get(chatMessage.getFromUserId()));
+        chatMessage.setToUserNickname(contactMap.get(chatMessage.getToUserId()));
         if (chatMessage.getIsGroup()) {
-            log.info("群消息:来自{}，消息内容为：{}", chatMessage.getFromUserNickname(), chatMessage.getContent());
-            chatMessage.setGroupId(chatMessage.getFromUserId());
-            //return;
-            msgSourceService.groupMsg(chatMessage);
+            processGroupMessage(chatMessage);
+            logMessage("群消息:《{}》中，{}的消息内容为：{}", chatMessage.getGroupIdNickName(), chatMessage.getGroupMemberUserNickname(), chatMessage.getContent());
+            //msgSourceService.groupMsg(chatMessage);
         } else {
-            log.info("收到个人消息：来自：{}，消息内容为：{}", chatMessage.getFromUserNickname(), chatMessage.getContent());
+            logMessage("收到个人消息：来自：{}，消息内容为：{}", chatMessage.getFromUserNickname(), chatMessage.getContent());
             msgSourceService.personalMsg(chatMessage);
         }
+    }
+
+    private void processGroupMessage(ChatMessage chatMessage) {
+
+        String[] split = chatMessage.getContent().split(":");
+        String content = split[1].replace('\n', ' ').strip();
+        String groupMembersUserId = split[0];
+        updateContactMap(groupMembersUserId);
+
+        if (chatMessage.getIsAt()) {
+            content = content.replace('@', ' ').strip();
+            if (chatMessage.getContent().contains(chatMessage.getToUserNickname())) {
+                content = content.replace(chatMessage.getToUserNickname(), "").strip();
+            }
+        }
+        chatMessage.setContent(content);
+        chatMessage.setGroupMembersUserId(groupMembersUserId);
+        chatMessage.setGroupMemberUserNickname(contactMap.get(groupMembersUserId));
+        chatMessage.setGroupIdNickName(contactMap.get(chatMessage.getGroupId()));
+        // 将单人聊天这里面的值都设置为空，以此来彻底区分
+        chatMessage.setFromUserId(null);
+        chatMessage.setFromUserNickname(null);
+    }
+
+    private String parseGroupMessageContent(String content) {
+
+        String[] split = content.split(":");
+        return split[1].replace('\n', ' ').strip();
+    }
+
+    private void logMessage(String format, Object... args) {
+
+        log.info(format, args);
+    }
 
 
+    private void setChatMessageType(ChatMessage chatMessage, MsgTypeEnum type) {
+
+        chatMessage.setCtype(type);
+    }
+
+    private void updateContactMaps(ChatMessage chatMessage) {
+
+        updateContactMap(chatMessage.getFromUserId());
+        updateContactMap(chatMessage.getToUserId());
+    }
+
+    private void updateContactMap(String userId) {
+
+        if (!contactMap.containsKey(userId)) {
+            // 存到一个map里面不用每次都重新获取，降低请求次数
+            // 获取好友的信息
+            String nickName = getNickname(userId);
+            contactMap.put(userId, nickName);
+        }
+    }
+
+    private String getNickname(String userId) {
+
+        JSONObject briefInfo = ContactApi.getBriefInfo(botConfig.getAppId(), Collections.singletonList(userId));
+        if (briefInfo.getInteger("ret") == 200) {
+            JSONArray dataList = briefInfo.getJSONArray("data");
+            JSONObject userInfo = dataList.getJSONObject(0);
+            String remark = userInfo.getString("remark");
+            if (remark == null || remark.isBlank()) {
+                return userInfo.getString("nickName");
+            }
+            return remark;
+        }
+        return null;
     }
 
     @Override
@@ -187,10 +237,13 @@ public class MessageServiceImpl implements MessageService {
             case TEXT:
                 // 文本消息进行处理
                 String content = chatMessage.getContent();
-                SessionManager sessionMessage = msgSourceService.getSessionMessage();
-                Session session = sessionMessage.getSession(chatMessage.getFromUserId());
+                SessionManager sessionManager = msgSourceService.getSessionManager();
+                if (sessionManager == null) {
+                    return;
+                }
+                Session session = sessionManager.getSession(chatMessage.getFromUserId());
                 // 如果里面已经有了图片信息了，这里就不需要修改为图片了，防止两个触发逻辑混淆
-                if (session.getImageMessages().size() > 1) {
+                if (session == null || session.getTextMessages().size() > 1) {
                     return;
                 }
                 List<String> imageCreatePrefix = botConfig.getImageCreatePrefix();
@@ -237,6 +290,5 @@ public class MessageServiceImpl implements MessageService {
 
 
     }
-
 
 }

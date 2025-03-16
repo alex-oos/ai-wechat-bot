@@ -183,13 +183,13 @@ public class MsgSourceServiceImpl implements MsgSourceService {
                 //@bot 特殊校验一下
                 if (chatPrefix.contains("@bot") && chatMessage.getIsAt()) {
                     // TODO @bot
-                    if (chatMessage.getContent().contains(chatMessage.getSelfDisplayName())) {
-                        //  消息发送
-                        String replace = chatMessage.getContent().replace("@" + chatMessage.getSelfDisplayName(), "");
-                        chatMessage.setContent(replace);
-                        //this.replyTextMsg(chatMessage);
-
-                    }
+                    //if (chatMessage.getContent().contains(chatMessage.getSelfDisplayName())) {
+                    //    //  消息发送
+                    //    String replace = chatMessage.getContent().replace("@" + chatMessage.getSelfDisplayName(), "");
+                    //    chatMessage.setContent(replace);
+                    //    //this.replyTextMsg(chatMessage);
+                    //
+                    //}
                 }
 
                 if (!chatMessage.getContent().contains(chatPrefix)) {
@@ -213,7 +213,7 @@ public class MsgSourceServiceImpl implements MsgSourceService {
     }
 
     @Override
-    public SessionManager getSessionMessage() {
+    public SessionManager getSessionManager() {
 
         return this.sessionManager;
     }

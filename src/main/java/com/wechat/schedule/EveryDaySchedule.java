@@ -44,54 +44,31 @@ public class EveryDaySchedule {
     @Scheduled(cron = "0 0 8 * * ?")
     public void goodMorning() {
 
-        List<String> contactList = new ArrayList<>();
-        // 早安寄语的制定人
-        Collections.addAll(contactList, "爸爸", "妈妈", "爷爷", "奶奶");
-        Map<String, String> contactMap = messageService.getContactMap();
-        Set<String> cantactSet = contactMap.entrySet()
-                .stream()
-                .filter(entry -> contactList.contains(entry.getValue()))
-                .map(e -> e.getKey() + "-" + e.getValue())
-                .collect(Collectors.toSet());
-        if (cantactSet.isEmpty()) {
-            return;
-        }
-        cantactSet.forEach(contact -> {
-            String[] split = contact.split("-");
-            String content = "生成以" + split[1] + "开头的早安寄语，幽默，风趣一些";
-            ChatMessage chatMessage = ChatMessage.builder()
-                    .fromUserId(split[0])
-                    .toUserId(null)
-                    .ctype(MsgTypeEnum.TEXT)
-                    .content(content)
-                    .appId(botConfig.getAppId())
-                    .build();
-            Session session = new Session(contact, null);
-            session.addQuery(chatMessage.getContent());
-            replyMsgService.replyTextMsg(chatMessage, session);
-        });
-        log.info("早安寄语发送成功！");
-
+        sendGreetingMessage("生成以%s开头的早安寄语，幽默，风趣一些", "早安寄语发送成功！");
     }
 
     @Scheduled(cron = "0 0 22 * * ?")
     public void goodNight() {
 
+        sendGreetingMessage("生成以%s开头的晚安寄语，幽默，风趣一些", "晚安寄语发送成功！");
+    }
+
+    private void sendGreetingMessage(String contentTemplate, String logMessage) {
         List<String> contactList = new ArrayList<>();
         // 早安寄语的制定人
         Collections.addAll(contactList, "爸爸", "妈妈", "爷爷", "奶奶");
         Map<String, String> contactMap = messageService.getContactMap();
-        Set<String> cantactSet = contactMap.entrySet()
+        Set<String> contactSet = contactMap.entrySet()
                 .stream()
                 .filter(entry -> contactList.contains(entry.getValue()))
                 .map(e -> e.getKey() + "-" + e.getValue())
                 .collect(Collectors.toSet());
-        if (cantactSet.isEmpty()) {
+        if (contactSet.isEmpty()) {
             return;
         }
-        cantactSet.forEach(contact -> {
+        contactSet.forEach(contact -> {
             String[] split = contact.split("-");
-            String content = "生成以" + split[1] + "开头的晚安寄语，幽默，风趣一些";
+            String content = String.format(contentTemplate, split[1]);
             ChatMessage chatMessage = ChatMessage.builder()
                     .fromUserId(split[0])
                     .toUserId(null)
@@ -103,6 +80,7 @@ public class EveryDaySchedule {
             session.addQuery(chatMessage.getContent());
             replyMsgService.replyTextMsg(chatMessage, session);
         });
+        log.info(logMessage);
     }
 
     /**
@@ -127,25 +105,24 @@ public class EveryDaySchedule {
             return;
         }
         JSONObject data = responseJsonObject.getJSONObject("data");
-        StringBuilder replayMsg = new StringBuilder();
-        replayMsg.append("【天气预报】\n")
-                .append("\uD83D\uDD52 日期:").append(data.getString("date")).append("\n")
-                .append("\uD83C\uDF26️ 天气:").append(data.getString("weather")).append("\n")
-                .append("\uD83C\uDFD9️ 城市:").append(data.getString("province")).append(" ").append(data.getString("city")).append("\n")
-                .append("\uD83C\uDF21️ 温度：").append(data.getString("min_temp")).append("℃").append("\n")
-                .append("\uD83C\uDF2C️ 风向：").append(data.getString("wind")).append("\n")
-                .append("\uD83C\uDF05 日出/日落:：").append(data.getString("sunrise")).append("/").append(data.getString("sunset")).append("\n")
+        String replayMsg = "【天气预报】\n" +
+                "\uD83D\uDD52 日期:" + data.getString("date") + "\n" +
+                "\uD83C\uDF26️ 天气:" + data.getString("weather") + "\n" +
+                "\uD83C\uDFD9️ 城市:" + data.getString("province") + " " + data.getString("city") + "\n" +
+                "\uD83C\uDF21️ 温度：" + data.getString("min_temp") + "℃" + "\n" +
+                "\uD83C\uDF2C️ 风向：" + data.getString("wind") + "\n" +
+                "\uD83C\uDF05 日出/日落:：" + data.getString("sunrise") + "/" + data.getString("sunset") + "\n" +
                 //.append("风向：").append(data.getString("win")).append("\n")
                 //.append("风力：").append(data.getString("win_speed")).append("\n")
                 //.append("湿度：").append(data.getString("humidity")).append("\n")
-                .append("空气质量：").append(data.getString("air_level")).append("\n");
+                "空气质量：" + data.getString("air_level") + "\n";
         //.append("空气质量指数：").append(data.getString("air_index")).append("\n");
         //.append("空气质量描述：").append(data.getString("air_tips")).append("\n")
         //.append("紫外线指数：").append(data.getString("air_index_24h")).append("\n")
         //.append()
 
 
-        MessageApi.postText(botConfig.getAppId(), null, replayMsg.toString(), null);
+        MessageApi.postText(botConfig.getAppId(), null, replayMsg, null);
 
     }
 
