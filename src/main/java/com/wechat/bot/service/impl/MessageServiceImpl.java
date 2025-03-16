@@ -109,15 +109,11 @@ public class MessageServiceImpl implements MessageService {
         chatMessage.setGroupMemberUserNickname(contactMap.get(groupMembersUserId));
         chatMessage.setGroupIdNickName(contactMap.get(chatMessage.getGroupId()));
         // 将单人聊天这里面的值都设置为空，以此来彻底区分
-        chatMessage.setFromUserId(null);
-        chatMessage.setFromUserNickname(null);
+        //chatMessage.setFromUserId(null);
+        //chatMessage.setFromUserNickname(null);
     }
 
-    private String parseGroupMessageContent(String content) {
 
-        String[] split = content.split(":");
-        return split[1].replace('\n', ' ').strip();
-    }
 
     private void logMessage(String format, Object... args) {
 

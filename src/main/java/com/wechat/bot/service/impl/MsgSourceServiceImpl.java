@@ -170,9 +170,6 @@ public class MsgSourceServiceImpl implements MsgSourceService {
     public void groupMsg(ChatMessage chatMessage) {
 
         Session session = sessionManager.getSession(chatMessage.getGroupId());
-        if (chatMessage.getCtype().equals(MsgTypeEnum.TEXT)) {
-            handleTextMessage(chatMessage, session);
-        }
         if (session == null) {
             if (!groupNameFilter(chatMessage) || !prefixFilter(chatMessage, botconfig.getGroupChatPrefix())) {
                 return;
@@ -180,7 +177,26 @@ public class MsgSourceServiceImpl implements MsgSourceService {
             sessionManager.createSession(chatMessage.getFromUserId(), botconfig.getSystemPrompt());
             session = sessionManager.getSession(chatMessage.getFromUserId());
         }
+        switch (chatMessage.getCtype()) {
+            case TEXT:
+                session = handleTextMessage(chatMessage, session);
+                break;
+            case IMAGERECOGNITION:
+                session = handleImageRecognitionMessage(chatMessage, session);
+                if (session.getImageMessages().size() != 1) {
+                    return;
+                }
+                break;
+            case IMAGE:
+                session = handleImageMessage(chatMessage, session);
+                break;
+        }
+        if (session == null) {
+            return;
+        }
+        session.setCreateTime(Instant.now());
         replyMsgService.replyType(chatMessage, session);
+
     }
 
     private boolean groupNameFilter(ChatMessage chatMessage) {
