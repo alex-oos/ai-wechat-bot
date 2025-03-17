@@ -15,6 +15,7 @@ public interface MsgSourceService {
 
     void personalMsg(ChatMessage chatMessage);
 
-    SessionManager getSessionManager();
+    SessionManager getPersionSessionManager();
+    SessionManager getGroupSessionManager();
 
 }

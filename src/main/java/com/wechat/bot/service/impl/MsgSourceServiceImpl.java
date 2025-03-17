@@ -31,7 +31,9 @@ import java.util.stream.Collectors;
 @Service
 public class MsgSourceServiceImpl implements MsgSourceService {
 
-    private final SessionManager sessionManager = new SessionManager();
+    private final SessionManager persionSessionManager = new SessionManager();
+
+    private final SessionManager groupSessionManager = new SessionManager();
 
     @Resource
     BotConfig botconfig;
@@ -45,7 +47,7 @@ public class MsgSourceServiceImpl implements MsgSourceService {
     @Override
     public void personalMsg(ChatMessage chatMessage) {
 
-        Session session = sessionManager.getSession(chatMessage.getFromUserId());
+        Session session = persionSessionManager.getSession(chatMessage.getFromUserId());
         if (session == null) {
             if (isBotManual(chatMessage)) {
                 return;
@@ -53,11 +55,14 @@ public class MsgSourceServiceImpl implements MsgSourceService {
             if (!prefixFilter(chatMessage, botconfig.getSingleChatPrefix())) {
                 return;
             }
-            session = sessionManager.createSession(chatMessage.getFromUserId(), botconfig.getSystemPrompt());
+            session = persionSessionManager.createSession(chatMessage.getFromUserId(), botconfig.getSystemPrompt());
         }
         switch (chatMessage.getCtype()) {
             case TEXT:
-                handleTextMessage(chatMessage, session);
+                if (!handleTextMessage(chatMessage, session, persionSessionManager, chatMessage.getFromUserId())) {
+                    return;
+                }
+                ;
                 break;
             case IMAGERECOGNITION:
                 handleImageRecognitionMessage(chatMessage, session);
@@ -89,27 +94,25 @@ public class MsgSourceServiceImpl implements MsgSourceService {
         if (chatMessage.getContent().equals("AI小助理使用说明")) {
             String replay = FileUtil.readUseTxt();
             MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), replay, chatMessage.getToUserId());
-            sessionManager.deleteSession(chatMessage.getFromUserId());
+            persionSessionManager.deleteSession(chatMessage.getFromUserId());
             return true;
         }
         return false;
     }
 
-    private void handleTextMessage(ChatMessage chatMessage, Session session) {
+    private Boolean handleTextMessage(ChatMessage chatMessage, Session session, SessionManager sessionManager, String userId) {
 
         String content = chatMessage.getContent();
         if (isClearMemoryCommand(content)) {
-            clearSessionAndReply(chatMessage);
-            return;
+            clearSessionAndReply(chatMessage, sessionManager, userId);
+            return false;
         }
         handleImageMessages(chatMessage, session);
+        return true;
     }
 
     private void handleImageRecognitionMessage(ChatMessage chatMessage, Session session) {
 
-        if (session == null) {
-            session = sessionManager.createSession(chatMessage.getFromUserId(), botconfig.getSystemPrompt());
-        }
         adjustImagePath(chatMessage);
         List<Map<String, Object>> list = new ArrayList<>();
         list.add(Collections.singletonMap("image", "file://" + chatMessage.getContent()));
@@ -152,9 +155,9 @@ public class MsgSourceServiceImpl implements MsgSourceService {
         return content.equals("#清除记忆") || content.equals("#退出") || content.equals("#清除") || content.equals("#人工");
     }
 
-    private void clearSessionAndReply(ChatMessage chatMessage) {
+    private void clearSessionAndReply(ChatMessage chatMessage, SessionManager sessionManager, String userId) {
 
-        sessionManager.deleteSession(chatMessage.getFromUserId());
+        sessionManager.deleteSession(userId);
         MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), "恢复真人模式", chatMessage.getToUserId());
     }
 
@@ -183,7 +186,7 @@ public class MsgSourceServiceImpl implements MsgSourceService {
     public void groupMsg(ChatMessage chatMessage) {
 
         String groupIdAndUserId = chatMessage.getGroupId() + "-" + chatMessage.getFromUserId();
-        Session session = sessionManager.getSession(groupIdAndUserId);
+        Session session = groupSessionManager.getSession(groupIdAndUserId);
         if (session == null) {
             if (isBotManual(chatMessage)) {
                 return;
@@ -191,14 +194,15 @@ public class MsgSourceServiceImpl implements MsgSourceService {
             if (!groupNameFilter(chatMessage) || !prefixFilter(chatMessage, botconfig.getGroupChatPrefix())) {
                 return;
             }
-            session = sessionManager.createSession(groupIdAndUserId, botconfig.getSystemPrompt());
+            session = groupSessionManager.createSession(groupIdAndUserId, botconfig.getSystemPrompt());
         }
         switch (chatMessage.getCtype()) {
             case TEXT:
-                handleTextMessage(chatMessage, session);
+                if (!handleTextMessage(chatMessage, session, groupSessionManager, groupIdAndUserId)) {
+                    return;
+                }
                 break;
             case IMAGERECOGNITION:
-                chatMessage.setFromUserId(groupIdAndUserId);
                 handleImageRecognitionMessage(chatMessage, session);
                 if (session.getImageMessages().size() != 1) {
                     return;
@@ -229,9 +233,15 @@ public class MsgSourceServiceImpl implements MsgSourceService {
     }
 
     @Override
-    public SessionManager getSessionManager() {
+    public SessionManager getPersionSessionManager() {
 
-        return this.sessionManager;
+        return this.persionSessionManager;
+    }
+
+    @Override
+    public SessionManager getGroupSessionManager() {
+
+        return this.groupSessionManager;
     }
 
 }
