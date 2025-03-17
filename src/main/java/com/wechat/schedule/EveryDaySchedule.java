@@ -53,6 +53,7 @@ public class EveryDaySchedule {
     }
 
     private void sendGreetingMessage(String contentTemplate, String logMessage) {
+
         List<String> contactList = new ArrayList<>();
         // 早安寄语的制定人
         Collections.addAll(contactList, "爸爸", "妈妈", "爷爷", "奶奶");
@@ -62,7 +63,9 @@ public class EveryDaySchedule {
                 .filter(entry -> contactList.contains(entry.getValue()))
                 .map(e -> e.getKey() + "-" + e.getValue())
                 .collect(Collectors.toSet());
-        if (contactSet.isEmpty()) {
+        String toUserId = contactMap.entrySet().stream().filter(entry -> entry.getValue().equals("助理")).map(Map.Entry::getKey).findFirst().orElse(null);
+
+        if (contactSet.isEmpty() || toUserId == null) {
             return;
         }
         contactSet.forEach(contact -> {
@@ -70,7 +73,7 @@ public class EveryDaySchedule {
             String content = String.format(contentTemplate, split[1]);
             ChatMessage chatMessage = ChatMessage.builder()
                     .fromUserId(split[0])
-                    .toUserId(null)
+                    .toUserId(toUserId)
                     .ctype(MsgTypeEnum.TEXT)
                     .content(content)
                     .appId(botConfig.getAppId())
