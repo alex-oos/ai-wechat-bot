@@ -10,6 +10,7 @@ import com.wechat.bot.enums.MsgTypeEnum;
 import com.wechat.bot.service.MsgSourceService;
 import com.wechat.bot.service.ReplyMsgService;
 import com.wechat.gewechat.service.MessageApi;
+import com.wechat.util.FileUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -46,6 +47,9 @@ public class MsgSourceServiceImpl implements MsgSourceService {
 
         Session session = sessionManager.getSession(chatMessage.getFromUserId());
         if (session == null) {
+            if (isBotManual(chatMessage)) {
+                return;
+            }
             if (!prefixFilter(chatMessage, botconfig.getSingleChatPrefix())) {
                 return;
             }
@@ -70,8 +74,25 @@ public class MsgSourceServiceImpl implements MsgSourceService {
         if (session == null) {
             return;
         }
+        if (isBotManual(chatMessage)) {
+            return;
+        }
         session.setCreateTime(Instant.now());
         replyMsgService.replyType(chatMessage, session);
+    }
+
+    /**
+     * 机器人使用说明
+     */
+    private Boolean isBotManual(ChatMessage chatMessage) {
+
+        if (chatMessage.getContent().equals("AI小助理使用说明")) {
+            String replay = FileUtil.readUseTxt();
+            MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), replay, chatMessage.getToUserId());
+            sessionManager.deleteSession(chatMessage.getFromUserId());
+            return true;
+        }
+        return false;
     }
 
     private void handleTextMessage(ChatMessage chatMessage, Session session) {
@@ -128,7 +149,7 @@ public class MsgSourceServiceImpl implements MsgSourceService {
 
     private boolean isClearMemoryCommand(String content) {
 
-        return content.equals("#清除记忆") || content.equals("#退出") || content.equals("#清除") || content.equals("#清除记忆并退出") || content.equals("#人工");
+        return content.equals("#清除记忆") || content.equals("#退出") || content.equals("#清除") || content.equals("#人工");
     }
 
     private void clearSessionAndReply(ChatMessage chatMessage) {
@@ -164,6 +185,9 @@ public class MsgSourceServiceImpl implements MsgSourceService {
         String groupIdAndUserId = chatMessage.getGroupId() + "-" + chatMessage.getFromUserId();
         Session session = sessionManager.getSession(groupIdAndUserId);
         if (session == null) {
+            if (isBotManual(chatMessage)) {
+                return;
+            }
             if (!groupNameFilter(chatMessage) || !prefixFilter(chatMessage, botconfig.getGroupChatPrefix())) {
                 return;
             }
@@ -184,6 +208,9 @@ public class MsgSourceServiceImpl implements MsgSourceService {
                 break;
         }
         if (session == null) {
+            return;
+        }
+        if (isBotManual(chatMessage)) {
             return;
         }
         session.setCreateTime(Instant.now());

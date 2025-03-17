@@ -60,10 +60,27 @@ public class FileUtil {
                 configFilePath.toFile().createNewFile();
             } catch (IOException e) {
                 log.error("文件创建失败", e);
-                throw new RuntimeException("文件创建失败！",e);
+                throw new RuntimeException("文件创建失败！", e);
             }
         }
         return true;
+    }
+
+    public static String readUseTxt() {
+
+        try {
+            byte[] bytes = Files.readAllBytes(Path.of("docs/use.txt"));
+            return new String(bytes);
+        } catch (IOException e) {
+            throw new RuntimeException("文件读取失败，请检查config 文件是否存在");
+        }
+
+    }
+
+    public static void main(String[] args) {
+
+        String s = readUseTxt();
+        System.out.println(s);
     }
 
 }
