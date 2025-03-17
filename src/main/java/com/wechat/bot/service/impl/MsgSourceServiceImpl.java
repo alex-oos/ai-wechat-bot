@@ -143,12 +143,8 @@ public class MsgSourceServiceImpl implements MsgSourceService {
             log.error("聊天前缀过滤失败,直接返回");
             return false;
         }
-        for (String chatPrefix : prefixes) {
-            if (!chatMessage.getContent().contains(chatPrefix)) {
-                return false;
-            }
-        }
-        return true;
+        long count = prefixes.stream().filter(e -> chatMessage.getContent().contains(e)).count();
+        return count != 0;
     }
 
     private void adjustImagePath(ChatMessage chatMessage) {
