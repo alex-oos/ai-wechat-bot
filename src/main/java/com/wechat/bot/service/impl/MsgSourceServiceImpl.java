@@ -198,6 +198,7 @@ public class MsgSourceServiceImpl implements MsgSourceService {
                 handleTextMessage(chatMessage, session);
                 break;
             case IMAGERECOGNITION:
+                chatMessage.setFromUserId(groupIdAndUserId);
                 handleImageRecognitionMessage(chatMessage, session);
                 if (session.getImageMessages().size() != 1) {
                     return;
