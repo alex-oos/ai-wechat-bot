@@ -86,6 +86,51 @@ public class MsgSourceServiceImpl implements MsgSourceService {
         replyMsgService.replyType(chatMessage, session);
     }
 
+
+    /**
+     * 群消息，如何回复
+     */
+    @Override
+    public void groupMsg(ChatMessage chatMessage) {
+
+        String groupIdAndUserId = chatMessage.getGroupId() + "-" + chatMessage.getGroupMembersUserId();
+        Session session = groupSessionManager.getSession(groupIdAndUserId);
+        if (session == null) {
+            if (isBotManual(chatMessage)) {
+                return;
+            }
+            if (!groupNameFilter(chatMessage) || !prefixFilter(chatMessage, botconfig.getGroupChatPrefix())) {
+                return;
+            }
+            session = groupSessionManager.createSession(groupIdAndUserId, botconfig.getSystemPrompt());
+        }
+        switch (chatMessage.getCtype()) {
+            case TEXT:
+                if (!handleTextMessage(chatMessage, session, groupSessionManager, groupIdAndUserId)) {
+                    return;
+                }
+                break;
+            case IMAGERECOGNITION:
+                handleImageRecognitionMessage(chatMessage, session);
+                if (session.getImageMessages().size() != 1) {
+                    return;
+                }
+                break;
+            case IMAGE:
+                handleImageMessage(chatMessage, session);
+                break;
+        }
+        if (session == null) {
+            return;
+        }
+        if (isBotManual(chatMessage)) {
+            return;
+        }
+        session.setCreateTime(Instant.now());
+        replyMsgService.replyType(chatMessage, session);
+
+    }
+
     /**
      * 机器人使用说明
      */
@@ -179,49 +224,6 @@ public class MsgSourceServiceImpl implements MsgSourceService {
         }
     }
 
-    /**
-     * 群消息，如何回复
-     */
-    @Override
-    public void groupMsg(ChatMessage chatMessage) {
-
-        String groupIdAndUserId = chatMessage.getGroupId() + "-" + chatMessage.getFromUserId();
-        Session session = groupSessionManager.getSession(groupIdAndUserId);
-        if (session == null) {
-            if (isBotManual(chatMessage)) {
-                return;
-            }
-            if (!groupNameFilter(chatMessage) || !prefixFilter(chatMessage, botconfig.getGroupChatPrefix())) {
-                return;
-            }
-            session = groupSessionManager.createSession(groupIdAndUserId, botconfig.getSystemPrompt());
-        }
-        switch (chatMessage.getCtype()) {
-            case TEXT:
-                if (!handleTextMessage(chatMessage, session, groupSessionManager, groupIdAndUserId)) {
-                    return;
-                }
-                break;
-            case IMAGERECOGNITION:
-                handleImageRecognitionMessage(chatMessage, session);
-                if (session.getImageMessages().size() != 1) {
-                    return;
-                }
-                break;
-            case IMAGE:
-                handleImageMessage(chatMessage, session);
-                break;
-        }
-        if (session == null) {
-            return;
-        }
-        if (isBotManual(chatMessage)) {
-            return;
-        }
-        session.setCreateTime(Instant.now());
-        replyMsgService.replyType(chatMessage, session);
-
-    }
 
     private boolean groupNameFilter(ChatMessage chatMessage) {
 
