@@ -13,7 +13,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -41,13 +40,13 @@ public class EveryDaySchedule {
     @Resource
     private BotConfig botConfig;
 
-    @Scheduled(cron = "0 0 8 * * ?")
+    //@Scheduled(cron = "0 0 8 * * ?")
     public void goodMorning() {
 
         sendGreetingMessage("生成以%s开头的早安寄语，幽默，风趣一些", "早安寄语发送成功！");
     }
 
-    @Scheduled(cron = "0 0 22 * * ?")
+    //@Scheduled(cron = "0 0 22 * * ?")
     public void goodNight() {
 
         sendGreetingMessage("生成以%s开头的晚安寄语，幽默，风趣一些", "晚安寄语发送成功！");
@@ -88,7 +87,7 @@ public class EveryDaySchedule {
      * 调用接口
      * https://www.alapi.cn
      */
-    @Scheduled(cron = "0 30 8 * * ?")
+    //@Scheduled(cron = "0 30 8 * * ?")
     public void weatherReminder() throws IOException {
 
         OkHttpClient client = new OkHttpClient();
