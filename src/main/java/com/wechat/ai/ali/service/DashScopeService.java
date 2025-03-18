@@ -1,4 +1,4 @@
-package com.wechat.ai.ali.service.impl;
+package com.wechat.ai.ali.service;
 
 import com.alibaba.dashscope.aigc.generation.Generation;
 import com.alibaba.dashscope.aigc.imagesynthesis.ImageSynthesis;
@@ -12,6 +12,9 @@ import com.alibaba.dashscope.exception.InputRequiredException;
 import com.alibaba.dashscope.exception.NoApiKeyException;
 import com.alibaba.dashscope.exception.UploadFileException;
 import com.alibaba.dashscope.utils.JsonUtils;
+import com.wechat.ai.ali.service.impl.ImageIdentify;
+import com.wechat.ai.ali.service.impl.Text2Video;
+import com.wechat.ai.ali.service.impl.TextToText;
 import com.wechat.ai.enums.AiEnum;
 import com.wechat.ai.service.AbstractAiService;
 import com.wechat.ai.session.Session;

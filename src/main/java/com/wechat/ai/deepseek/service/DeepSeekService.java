@@ -12,7 +12,6 @@ import com.wechat.ai.service.AbstractAiService;
 import com.wechat.ai.session.Session;
 import com.wechat.bot.entity.BotConfig;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.time.Duration;
@@ -25,12 +24,12 @@ import java.util.List;
  * @author Alex
  * @since 2025/2/19 18:52
  * <p>
- * * 因 目前deepseek 官网不能使用，目前使用 阿里云的deepseek r1模型
+ * * 因 目前deepseek 官网不能使用，目前使用 阿里云的deepseek r1模型 ，不需要开发，直接使用原来阿里云那一套即可，目前这个已经将其作废，后续deepseek r1模型api可以进行调用了，在进行使用
  * * 文档如下：https://help.aliyun.com/zh/model-studio/developer-reference/deepseek?spm=a2c4g.11186623.help-menu-2400256.d_3_3_1_0.51834823WCKcfb#0c19e69319xc6
  * </p>
  */
 @Slf4j
-@Service
+//@Service
 public class DeepSeekService extends AbstractAiService {
 
 
