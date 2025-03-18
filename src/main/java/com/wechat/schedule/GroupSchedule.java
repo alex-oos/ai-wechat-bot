@@ -8,11 +8,8 @@ import com.wechat.bot.enums.MsgTypeEnum;
 import com.wechat.bot.service.MessageService;
 import com.wechat.bot.service.ReplyMsgService;
 import com.wechat.gewechat.service.MessageApi;
+import com.wechat.util.OkHttpUtil;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-import okhttp3.ResponseBody;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -90,16 +87,10 @@ public class GroupSchedule {
     //@Scheduled(cron = "0 30 8 * * ?")
     public void weatherReminder() throws IOException {
 
-        OkHttpClient client = new OkHttpClient();
-
-        Request request = new Request.Builder()
+       String response = OkHttpUtil.builder()
                 .url("https://v3.alapi.cn/api/tianqi?token=token")
-                .get()
-                .addHeader("Content-Type", "application/json")
-                .build();
-        Response response = client.newCall(request).execute();
-        ResponseBody body = response.body();
-        JSONObject responseJsonObject = JSONObject.parse(body.string());
+                .get().async();
+        JSONObject responseJsonObject = JSONObject.parse(response);
         if (responseJsonObject.getInteger("code") != 200) {
             return;
         }
