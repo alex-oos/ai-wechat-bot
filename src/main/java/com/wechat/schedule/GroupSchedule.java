@@ -10,7 +10,8 @@ import com.wechat.bot.service.ReplyMsgService;
 import com.wechat.gewechat.service.MessageApi;
 import com.wechat.util.OkHttpUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 
 import javax.annotation.Resource;
 import java.io.IOException;
@@ -23,8 +24,9 @@ import java.util.stream.Collectors;
  * <p></p>
  */
 @Slf4j
-@Component
+//@Component
 public class GroupSchedule {
+
     @Resource
     private MessageService messageService;
 
@@ -34,13 +36,14 @@ public class GroupSchedule {
     @Resource
     private BotConfig botConfig;
 
-    //@Scheduled(cron = "0 0 8 * * ?")
+    @Async
+    @Scheduled(cron = "0 0 8 * * ?")
     public void goodMorning() {
 
         sendGreetingMessage("生成以%s开头的早安寄语，幽默，风趣一些", "早安寄语发送成功！");
     }
-
-    //@Scheduled(cron = "0 0 22 * * ?")
+    @Async
+    @Scheduled(cron = "0 0 22 * * ?")
     public void goodNight() {
 
         sendGreetingMessage("生成以%s开头的晚安寄语，幽默，风趣一些", "晚安寄语发送成功！");
@@ -84,10 +87,11 @@ public class GroupSchedule {
      * 调用接口
      * https://www.alapi.cn
      */
-    //@Scheduled(cron = "0 30 8 * * ?")
+    @Async
+    @Scheduled(cron = "0 30 8 * * ?")
     public void weatherReminder() throws IOException {
 
-       String response = OkHttpUtil.builder()
+        String response = OkHttpUtil.builder()
                 .url("https://v3.alapi.cn/api/tianqi?token=token")
                 .get().async();
         JSONObject responseJsonObject = JSONObject.parse(response);
@@ -115,4 +119,5 @@ public class GroupSchedule {
         MessageApi.postText(botConfig.getAppId(), null, replayMsg, null);
 
     }
+
 }
