@@ -79,7 +79,7 @@ public class DashScopeService extends AbstractAiService {
     }
 
     @Override
-    public synchronized String textToText(Session session) {
+    public  String textToText(Session session) {
         // 流式消息
         return streamMessage(session);
         // 非流式消息
@@ -88,7 +88,7 @@ public class DashScopeService extends AbstractAiService {
     }
 
     @Override
-    public synchronized Map<String, String> textToImage(String content) {
+    public Map<String, String> textToImage(String content) {
 
         ImageSynthesisParam param =
                 ImageSynthesisParam.builder()
