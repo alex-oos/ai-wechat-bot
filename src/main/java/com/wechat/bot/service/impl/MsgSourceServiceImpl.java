@@ -37,7 +37,7 @@ public class MsgSourceServiceImpl implements MsgSourceService {
     private final SessionManager groupSessionManager = new SessionManager();
 
     @Resource
-    BotConfig botconfig;
+    private BotConfig botconfig;
 
     @Resource
     private ReplyMsgService replyMsgService;
@@ -53,9 +53,10 @@ public class MsgSourceServiceImpl implements MsgSourceService {
             if (isBotManual(chatMessage)) {
                 return;
             }
-            if (!prefixFilter(chatMessage, botconfig.getSingleChatPrefix())) {
+          // 关闭单人聊天过滤
+          /*   if (!prefixFilter(chatMessage, botconfig.getSingleChatPrefix())) {
                 return;
-            }
+            } */
             session = persionSessionManager.createSession(chatMessage.getFromUserId(), botconfig.getSystemPrompt());
         }
         switch (chatMessage.getCtype()) {
