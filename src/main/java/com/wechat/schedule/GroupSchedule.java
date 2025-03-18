@@ -22,15 +22,12 @@ import java.util.stream.Collectors;
 
 /**
  * @author Alex
- * @since 2025/3/14 15:01
- * <p>
- * 早安寄语定时任务
- * </p>
+ * @since 2025/3/18 10:14
+ * <p></p>
  */
 @Slf4j
 @Component
-public class EveryDaySchedule {
-
+public class GroupSchedule {
     @Resource
     private MessageService messageService;
 
@@ -56,7 +53,7 @@ public class EveryDaySchedule {
 
         List<String> contactList = new ArrayList<>();
         // 早安寄语的制定人
-        Collections.addAll(contactList, "爸爸", "妈妈", "爷爷", "奶奶");
+        Collections.addAll(contactList, "相亲相爱一家人", "程序员大佬群");
         Map<String, String> contactMap = messageService.getContactMap();
         Set<String> contactSet = contactMap.entrySet()
                 .stream()
@@ -127,5 +124,4 @@ public class EveryDaySchedule {
         MessageApi.postText(botConfig.getAppId(), null, replayMsg, null);
 
     }
-
 }
