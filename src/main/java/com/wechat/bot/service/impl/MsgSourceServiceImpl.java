@@ -11,6 +11,7 @@ import com.wechat.bot.service.MsgSourceService;
 import com.wechat.bot.service.ReplyMsgService;
 import com.wechat.gewechat.service.MessageApi;
 import com.wechat.util.FileUtil;
+import com.wechat.util.WordParticipleMatch;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -136,7 +137,8 @@ public class MsgSourceServiceImpl implements MsgSourceService {
      */
     private Boolean isBotManual(ChatMessage chatMessage) {
 
-        if (chatMessage.getContent().equals("AI小助理使用说明")) {
+        boolean isContain = WordParticipleMatch.containsPartKeywords(chatMessage.getContent(), List.of("助理","使用说明","说明书"), 2);
+        if (isContain) {
             String replay = FileUtil.readUseTxt();
             MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), replay, chatMessage.getToUserId());
             persionSessionManager.deleteSession(chatMessage.getFromUserId());

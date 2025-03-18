@@ -11,6 +11,7 @@ import com.wechat.gewechat.service.ContactApi;
 import com.wechat.gewechat.service.DownloadApi;
 import com.wechat.util.ImageUtil;
 import com.wechat.util.IpUtil;
+import com.wechat.util.WordParticipleMatch;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -232,27 +233,14 @@ public class MessageServiceImpl implements MessageService {
             case TEXT:
                 // 文本消息进行处理
                 String content = chatMessage.getContent();
-                //SessionManager sessionManager = msgSourceService.getSessionManager();
-                //if (sessionManager == null) {
-                //    return;
-                //}
-                //Session session = sessionManager.getSession(chatMessage.getFromUserId());
-                //// 如果里面已经有了图片信息了，这里就不需要修改为图片了，防止两个触发逻辑混淆
-                //if (session.getTextMessages().size() > 1) {
-                //    return;
-                //}
+                List<String> imageCreatePrefix = botConfig.getImageCreatePrefix();
+
+                boolean isContains = WordParticipleMatch.containsPartKeywords(content, imageCreatePrefix, 2);
                 //画图，目前是强制写死，不然会冲突，必须包含画与图片两个关键字
-                if (content.contains("画") && content.contains("图片")) {
+                if (isContains) {
                     chatMessage.setCtype(MsgTypeEnum.IMAGE);
                     return;
                 }
-                //List<String> imageCreatePrefix = botConfig.getImageCreatePrefix();
-                //for (String createPrefix : imageCreatePrefix) {
-                //    if (content.contains(createPrefix)) {
-                //        chatMessage.setCtype(MsgTypeEnum.IMAGE);
-                //        return;
-                //    }
-                //}
                 if (content.contains("视频") && content.contains("生成")) {
                     chatMessage.setCtype(MsgTypeEnum.VIDEO);
                     return;
