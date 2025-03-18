@@ -108,8 +108,8 @@ public class SessionManager {
         for (String userId : userSet) {
             Session session = sessions.get(userId);
             Instant createTime = session.getCreateTime();
-            // 当前时间是否在10分钟之内，如果超过5分钟，则删除会话
-            if (now.isAfter(createTime.plusSeconds(60 * 5))) {
+            // 当前时间是否在10分钟之内，如果超过10分钟，则删除会话
+            if (now.isAfter(createTime.plusSeconds(60 * 10))) {
                 sessions.remove(userId);
             }
         }
