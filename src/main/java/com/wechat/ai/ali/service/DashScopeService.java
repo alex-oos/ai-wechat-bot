@@ -63,23 +63,23 @@ public class DashScopeService extends AbstractAiService {
 
         Instant now = Instant.now();
         Generation gen = new Generation();
-        TextToText dashScopeStreamService = new TextToText();
+        //TextToText dashScopeStreamService = new TextToText();
         try {
-            dashScopeStreamService.streamCallWithMessage(gen, session.getTextMessages());
+            TextToText.streamCallWithMessage(gen, session.getTextMessages());
 
-            Message assistantMsg = Message.builder().role(Role.ASSISTANT.getValue()).content(dashScopeStreamService.fullContent.toString()).build();
+            Message assistantMsg = Message.builder().role(Role.ASSISTANT.getValue()).content(TextToText.fullContent.toString()).build();
             session.addReply(assistantMsg.getContent());
         } catch (NoApiKeyException | InputRequiredException e) {
             log.error("An exception occurred: {}", e.getMessage(), e);
             throw new RuntimeException(e);
         }
         log.info("本次对话总耗时：{} ms", Instant.now().toEpochMilli() - now.toEpochMilli());
-        return dashScopeStreamService.fullContent.toString();
+        return TextToText.fullContent.toString();
 
     }
 
     @Override
-    public String textToText(Session session) {
+    public synchronized String textToText(Session session) {
         // 流式消息
         return streamMessage(session);
         // 非流式消息
@@ -88,7 +88,7 @@ public class DashScopeService extends AbstractAiService {
     }
 
     @Override
-    public Map<String, String> textToImage(String content) {
+    public synchronized Map<String, String> textToImage(String content) {
 
         ImageSynthesisParam param =
                 ImageSynthesisParam.builder()
@@ -121,7 +121,7 @@ public class DashScopeService extends AbstractAiService {
 
 
     @Override
-    public String imageToText(Session session) {
+    public synchronized String imageToText(Session session) {
 
         try {
             return ImageIdentify.streamCall(session);

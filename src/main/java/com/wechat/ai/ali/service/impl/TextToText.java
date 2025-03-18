@@ -30,11 +30,10 @@ import java.util.Scanner;
 public class TextToText {
 
 
-    public  StringBuilder fullContent = new StringBuilder();
+    public static StringBuilder fullContent = new StringBuilder();
 
 
-
-    private GenerationParam buildGenerationParam(List<Message> messages) {
+    private static GenerationParam buildGenerationParam(List<Message> messages) {
 
         return GenerationParam.builder()
                 // 若没有配置环境变量，请用百炼API Key将下行替换为：.apiKey("sk-xxx")
@@ -58,7 +57,7 @@ public class TextToText {
      * @throws NoApiKeyException
      * @throws InputRequiredException
      */
-    public String callWithMessage(List<Message> messages) {
+    public static String callWithMessage(List<Message> messages) {
 
         Instant now = Instant.now();
         Generation gen = new Generation();
@@ -87,7 +86,7 @@ public class TextToText {
         return replayMsg;
     }
 
-    private void handleGenerationResult(GenerationResult message) {
+    private static void handleGenerationResult(GenerationResult message) {
 
         String content = message.getOutput().getChoices().get(0).getMessage().getContent();
         fullContent.append(content);
@@ -96,23 +95,24 @@ public class TextToText {
 
     /**
      * 流式请求，响应更快一些
+     *
      * @param gen
      * @param messages
      * @throws NoApiKeyException
      * @throws ApiException
      * @throws InputRequiredException
      */
-    public void streamCallWithMessage(Generation gen, List<Message> messages) throws NoApiKeyException, ApiException, InputRequiredException {
+    public static void streamCallWithMessage(Generation gen, List<Message> messages) throws NoApiKeyException, ApiException, InputRequiredException {
 
-        //fullContent.setLength(0);
+        fullContent.setLength(0);
         GenerationParam param = buildGenerationParam(messages);
         Flowable<GenerationResult> result = gen.streamCall(param);
-        result.blockingForEach(this::handleGenerationResult);
+        result.blockingForEach(TextToText::handleGenerationResult);
 
 
     }
 
-        public static void main(String[] args) {
+    public static void main(String[] args) {
 
         try {
 
@@ -126,10 +126,9 @@ public class TextToText {
                 String input = scanner.nextLine();
                 Message userMsg = Message.builder().role(Role.USER.getValue()).content(input).build();
                 messages.add(userMsg);
-                TextToText textToText = new TextToText();
-                textToText.streamCallWithMessage(gen, messages);
-                Message assistantMsg = Message.builder().role(Role.ASSISTANT.getValue()).content(textToText.fullContent.toString()).build();
-                System.out.println(textToText.fullContent.toString());
+                TextToText.streamCallWithMessage(gen, messages);
+                Message assistantMsg = Message.builder().role(Role.ASSISTANT.getValue()).content(fullContent.toString()).build();
+                System.out.println(fullContent.toString());
                 messages.add(assistantMsg);
 
             }
