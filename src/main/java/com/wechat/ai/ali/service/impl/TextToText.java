@@ -61,12 +61,7 @@ public class TextToText {
 
         Instant now = Instant.now();
         Generation gen = new Generation();
-        GenerationParam param = GenerationParam.builder()
-                .apiKey(AiConfig.botConfig.getDashscopeApiKey())
-                .model(AiConfig.botConfig.getModel())
-                .messages(messages)
-                .resultFormat(GenerationParam.ResultFormat.MESSAGE)
-                .build();
+        GenerationParam param = GenerationParam.builder().apiKey(AiConfig.botConfig.getDashscopeApiKey()).model(AiConfig.botConfig.getModel()).messages(messages).resultFormat(GenerationParam.ResultFormat.MESSAGE).build();
 
         GenerationResult result = null;
         try {
