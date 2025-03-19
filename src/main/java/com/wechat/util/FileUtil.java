@@ -77,6 +77,15 @@ public class FileUtil {
 
     }
 
+    public static String readCronTxt(){
+        try {
+            byte[] bytes = Files.readAllBytes(Path.of("docs/systemPrompt/cron.txt"));
+            return new String(bytes);
+        } catch (IOException e) {
+            throw new RuntimeException("文件读取失败，请检查config 文件是否存在");
+        }
+    }
+
     public static void main(String[] args) {
 
         String s = readUseTxt();
