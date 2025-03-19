@@ -30,10 +30,10 @@ import java.util.Scanner;
 public class TextToText {
 
 
-    public static StringBuilder fullContent = new StringBuilder();
+    public  StringBuilder fullContent = new StringBuilder();
 
 
-    private static GenerationParam buildGenerationParam(List<Message> messages) {
+    private  GenerationParam buildGenerationParam(List<Message> messages) {
 
         return GenerationParam.builder()
                 // 若没有配置环境变量，请用百炼API Key将下行替换为：.apiKey("sk-xxx")
@@ -57,7 +57,7 @@ public class TextToText {
      * @throws NoApiKeyException
      * @throws InputRequiredException
      */
-    public static String callWithMessage(List<Message> messages) {
+    public  String callWithMessage(List<Message> messages) {
 
         Instant now = Instant.now();
         Generation gen = new Generation();
@@ -86,7 +86,7 @@ public class TextToText {
         return replayMsg;
     }
 
-    private static void handleGenerationResult(GenerationResult message) {
+    private  void handleGenerationResult(GenerationResult message) {
 
         String content = message.getOutput().getChoices().get(0).getMessage().getContent();
         fullContent.append(content);
@@ -102,12 +102,12 @@ public class TextToText {
      * @throws ApiException
      * @throws InputRequiredException
      */
-    public static void streamCallWithMessage(Generation gen, List<Message> messages) throws NoApiKeyException, ApiException, InputRequiredException {
+    public  void streamCallWithMessage(Generation gen, List<Message> messages) throws NoApiKeyException, ApiException, InputRequiredException {
 
         fullContent.setLength(0);
         GenerationParam param = buildGenerationParam(messages);
         Flowable<GenerationResult> result = gen.streamCall(param);
-        result.blockingForEach(TextToText::handleGenerationResult);
+        result.blockingForEach(this::handleGenerationResult);
 
 
     }
@@ -126,9 +126,10 @@ public class TextToText {
                 String input = scanner.nextLine();
                 Message userMsg = Message.builder().role(Role.USER.getValue()).content(input).build();
                 messages.add(userMsg);
-                TextToText.streamCallWithMessage(gen, messages);
-                Message assistantMsg = Message.builder().role(Role.ASSISTANT.getValue()).content(fullContent.toString()).build();
-                System.out.println(fullContent.toString());
+                TextToText textToText = new TextToText();
+                textToText.streamCallWithMessage(gen, messages);
+                Message assistantMsg = Message.builder().role(Role.ASSISTANT.getValue()).content(textToText.fullContent.toString()).build();
+                System.out.println(textToText.fullContent.toString());
                 messages.add(assistantMsg);
 
             }
