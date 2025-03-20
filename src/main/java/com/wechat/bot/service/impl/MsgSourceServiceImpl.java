@@ -212,7 +212,7 @@ public class MsgSourceServiceImpl implements MsgSourceService {
     private boolean prefixFilter(ChatMessage chatMessage, List<String> prefixes) {
         // 如何不包含，默认代表所有全部都打开了
         if (prefixes.isEmpty()) {
-            log.error("聊天前缀过滤失败,直接返回");
+            log.warn("聊天前缀过滤失败,直接返回");
             return true;
         }
         long count = prefixes.stream().filter(e -> chatMessage.getContent().contains(e)).count();
