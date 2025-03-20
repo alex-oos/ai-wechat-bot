@@ -14,6 +14,7 @@ import com.alibaba.dashscope.exception.UploadFileException;
 import com.alibaba.dashscope.utils.JsonUtils;
 import com.wechat.ai.ali.service.impl.ImageIdentify;
 import com.wechat.ai.ali.service.impl.Text2Video;
+import com.wechat.ai.ali.service.impl.TextToImage;
 import com.wechat.ai.ali.service.impl.TextToText;
 import com.wechat.ai.enums.AiEnum;
 import com.wechat.ai.service.AbstractAiService;
@@ -90,33 +91,8 @@ public class DashScopeService extends AbstractAiService {
     @Override
     public Map<String, String> textToImage(String content) {
 
-        ImageSynthesisParam param =
-                ImageSynthesisParam.builder()
-                        .apiKey(botConfig.getDashscopeApiKey())
-                        .model("wanx2.1-t2i-turbo")
-                        .prompt(content)
-                        .n(1)
-                        .size("1024*1024")
-                        .build();
+        return new TextToImage().asyncCall(content);
 
-        ImageSynthesis imageSynthesis = new ImageSynthesis();
-        ImageSynthesisResult result = null;
-        try {
-            log.info("---sync call, please wait a moment----");
-            result = imageSynthesis.call(param);
-        } catch (ApiException | NoApiKeyException e) {
-            throw new RuntimeException(e.getMessage());
-        }
-        //System.out.println(JsonUtils.toJson(result));
-        log.info(JsonUtils.toJson(result));
-        String taskStatus = result.getOutput().getTaskStatus();
-        if (!TaskStatus.SUCCEEDED.getValue().equals(taskStatus)) {
-            log.error("taskStatus is not SUCCESS, taskStatus: {}", taskStatus);
-            return null;
-        }
-        List<Map<String, String>> results = result.getOutput().getResults();
-
-        return results.get(0);
     }
 
 
