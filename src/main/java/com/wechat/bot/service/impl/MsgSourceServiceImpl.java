@@ -53,7 +53,7 @@ public class MsgSourceServiceImpl implements MsgSourceService {
             if (isBotManual(chatMessage)) {
                 return;
             }
-          // 关闭单人聊天过滤
+            // 关闭单人聊天过滤
             if (!prefixFilter(chatMessage, botconfig.getSingleChatPrefix())) {
                 return;
             }
@@ -74,6 +74,10 @@ public class MsgSourceServiceImpl implements MsgSourceService {
                 break;
             case IMAGE:
                 handleImageMessage(chatMessage, session);
+                break;
+            case VOICE:
+                break;
+            case VIDEO:
                 break;
             default:
                 return;
@@ -121,6 +125,10 @@ public class MsgSourceServiceImpl implements MsgSourceService {
             case IMAGE:
                 handleImageMessage(chatMessage, session);
                 break;
+            case VIDEO:
+                break;
+            case VOICE:
+                break;
         }
         if (session == null) {
             return;
@@ -138,7 +146,7 @@ public class MsgSourceServiceImpl implements MsgSourceService {
      */
     private Boolean isBotManual(ChatMessage chatMessage) {
 
-        boolean isContain = WordParticipleMatch.containsPartKeywords(chatMessage.getContent(), List.of("助理","使用说明","说明书"), 2);
+        boolean isContain = WordParticipleMatch.containsPartKeywords(chatMessage.getContent(), List.of("助理", "使用说明", "说明书"), 2);
         if (isContain) {
             String replay = FileUtil.readUseTxt();
             MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), replay, chatMessage.getToUserId());

@@ -110,6 +110,10 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
     @Override
     public void replyAudioMsg(ChatMessage chatMessage) {
 
+        String s1 = aiService.textToVoice(chatMessage.getContent());
+
+        MessageApi.postVoice(chatMessage.getAppId(), chatMessage.getFromUserId(), s, chatMessage.getToUserId());
+        chatMessage.setPrepared(true);
     }
 
     @Override

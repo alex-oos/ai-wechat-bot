@@ -25,25 +25,6 @@ public abstract class AbstractAiService implements AIService {
         this.aiEnum = aiEnum;
     }
 
-
-    @Override
-    public String textToText(Session session) {
-
-        return null;
-    }
-
-    @Override
-    public Map<String, String> textToImage(String content) {
-
-        return null;
-    }
-
-    @Override
-    public String imageToText(Session session) {
-
-        return "";
-    }
-
     @Override
     public String imageToImage(String content) {
 
@@ -66,12 +47,6 @@ public abstract class AbstractAiService implements AIService {
     public String imageToImage(String content, String style, String prompt, String negativePrompt) {
 
         return "";
-    }
-
-    @Override
-    public Map<String, Object> textToVideo(String content) {
-
-        return null;
     }
 
 
