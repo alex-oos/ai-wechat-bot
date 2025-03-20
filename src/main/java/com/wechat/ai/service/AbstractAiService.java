@@ -69,9 +69,9 @@ public abstract class AbstractAiService implements AIService {
     }
 
     @Override
-    public String textToVideo(String content) {
+    public Map<String, Object> textToVideo(String content) {
 
-        return "";
+        return null;
     }
 
 

@@ -14,7 +14,7 @@ public interface AIService {
 
     String textToText(Session session);
 
-     Map<String, String> textToImage(String content);
+    Map<String, String> textToImage(String content);
 
     String imageToText(Session session);
 
@@ -26,7 +26,7 @@ public interface AIService {
 
     String imageToImage(String content, String style, String prompt, String negativePrompt);
 
-    String textToVideo(String content);
+    Map<String, Object> textToVideo(String content);
 
 
 }

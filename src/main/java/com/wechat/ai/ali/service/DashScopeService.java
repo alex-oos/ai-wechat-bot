@@ -79,7 +79,7 @@ public class DashScopeService extends AbstractAiService {
     }
 
     @Override
-    public  String textToText(Session session) {
+    public String textToText(Session session) {
         // 流式消息
         return streamMessage(session);
         // 非流式消息
@@ -134,15 +134,14 @@ public class DashScopeService extends AbstractAiService {
     }
 
     @Override
-    public String textToVideo(String content) {
+    public Map<String, Object> textToVideo(String content) {
 
         try {
-            Text2Video.text2Video(content);
+            return Text2Video.text2Video(content);
         } catch (NoApiKeyException | InputRequiredException e) {
             throw new RuntimeException(e);
         }
 
-        return "";
     }
 
 

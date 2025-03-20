@@ -240,7 +240,8 @@ public class MessageServiceImpl implements MessageService {
                     chatMessage.setCtype(MsgTypeEnum.IMAGE);
                     return;
                 }
-                if (content.contains("视频") && content.contains("生成")) {
+                boolean isVideo = WordParticipleMatch.containsPartKeywords(content, List.of("视频", "生成"), 2);
+                if (isVideo) {
                     chatMessage.setCtype(MsgTypeEnum.VIDEO);
                     return;
                 }

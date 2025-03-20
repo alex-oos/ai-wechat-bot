@@ -97,6 +97,9 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
     @Override
     public void replyVideoMsg(ChatMessage chatMessage) {
 
+        Map<String, Object> map = aiService.textToVideo(chatMessage.getContent());
+        MessageApi.postVideo(chatMessage.getAppId(), chatMessage.getFromUserId(), (String) map.get("videoUrl"), null, (Integer) map.get("videoDuration"));
+        chatMessage.setPrepared(true);
     }
 
     @Override
