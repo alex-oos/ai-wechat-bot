@@ -29,14 +29,10 @@ public class FileUtil {
             return null;
         }
 
-        String content = null;
-        try {
-            byte[] bytes = Files.readAllBytes(configFilePath);
-            content = new String(bytes);
-            return JSONObject.parseObject(content, BotConfig.class);
-        } catch (IOException e) {
-            throw new RuntimeException("文件读取失败，请检查config 文件是否存在");
-        }
+        String content = readFileText(configFilePath.toString());
+
+        return JSONObject.parseObject(content, BotConfig.class);
+
     }
 
     public static void writeFile(BotConfig systemConfig) {
@@ -68,18 +64,20 @@ public class FileUtil {
 
     public static String readUseTxt() {
 
-        try {
-            byte[] bytes = Files.readAllBytes(Path.of("docs/use.txt"));
-            return new String(bytes);
-        } catch (IOException e) {
-            throw new RuntimeException("文件读取失败，请检查config 文件是否存在");
-        }
+        return readFileText("docs/use.txt");
+
 
     }
 
-    public static String readCronTxt(){
+    public static String readCronTxt() {
+        return readFileText("docs/systemPrompt/cron.txt");
+
+    }
+
+    public static String readFileText(String filePath) {
+
         try {
-            byte[] bytes = Files.readAllBytes(Path.of("docs/systemPrompt/cron.txt"));
+            byte[] bytes = Files.readAllBytes(Path.of(filePath));
             return new String(bytes);
         } catch (IOException e) {
             throw new RuntimeException("文件读取失败，请检查config 文件是否存在");
