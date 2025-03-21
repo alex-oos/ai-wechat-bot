@@ -124,9 +124,13 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
     @Override
     public void replyAudioMsg(ChatMessage chatMessage) {
 
-        String s1 = aiService.textToVoice(chatMessage.getContent());
+        Path audioPath = Path.of("data", "audio", UUID.randomUUID().toString().concat(".mp3"));
+        audioPath.getParent().toFile().mkdirs();
 
-        MessageApi.postVoice(chatMessage.getAppId(), chatMessage.getFromUserId(), s1, null);
+        aiService.textToVoice(chatMessage.getContent(), audioPath.toString());
+        String voiceUrl = "http://" + IpUtil.getIp() + ":" + 9919 + "/" + audioPath;
+
+        MessageApi.postVoice(chatMessage.getAppId(), chatMessage.getFromUserId(), voiceUrl, 5);
         chatMessage.setPrepared(true);
     }
 

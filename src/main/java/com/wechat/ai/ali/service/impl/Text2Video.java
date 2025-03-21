@@ -35,7 +35,7 @@ public class Text2Video {
                         .apiKey(AiConfig.botConfig.getDashscopeApiKey())
                         .prompt(content)
                         .size("1280*720")
-                        .duration(10)
+                        //.duration(10)
                         .build();
 
         // 异步调用

@@ -245,7 +245,8 @@ public class MessageServiceImpl implements MessageService {
                     chatMessage.setCtype(MsgTypeEnum.VIDEO);
                     return;
                 }
-                if (content.contains("语音") && content.contains("生成")) {
+                boolean isVoice = WordParticipleMatch.containsPartKeywords(content, List.of("语音", "生成", "阅读", "文字"), 2);
+                if (isVoice) {
                     chatMessage.setCtype(MsgTypeEnum.VOICE);
                     return;
                 }

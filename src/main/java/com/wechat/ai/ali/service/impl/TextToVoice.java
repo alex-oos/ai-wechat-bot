@@ -6,14 +6,11 @@ import com.alibaba.dashscope.audio.tts.SpeechSynthesizer;
 import com.alibaba.dashscope.common.ResultCallback;
 import com.wechat.ai.config.AiConfig;
 
-import java.io.*;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
-import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -23,6 +20,11 @@ import java.util.concurrent.CountDownLatch;
  */
 public class TextToVoice {
 
+    public static void main(String[] args) {
+
+        new TextToVoice().textToVoice("今天天气怎么样？", "src/main/resources/static/audio/test.wav");
+    }
+
     /**
      * 文本转语音
      * https://help.aliyun.com/zh/model-studio/developer-reference/sambert-java-api?spm=a2c4g.11186623.help-menu-2400256.d_3_3_7_1_0.17d27980BYpI39
@@ -30,7 +32,7 @@ public class TextToVoice {
      * @param content
      * @return
      */
-    public String textToVoice(String content) {
+    public void textToVoice(String content, String audioPath) {
 
         CountDownLatch latch = new CountDownLatch(1);
         SpeechSynthesizer synthesizer = new SpeechSynthesizer();
@@ -85,19 +87,11 @@ public class TextToVoice {
         ByteBuffer audioData = synthesizer.getAudioData();
         // 将结果写入
         try {
-            String date = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-            Path voiceFilePath = Path.of("data", "voice", date, UUID.randomUUID().toString().concat(".wav"));
-            voiceFilePath.toFile().getParentFile().mkdirs();
-            Files.write(voiceFilePath, audioData.array(), StandardOpenOption.CREATE);
-            return voiceFilePath.toString();
+
+            Files.write(Paths.get(audioPath), audioData.array(), StandardOpenOption.CREATE);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public static void main(String[] args) {
-
-        String s = new TextToVoice().textToVoice("今天天气怎么样？");
     }
 
 

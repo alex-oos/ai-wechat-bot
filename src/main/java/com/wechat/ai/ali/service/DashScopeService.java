@@ -1,17 +1,12 @@
 package com.wechat.ai.ali.service;
 
 import com.alibaba.dashscope.aigc.generation.Generation;
-import com.alibaba.dashscope.aigc.imagesynthesis.ImageSynthesis;
-import com.alibaba.dashscope.aigc.imagesynthesis.ImageSynthesisParam;
-import com.alibaba.dashscope.aigc.imagesynthesis.ImageSynthesisResult;
 import com.alibaba.dashscope.common.Message;
 import com.alibaba.dashscope.common.Role;
-import com.alibaba.dashscope.common.TaskStatus;
 import com.alibaba.dashscope.exception.ApiException;
 import com.alibaba.dashscope.exception.InputRequiredException;
 import com.alibaba.dashscope.exception.NoApiKeyException;
 import com.alibaba.dashscope.exception.UploadFileException;
-import com.alibaba.dashscope.utils.JsonUtils;
 import com.wechat.ai.ali.service.impl.*;
 import com.wechat.ai.enums.AiEnum;
 import com.wechat.ai.service.AbstractAiService;
@@ -22,7 +17,6 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.time.Instant;
-import java.util.List;
 import java.util.Map;
 
 
@@ -118,9 +112,10 @@ public class DashScopeService extends AbstractAiService {
     }
 
     @Override
-    public String textToVoice(String content) {
+    public String textToVoice(String content, String audioPath) {
 
-        return new TextToVoice().textToVoice(content);
+        new TextToVoice().textToVoice(content, audioPath);
+        return audioPath;
 
     }
 
