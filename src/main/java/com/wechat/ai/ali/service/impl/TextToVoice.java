@@ -89,12 +89,18 @@ public class TextToVoice {
         //拿到所有的结果 返回一个流式合成片段的增量二进制音频数据，可能为空。
         ByteBuffer audioData = synthesizer.getAudioData();
         // 将结果写入
+        if (audioData == null) {
+            log.warn("audioData为空");
+            return;
+        }
         try {
 
             Files.write(Paths.get(audioPath), audioData.array(), StandardOpenOption.CREATE);
+        log.info("音频文件生成{}",audioPath);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
     }
 
 
