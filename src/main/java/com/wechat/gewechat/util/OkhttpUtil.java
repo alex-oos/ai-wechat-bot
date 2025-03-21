@@ -24,7 +24,7 @@ public class OkhttpUtil {
     // docker 容器的ip地址，也可以使用其他的，写一个默认的今后再也不用修改了
     private static String baseUrl = null;
 
-    private static String token = null;
+    public static String token = null;
 
     static {
 
