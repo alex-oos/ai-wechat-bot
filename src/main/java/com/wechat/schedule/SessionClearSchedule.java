@@ -30,7 +30,7 @@ public class SessionClearSchedule {
         SessionManager groupSessionManager = msgSourceService.getGroupSessionManager();
         persionSessionManager.clearExpiredSessions();
         groupSessionManager.clearExpiredSessions();
-        log.info("清理过期会话");
+        //log.info("清理过期会话");
 
     }
 
