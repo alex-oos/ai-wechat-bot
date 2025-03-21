@@ -122,19 +122,29 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
 
     }
 
+
     @Override
     public void replyAudioMsg(ChatMessage chatMessage) {
 
         String date = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyddMM"));
-        Path audioPath = Path.of("data", "audio", date, UUID.randomUUID().toString().concat(".silk"));
+        Path audioPath = Path.of("data", "audio", date, UUID.randomUUID().toString().concat(".wav"));
         audioPath.getParent().toFile().mkdirs();
         aiService.textToVoice(chatMessage.getContent(), audioPath.toString());
-        String voiceUrl = "http://" + IpUtil.getIp() + ":" + 9919 + "/" + audioPath;
+
+        // 替换文件后缀从 .wav 到 .silk
+        Path silkPath = audioPath.resolveSibling(audioPath.getFileName().toString().replace(".wav", ".silk"));
+
+        // TODO: 实现将 .wav 文件转换为 .silk 文件的逻辑
+        // 例如：convertWavToSilk(audioPath.toString(), silkPath.toString());
+
+        String voiceUrl = "http://" + IpUtil.getIp() + ":" + 9919 + "/" + silkPath;
         int audioDurationMs = VideoDuration.getAudioDurationMs(audioPath.toString());
 
         MessageApi.postVoice(chatMessage.getAppId(), chatMessage.getFromUserId(), voiceUrl, audioDurationMs);
         chatMessage.setPrepared(true);
         //audioPath.toFile().deleteOnExit();
+
+
     }
 
     @Override

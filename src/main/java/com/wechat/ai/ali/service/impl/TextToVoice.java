@@ -1,5 +1,6 @@
 package com.wechat.ai.ali.service.impl;
 
+import com.alibaba.dashscope.audio.tts.SpeechSynthesisAudioFormat;
 import com.alibaba.dashscope.audio.tts.SpeechSynthesisParam;
 import com.alibaba.dashscope.audio.tts.SpeechSynthesisResult;
 import com.alibaba.dashscope.audio.tts.SpeechSynthesizer;
@@ -24,7 +25,7 @@ public class TextToVoice {
 
     public static void main(String[] args) {
 
-        new TextToVoice().textToVoice("今天天气怎么样？", "src/main/resources/static/audio/test.wav");
+        new TextToVoice().textToVoice("今天天气怎么样？", "test.wav");
     }
 
     /**
@@ -46,6 +47,7 @@ public class TextToVoice {
                 .sampleRate(48000)
                 .enableWordTimestamp(true)
                 .enablePhonemeTimestamp(true)
+                .format(SpeechSynthesisAudioFormat.WAV)
                 .build();
 
         class ReactCallback extends ResultCallback<SpeechSynthesisResult> {
