@@ -17,13 +17,13 @@ public enum MsgTypeEnum {
     VOICE(34, "voice", "语音消息"),
     VIDEO(43, "video", "视频消息"),
     EMOJI(47, "emoji", null),
-    APPMSG(49, "appmsg", null),
+    APPMSG(49, "appmsg", "引用消息"),
     MINIAPP(7, "miniapp", null),
     FILE(8, "file", null),
     FORWARD(9, "forward", null),
     LINK(10, "link", null),
     NAME_CARD(11, "namecard", null),
-    UNKNOWN(12, "unknown", null),
+    UNKNOWN(-1, "unknown", null),
     IMAGERECOGNITION(12, "unknown", "图片识别消息");
 
 

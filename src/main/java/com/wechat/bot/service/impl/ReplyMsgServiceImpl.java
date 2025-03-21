@@ -125,13 +125,16 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
     @Override
     public void replyAudioMsg(ChatMessage chatMessage) {
 
-        Path audioPath = Path.of("data", "audio", UUID.randomUUID().toString().concat(".silk"));
+        String date = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyddMM"));
+        Path audioPath = Path.of("data", "audio", date, UUID.randomUUID().toString().concat(".silk"));
         audioPath.getParent().toFile().mkdirs();
         aiService.textToVoice(chatMessage.getContent(), audioPath.toString());
         String voiceUrl = "http://" + IpUtil.getIp() + ":" + 9919 + "/" + audioPath;
         int audioDurationMs = VideoDuration.getAudioDurationMs(audioPath.toString());
+
         MessageApi.postVoice(chatMessage.getAppId(), chatMessage.getFromUserId(), voiceUrl, audioDurationMs);
         chatMessage.setPrepared(true);
+        //audioPath.toFile().deleteOnExit();
     }
 
     @Override
