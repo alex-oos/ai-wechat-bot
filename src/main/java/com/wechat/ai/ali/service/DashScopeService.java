@@ -112,10 +112,9 @@ public class DashScopeService extends AbstractAiService {
     }
 
     @Override
-    public String textToVoice(String content, String audioPath) {
+    public void textToVoice(String content, String audioPath) {
 
-        new TextToVoice().textToVoice(content, audioPath);
-        return audioPath;
+         new TextToVoice().textToVoice(content, audioPath);
 
     }
 

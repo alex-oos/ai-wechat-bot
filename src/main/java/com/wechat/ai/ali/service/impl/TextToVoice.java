@@ -3,6 +3,7 @@ package com.wechat.ai.ali.service.impl;
 import com.alibaba.dashscope.audio.tts.SpeechSynthesisParam;
 import com.alibaba.dashscope.audio.tts.SpeechSynthesisResult;
 import com.alibaba.dashscope.audio.tts.SpeechSynthesizer;
+import com.alibaba.dashscope.audio.tts.timestamp.Sentence;
 import com.alibaba.dashscope.common.ResultCallback;
 import com.wechat.ai.config.AiConfig;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +13,7 @@ import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 /**
