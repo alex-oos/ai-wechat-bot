@@ -8,12 +8,18 @@ import com.wechat.bot.entity.BotConfig;
 import com.wechat.bot.entity.ChatMessage;
 import com.wechat.bot.service.ReplyMsgService;
 import com.wechat.gewechat.service.MessageApi;
+import com.wechat.util.IpUtil;
+import com.wechat.util.VideoScreenshotUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.nio.file.Path;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * @author Alex
@@ -34,6 +40,7 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
     private AIService aiService;
 
     private Session session;
+
 
     @Override
     public void replyType(ChatMessage chatMessage, Session session1) {
@@ -83,7 +90,6 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
         log.info("消息回复成功，回复人：{}，回复内容为：{}", chatMessage.getFromUserNickname(), replayMsg);
     }
 
-
     @Override
     public void replyImageMsg(ChatMessage chatMessage) {
 
@@ -98,8 +104,16 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
     public void replyVideoMsg(ChatMessage chatMessage) {
 
         Map<String, Object> map = aiService.textToVideo(chatMessage.getContent());
-        MessageApi.postVideo(chatMessage.getAppId(), chatMessage.getFromUserId(), (String) map.get("videoUrl"), null, (Integer) map.get("videoDuration"));
+        // 生成首图
+        String videoUrl = (String) map.get("videoUrl");
+        String date = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyddMM"));
+        Path thumbPath = Path.of("data", "images", date, UUID.randomUUID().toString().concat(".jpg"));
+        thumbPath.toFile().getParentFile().mkdirs();
+        VideoScreenshotUtil.useJavacv(videoUrl, thumbPath.toString());
+        String thumbUrl = "http://" + IpUtil.getIp() + ":" + 9919 + "/" + thumbPath;
+        MessageApi.postVideo(chatMessage.getAppId(), chatMessage.getFromUserId(), videoUrl, thumbUrl, (Integer) map.get("videoDuration"));
         chatMessage.setPrepared(true);
+
     }
 
     @Override
@@ -112,7 +126,7 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
 
         String s1 = aiService.textToVoice(chatMessage.getContent());
 
-        MessageApi.postVoice(chatMessage.getAppId(), chatMessage.getFromUserId(), s, chatMessage.getToUserId());
+        MessageApi.postVoice(chatMessage.getAppId(), chatMessage.getFromUserId(), s1, null);
         chatMessage.setPrepared(true);
     }
 
@@ -134,7 +148,6 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
         MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), s, chatMessage.getToUserId());
         chatMessage.setPrepared(true);
     }
-
 
     @Override
     public AIService chooseAiService() {

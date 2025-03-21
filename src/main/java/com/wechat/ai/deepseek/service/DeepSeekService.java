@@ -18,6 +18,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -80,6 +81,30 @@ public class DeepSeekService extends AbstractAiService {
         log.info("本次请求耗时：{}ms", Duration.between(now, Instant.now()).toMillis());
 
         return content;
+    }
+
+    @Override
+    public Map<String, String> textToImage(String content) {
+
+        return Map.of();
+    }
+
+    @Override
+    public String imageToText(Session session) {
+
+        return "";
+    }
+
+    @Override
+    public Map<String, Object> textToVideo(String content) {
+
+        return Map.of();
+    }
+
+    @Override
+    public String textToVoice(String content) {
+
+        return "";
     }
 
 

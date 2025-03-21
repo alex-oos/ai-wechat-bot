@@ -160,6 +160,11 @@
             <artifactId>openai-java</artifactId>
             <version>0.31.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.bytedeco</groupId>
+            <artifactId>javacv-platform</artifactId>
+            <version>1.5.11</version>
+        </dependency>
     </dependencies>
 
     <build>

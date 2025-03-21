@@ -8,6 +8,7 @@ import com.alibaba.dashscope.exception.InputRequiredException;
 import com.alibaba.dashscope.exception.NoApiKeyException;
 import com.alibaba.dashscope.utils.JsonUtils;
 import com.wechat.ai.config.AiConfig;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,6 +18,7 @@ import java.util.Map;
  * @since 2025/3/12 20:44
  * <p></p>
  */
+@Slf4j
 public class Text2Video {
 
 
@@ -33,15 +35,15 @@ public class Text2Video {
                         .apiKey(AiConfig.botConfig.getDashscopeApiKey())
                         .prompt(content)
                         .size("1280*720")
+                        .duration(10)
                         .build();
 
         // 异步调用
         VideoSynthesisResult task = vs.asyncCall(param);
         System.out.println(JsonUtils.toJson(task));
-        System.out.println("please wait...");
+        log.info("please wait...");
 
         //获取结果
-        // apiKey 已经配置在环境变量，因此这里可以设置为 null
         VideoSynthesisResult result = vs.wait(task, AiConfig.botConfig.getDashscopeApiKey());
         System.out.println(JsonUtils.toJson(result));
         Map<String, Object> map = new HashMap<>();
