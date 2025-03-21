@@ -5,6 +5,7 @@ import com.alibaba.dashscope.audio.tts.SpeechSynthesisResult;
 import com.alibaba.dashscope.audio.tts.SpeechSynthesizer;
 import com.alibaba.dashscope.common.ResultCallback;
 import com.wechat.ai.config.AiConfig;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -18,6 +19,7 @@ import java.util.concurrent.CountDownLatch;
  * @since 2025/3/20 22:55
  * <p></p>
  */
+@Slf4j
 public class TextToVoice {
 
     public static void main(String[] args) {
@@ -53,25 +55,26 @@ public class TextToVoice {
 
                 if (result.getAudioFrame() != null) {
                     // do something with the audio frame
-                    System.out.println("audio result length: " + result.getAudioFrame().array().length);
+                    //System.out.println("audio result length: " + result.getAudioFrame().array().length);
                 }
                 if (result.getTimestamp() != null) {
                     // do something with the timestamp
-                    System.out.println("timestamp: " + result.getTimestamp());
+                    //System.out.println("timestamp: " + result.getTimestamp());
                 }
             }
 
             @Override
             public void onComplete() {
                 // do something when the synthesis is done
-                System.out.println("onComplete!");
+                //System.out.println("onComplete!");
                 latch.countDown();
             }
 
             @Override
             public void onError(Exception e) {
                 // do something when an error occurs
-                System.out.println("onError:" + e);
+                //System.out.println("onError:" + e);
+                log.error("e{}", e.getMessage());
                 latch.countDown();
             }
 
@@ -87,7 +90,6 @@ public class TextToVoice {
         ByteBuffer audioData = synthesizer.getAudioData();
         // 将结果写入
         try {
-
             Files.write(Paths.get(audioPath), audioData.array(), StandardOpenOption.CREATE);
         } catch (IOException e) {
             throw new RuntimeException(e);
