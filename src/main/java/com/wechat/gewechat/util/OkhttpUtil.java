@@ -22,16 +22,14 @@ import java.util.concurrent.TimeUnit;
 public class OkhttpUtil {
 
     // docker 容器的ip地址，也可以使用其他的，写一个默认的今后再也不用修改了
-    private static String baseUrl = ":2531/v2/api";
+    private static String baseUrl = null;
 
-    public static String token = "";
+    private static String token = null;
 
     static {
-        try {
-            baseUrl = "http://" + IpUtil.getIp() + baseUrl;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+
+        baseUrl = "http://".concat(IpUtil.getIp()).concat(":2531/v2/api");
+
     }
 
     public static OkHttpClient okHttpClient() {
