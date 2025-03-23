@@ -21,19 +21,18 @@ gewechat 服务需要自行部署，[ai-wechat-bot](https://github.com/alex-oos/
 
 ```bash
 # 从阿里云镜像仓库拉取(国内)
-docker pull registry.cn-chengdu.aliyuncs.com/tu1h/wechotd:alpine
-docker tag registry.cn-chengdu.aliyuncs.com/tu1h/wechotd:alpine gewe
-
-# 或从GitHub镜像仓库拉取
-docker pull ghcr.io/tu1h/wechotd/wechotd:alpine
-docker tag ghcr.io/tu1h/wechotd/wechotd:alpine gewe
+ docker pull registry.cn-hangzhou.aliyuncs.com/gewe/gewe:latest
+ 
+ docker tag registry.cn-hangzhou.aliyuncs.com/gewe/gewe gewe
 ```
 
 ## 2.2 使用docker启动
 
 ```bash
-mkdir -p gewechat/data  
-docker run -itd -v gewechat/data:/root/temp -p 2531:2531 -p 2532:2532 --restart=always --name=gewe gewe
+mkdir -p /root/temp
+docker run -itd -v /root/temp:/root/temp -p 2531:2531 -p 2532:2532 --privileged=true --name=gewe gewe /usr/sbin/init
+#设置开机自启
+docker update --restart=always gewe
 ```
 
 ## 2.3 使用docker compose启动
@@ -41,7 +40,7 @@ docker run -itd -v gewechat/data:/root/temp -p 2531:2531 -p 2532:2532 --restart=
 首先创建必要的数据目录:
 
 ```bash
-mkdir -p gewechat/data
+mkdir -p /root/temp
 ```
 
 创建 `docker-compose.yml` 文件:
