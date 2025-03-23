@@ -31,9 +31,9 @@ public class QRCodeUtil {
             BitMatrix bitMatrix = new MultiFormatWriter().encode(
                     url, BarcodeFormat.QR_CODE, width, height, hints
             );
-            // 保存为图片文件
-            Path path = Paths.get(pngPath);
-            MatrixToImageWriter.writeToPath(bitMatrix, "png", path);
+            // 保存为图片文件,保存图片注销掉
+            //Path path = Paths.get(pngPath);
+            //MatrixToImageWriter.writeToPath(bitMatrix, "png", path);
             // 转换为 ASCII 并打印
             printQRCodeToTerminal(bitMatrix, true); // invert=true 适配深色背景终端
 

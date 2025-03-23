@@ -11,6 +11,7 @@ import com.wechat.gewechat.service.LoginApi;
 import com.wechat.util.FileUtil;
 import com.wechat.util.IpUtil;
 import com.wechat.gewechat.util.OkhttpUtil;
+import com.wechat.util.QRCodeUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -39,7 +40,7 @@ public class LoginServiceImpl implements LoginService {
     @Override
     public void login() {
 
-        if (botConfig.getAppId() == null || botConfig.getAppId().isEmpty() ) {
+        if (botConfig.getAppId() == null || botConfig.getAppId().isEmpty()) {
             //第一次登录
             handleNewConfig();
             return;
@@ -50,8 +51,6 @@ public class LoginServiceImpl implements LoginService {
 
 
     }
-
-
 
 
     private void handleExistingConfig() {
@@ -87,6 +86,12 @@ public class LoginServiceImpl implements LoginService {
     private Boolean performLoginFlow(String appId) {
         // 获取登录二维码
         Map<String, String> qrInfo = this.getqr(appId);
+        appId = qrInfo.getOrDefault("appId", "");
+        if (appId != null && !appId.isEmpty()) {
+            System.out.println("AppID" + appId + "请保存此app_id，下次登录时继续使用!");
+            System.out.println("\n新设备登录平台，次日凌晨会掉线一次，重新登录时需使用原来的app_id取码，否则新app_id仍然会掉线，登录成功后则可以长期在线");
+
+        }
         // 执行二维码验证流程
         return this.checkStatus(qrInfo);
 
@@ -129,6 +134,8 @@ public class LoginServiceImpl implements LoginService {
             String qrData = data.getString("qrData");
             System.out.println("请访问下面地址：登录也可以");
             System.out.println("https://api.qrserver.com/v1/create-qr-code/?data=" + qrData);
+            System.out.println("也可以扫下方二维码登录");
+            QRCodeUtil.generateQRCodeBase64(qrData, 10, 15, null);
             return map;
         }
 
