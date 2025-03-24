@@ -21,15 +21,15 @@ public class AudioFormatConversionSilk {
         } else {
             command = "./tool/linux/silkenc";
         }
-        processBuilder.command(command, inputFilePath, outputFilePath, "-rate", "480000", "-tencent");
+        processBuilder.command(command, inputFilePath, outputFilePath, "-rate", "48000", "-tencent");
         processBuilder.redirectErrorStream(true);
 
         try {
             Process process = processBuilder.start();
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String line;
+            String line = null;
             while ((line = bufferedReader.readLine()) != null) {
-                System.out.println(line);
+                //System.out.println(line);
             }
 
             int exitCode = process.waitFor();
