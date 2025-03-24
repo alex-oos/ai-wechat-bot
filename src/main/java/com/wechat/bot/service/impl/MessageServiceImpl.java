@@ -8,6 +8,8 @@ import com.wechat.bot.service.MessageService;
 import com.wechat.bot.service.MsgSourceService;
 import com.wechat.bot.service.UserInfoService;
 import com.wechat.gewechat.service.DownloadApi;
+import com.wechat.gewechat.service.MessageApi;
+import com.wechat.util.FileUtil;
 import com.wechat.util.ImageUtil;
 import com.wechat.util.IpUtil;
 import com.wechat.util.WordParticipleMatch;
@@ -78,6 +80,11 @@ public class MessageServiceImpl implements MessageService {
 
         // 过滤掉非用户信息
         if (filterNotUserMessage(chatMessage, msgSource)) {
+            return;
+        }
+
+
+        if (isBotManual(chatMessage)) {
             return;
         }
         // 消息内容进行处理
@@ -248,6 +255,20 @@ public class MessageServiceImpl implements MessageService {
         }
 
 
+    }
+
+    /**
+     * 机器人使用说明
+     */
+    private Boolean isBotManual(ChatMessage chatMessage) {
+
+        boolean isContain = WordParticipleMatch.containsPartKeywords(chatMessage.getContent(), List.of("助理", "使用说明", "说明书"), 2);
+        if (isContain) {
+            String replay = FileUtil.readUseTxt();
+            MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), replay, chatMessage.getToUserId());
+            return true;
+        }
+        return false;
     }
 
 }

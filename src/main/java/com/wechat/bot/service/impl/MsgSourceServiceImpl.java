@@ -11,8 +11,6 @@ import com.wechat.bot.service.MsgSourceService;
 import com.wechat.bot.service.ReplyMsgService;
 import com.wechat.bot.service.SessionService;
 import com.wechat.gewechat.service.MessageApi;
-import com.wechat.util.FileUtil;
-import com.wechat.util.WordParticipleMatch;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -49,9 +47,7 @@ public class MsgSourceServiceImpl implements MsgSourceService {
     public void personalMsg(ChatMessage chatMessage) {
 
         SessionManager persionSessionManager = sessionService.getPersionSessionManager();
-        if (isBotManual(chatMessage)) {
-            return;
-        }
+
         Session session = persionSessionManager.getSession(chatMessage.getFromUserId());
         if (session == null) {
             if (!prefixFilter(chatMessage, botconfig.getSingleChatPrefix())) {
@@ -65,7 +61,6 @@ public class MsgSourceServiceImpl implements MsgSourceService {
                 if (!handleTextMessage(chatMessage, session, persionSessionManager, chatMessage.getFromUserId())) {
                     return;
                 }
-                ;
                 break;
             case IMAGERECOGNITION:
                 handleImageRecognitionMessage(chatMessage, session);
@@ -95,14 +90,12 @@ public class MsgSourceServiceImpl implements MsgSourceService {
      */
     @Override
     public void groupMsg(ChatMessage chatMessage) {
-        if (isBotManual(chatMessage)) {
-            return;
-        }
+
         SessionManager groupSessionManager = sessionService.getGroupSessionManager();
         String groupIdAndUserId = chatMessage.getGroupId() + "-" + chatMessage.getGroupMembersUserId();
         Session session = groupSessionManager.getSession(groupIdAndUserId);
         if (session == null) {
-            if (!groupNameFilter(chatMessage) || !prefixFilter(chatMessage, botconfig.getGroupChatPrefix()) || !chatMessage.getIsAt()) {
+            if (!groupNameFilter(chatMessage) || !prefixFilter(chatMessage, botconfig.getGroupChatPrefix()) || chatMessage.getIsAt()) {
                 return;
             }
             session = groupSessionManager.createSession(groupIdAndUserId, botconfig.getSystemPrompt());
@@ -133,20 +126,7 @@ public class MsgSourceServiceImpl implements MsgSourceService {
 
     }
 
-    /**
-     * 机器人使用说明
-     */
-    private Boolean isBotManual(ChatMessage chatMessage) {
 
-        boolean isContain = WordParticipleMatch.containsPartKeywords(chatMessage.getContent(), List.of("助理", "使用说明", "说明书"), 2);
-        if (isContain) {
-            String replay = FileUtil.readUseTxt();
-            MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), replay, chatMessage.getToUserId());
-            //persionSessionManager.deleteSession(chatMessage.getFromUserId());
-            return true;
-        }
-        return false;
-    }
 
     private Boolean handleTextMessage(ChatMessage chatMessage, Session session, SessionManager sessionManager, String userId) {
 
