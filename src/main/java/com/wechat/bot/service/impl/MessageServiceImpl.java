@@ -43,6 +43,11 @@ public class MessageServiceImpl implements MessageService {
     @Resource
     private BotConfig botConfig;
 
+    /**
+     * 语音模式或文本模式切换,默认是文本模式
+     */
+    private final Map<String,Boolean> voiceModelMap = new ConcurrentHashMap<>();
+
     @Override
     public void receiveMsg(JSONObject requestBody) {
 
@@ -68,6 +73,7 @@ public class MessageServiceImpl implements MessageService {
                 .isGroup(fromUserId.contains("@chatroom"))
                 .groupId(fromUserId)
                 .groupMembersUserId(wxid)
+                .isAt(false)
                 .rawMsg(requestBody)
                 .build();
 
@@ -225,6 +231,7 @@ public class MessageServiceImpl implements MessageService {
         //判断消息类型，进行一系列的操作
         switch (chatMessage.getCtype()) {
             case TEXT:
+
                 // 文本消息进行处理
                 String content = chatMessage.getContent();
                 List<String> imageCreatePrefix = botConfig.getImageCreatePrefix();
@@ -240,11 +247,15 @@ public class MessageServiceImpl implements MessageService {
                     chatMessage.setCtype(MsgTypeEnum.VIDEO);
                     return;
                 }
-                boolean isVoice = WordParticipleMatch.containsPartKeywords(content, List.of("语音", "生成", "阅读", "文字"), 2);
-                if (isVoice) {
+                if (chatMessage.getContent().contains("语音模式")){
+                    voiceModelMap.put(chatMessage.getFromUserId(), true);
+                }
+                Boolean isVoiceModel = voiceModelMap.getOrDefault(chatMessage.getFromUserId(), false);
+                if (isVoiceModel) {
                     chatMessage.setCtype(MsgTypeEnum.VOICE);
                     return;
                 }
+
                 break;
             case IMAGE:
                 // 图片下载处理为base64位

@@ -97,13 +97,14 @@ public class TextToVoice {
         }
         try {
             Files.write(Paths.get(audioPath), audioData.array(), StandardOpenOption.CREATE);
-            log.info("音频文件生成{}", audioPath);
+            //log.info("音频文件生成{}", audioPath);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
         int videoDuration = synthesizer.getTimestamps().stream().mapToInt(e -> e.getEndTime() - e.getBeginTime()).sum();
-        log.info("音频时长{}", videoDuration);
+        //log.info("音频时长{}", videoDuration);
+        log.info("音频文件生成成功");
         return videoDuration;
     }
 

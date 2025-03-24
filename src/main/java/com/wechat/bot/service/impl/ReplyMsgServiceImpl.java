@@ -112,6 +112,7 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
     @Override
     public void replyVideoMsg(ChatMessage chatMessage) {
 
+
         Map<String, Object> map = aiService.textToVideo(chatMessage.getContent());
         // 生成首图
         String videoUrl = (String) map.get("videoUrl");
@@ -135,10 +136,12 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
     @Override
     public void replyAudioMsg(ChatMessage chatMessage) {
 
+        String replayMsg = aiService.textToText(session);
+        log.info("文本内容：{}", replayMsg);
         String date = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
         Path audioPath = Path.of("data", "audio", date, UUID.randomUUID().toString().concat(".pcm"));
         audioPath.getParent().toFile().mkdirs();
-        Integer voiceDuration = aiService.textToVoice(chatMessage.getContent(), audioPath.toString());
+        Integer voiceDuration = aiService.textToVoice(replayMsg, audioPath.toString());
 
         // 替换文件后缀从 .pcm 到 .silk
         Path silkPath = audioPath.resolveSibling(audioPath.getFileName().toString().replace(".pcm", ".silk"));
