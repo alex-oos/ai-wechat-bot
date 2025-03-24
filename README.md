@@ -29,8 +29,8 @@ gewechat 服务需要自行部署，[ai-wechat-bot](https://github.com/alex-oos/
 ## 2.2 使用docker启动
 
 ```bash
-mkdir -p /root/temp
-docker run -itd -v /root/temp:/root/temp -p 2531:2531 -p 2532:2532 --privileged=true --name=gewe gewe /usr/sbin/init
+mkdir -p gewechat/data  
+docker run -itd -v gewechat/data:/root/temp -p 2531:2531 -p 2532:2532 --privileged=true --name=gewe gewe /usr/sbin/init
 #设置开机自启
 docker update --restart=always gewe
 ```
@@ -40,7 +40,7 @@ docker update --restart=always gewe
 首先创建必要的数据目录:
 
 ```bash
-mkdir -p /root/temp
+mkdir -p gewechat/data
 ```
 
 创建 `docker-compose.yml` 文件:
