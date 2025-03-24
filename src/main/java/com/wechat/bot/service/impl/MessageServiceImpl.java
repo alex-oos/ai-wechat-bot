@@ -82,17 +82,18 @@ public class MessageServiceImpl implements MessageService {
             return;
         }
         // 消息内容进行处理
-        messageContentProcessing(chatMessage);
-        updateContactMaps(chatMessage);
+        this.updateContactMaps(chatMessage);
         chatMessage.setFromUserNickname(contactMap.get(chatMessage.getFromUserId()));
         chatMessage.setToUserNickname(contactMap.get(chatMessage.getToUserId()));
+        // 消息处理器
+        this.messageContentProcessing(chatMessage);
         if (!chatMessage.getIsGroup()) {
             logMessage("收到个人消息：来自：{}，消息内容为：{}", chatMessage.getFromUserNickname(), chatMessage.getContent());
             msgSourceService.personalMsg(chatMessage);
             return;
         }
-        // 群消息
-        processGroupMessage(chatMessage);
+        // 群消息内容处理
+        //this.processGroupMessage(chatMessage);
         logMessage("群消息:《{}》中，{}的消息内容为：{}", chatMessage.getGroupIdNickName(), chatMessage.getGroupMemberUserNickname(), chatMessage.getContent());
         msgSourceService.groupMsg(chatMessage);
     }
@@ -231,11 +232,8 @@ public class MessageServiceImpl implements MessageService {
         //判断消息类型，进行一系列的操作
         switch (chatMessage.getCtype()) {
             case TEXT:
-
-                // 文本消息进行处理
                 String content = chatMessage.getContent();
                 List<String> imageCreatePrefix = botConfig.getImageCreatePrefix();
-
                 boolean isContains = WordParticipleMatch.containsPartKeywords(content, imageCreatePrefix, 2);
                 //画图，目前是强制写死，不然会冲突，必须包含画与图片两个关键字
                 if (isContains) {
@@ -250,11 +248,19 @@ public class MessageServiceImpl implements MessageService {
                 if (chatMessage.getContent().contains("语音模式")) {
                     voiceModelMap.put(chatMessage.getFromUserId(), true);
                 }
-                boolean isVoice = WordParticipleMatch.containsPartKeywords(content, List.of("关闭", "文字", "模式","文本"), 2);
-                if (isVoice) {
-                    voiceModelMap.remove(chatMessage.getFromUserId());
+                String userId = null;
+                if (chatMessage.getIsGroup()) {
+                    // 群消息，这里需要处理群消息
+                    this.processGroupMessage(chatMessage);
+                    userId = chatMessage.getFromUserId().concat("-").concat(chatMessage.getGroupMembersUserId());
+                } else {
+                    userId = chatMessage.getFromUserId();
                 }
-                Boolean isVoiceModel = voiceModelMap.getOrDefault(chatMessage.getFromUserId(), false);
+                boolean containsPartKeywords = WordParticipleMatch.containsPartKeywords(content, List.of("关闭", "文字", "模式", "文本"), 2);
+                if (containsPartKeywords) {
+                    voiceModelMap.remove(userId);
+                }
+                Boolean isVoiceModel = voiceModelMap.getOrDefault(userId, false);
                 if (isVoiceModel) {
                     chatMessage.setCtype(MsgTypeEnum.VOICE);
                     return;
@@ -279,11 +285,8 @@ public class MessageServiceImpl implements MessageService {
                 }
                 break;
             case VOICE:
-                break;
             case LINK:
-                break;
             case VIDEO:
-                break;
             default:
                 break;
 
