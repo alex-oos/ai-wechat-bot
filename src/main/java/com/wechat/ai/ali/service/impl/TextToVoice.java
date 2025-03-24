@@ -47,7 +47,7 @@ public class TextToVoice {
                 .sampleRate(48000)
                 .enableWordTimestamp(true)
                 .enablePhonemeTimestamp(true)
-                .format(SpeechSynthesisAudioFormat.WAV)
+                .format(SpeechSynthesisAudioFormat.PCM)
                 .build();
 
         class ReactCallback extends ResultCallback<SpeechSynthesisResult> {

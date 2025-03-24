@@ -22,6 +22,10 @@ public class VideoScreenshotUtil {
     /**
      * 视频截图工具类：
      * 使用工具：FFmpeg
+     * 使用教程：
+     * Windows：从 FFmpeg官网（https://ffmpeg.org/download.html） 下载并配置环境变量。
+     * Mac：用 Homebrew 安装：brew install ffmpeg
+     * Linux：sudo apt-get install ffmpeg（Debian系）或 sudo yum install ffmpeg（RedHat系）
      */
     public static void useFFmpeq(String videoUrl, String imagePath) {
 
@@ -48,8 +52,7 @@ public class VideoScreenshotUtil {
     }
 
     /**
-     * 使用javacv 这个不需要安装任何东西，增加依赖即可，目前使用这个
-     *
+     * 使用javacv 这个不需要安装任何东西，增加java依赖包即可，目前使用这个
      * @param videoUrl
      * @param imagePath
      */
