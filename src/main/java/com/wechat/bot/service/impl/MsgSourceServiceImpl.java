@@ -75,6 +75,7 @@ public class MsgSourceServiceImpl implements MsgSourceService {
                 handleImageMessage(chatMessage, session);
                 break;
             case VOICE:
+                session.addQuery(chatMessage.getContent());
                 break;
             case VIDEO:
                 break;
@@ -127,6 +128,7 @@ public class MsgSourceServiceImpl implements MsgSourceService {
             case VIDEO:
                 break;
             case VOICE:
+                session.addQuery(chatMessage.getContent());
                 break;
         }
         if (session == null) {

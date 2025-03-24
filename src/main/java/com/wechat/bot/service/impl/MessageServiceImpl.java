@@ -101,6 +101,10 @@ public class MessageServiceImpl implements MessageService {
     private void processGroupMessage(ChatMessage chatMessage) {
 
         String[] split = chatMessage.getContent().split(":");
+        if (split.length < 2) {
+            log.warn("Invalid group message format: {}", chatMessage.getContent());
+            return;
+        }
         String content = split[1].replace('\n', ' ').strip();
         String groupMembersUserId = split[0];
         updateContactMap(groupMembersUserId);
@@ -140,7 +144,9 @@ public class MessageServiceImpl implements MessageService {
             // 存到一个map里面不用每次都重新获取，降低请求次数
             // 获取好友的信息
             String nickName = getNickname(userId);
-            contactMap.put(userId, nickName);
+            if (nickName != null) {
+                contactMap.put(userId, nickName);
+            }
         }
     }
 
@@ -149,12 +155,14 @@ public class MessageServiceImpl implements MessageService {
         JSONObject briefInfo = ContactApi.getBriefInfo(botConfig.getAppId(), Collections.singletonList(userId));
         if (briefInfo.getInteger("ret") == 200) {
             JSONArray dataList = briefInfo.getJSONArray("data");
-            JSONObject userInfo = dataList.getJSONObject(0);
-            String remark = userInfo.getString("remark");
-            if (remark == null || remark.isBlank()) {
-                return userInfo.getString("nickName");
+            if (dataList.size() > 0) {
+                JSONObject userInfo = dataList.getJSONObject(0);
+                String remark = userInfo.getString("remark");
+                if (remark == null || remark.isBlank()) {
+                    return userInfo.getString("nickName");
+                }
+                return remark;
             }
-            return remark;
         }
         return null;
     }
@@ -203,8 +211,7 @@ public class MessageServiceImpl implements MessageService {
         }
 
         // 过滤掉5分钟前的消息
-        return chatMessage.getCreateTime() - (System.currentTimeMillis() / 1000) > 60 * 5;
-
+        return chatMessage.getCreateTime() < (System.currentTimeMillis() / 1000 - 60 * 5);
 
     }
 
@@ -245,9 +252,6 @@ public class MessageServiceImpl implements MessageService {
                     chatMessage.setCtype(MsgTypeEnum.VIDEO);
                     return;
                 }
-                if (chatMessage.getContent().contains("语音模式")) {
-                    voiceModelMap.put(chatMessage.getFromUserId(), true);
-                }
                 String userId = null;
                 if (chatMessage.getIsGroup()) {
                     // 群消息，这里需要处理群消息
@@ -255,6 +259,9 @@ public class MessageServiceImpl implements MessageService {
                     userId = chatMessage.getFromUserId().concat("-").concat(chatMessage.getGroupMembersUserId());
                 } else {
                     userId = chatMessage.getFromUserId();
+                }
+                if (content.contains("语音模式")) {
+                    voiceModelMap.put(userId, true);
                 }
                 boolean containsPartKeywords = WordParticipleMatch.containsPartKeywords(content, List.of("关闭", "文字", "模式", "文本"), 2);
                 if (containsPartKeywords) {
