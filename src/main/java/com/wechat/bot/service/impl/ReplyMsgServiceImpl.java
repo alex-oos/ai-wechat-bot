@@ -8,8 +8,8 @@ import com.wechat.bot.entity.BotConfig;
 import com.wechat.bot.entity.ChatMessage;
 import com.wechat.bot.service.ReplyMsgService;
 import com.wechat.gewechat.service.MessageApi;
+import com.wechat.util.AudioFormatConversionSilk;
 import com.wechat.util.IpUtil;
-import com.wechat.util.VideoDuration;
 import com.wechat.util.VideoScreenshotUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.task.TaskExecutor;
@@ -126,25 +126,24 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
     @Override
     public void replyAudioMsg(ChatMessage chatMessage) {
 
-        String date = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyddMM"));
+        String date = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
         Path audioPath = Path.of("data", "audio", date, UUID.randomUUID().toString().concat(".pcm"));
         audioPath.getParent().toFile().mkdirs();
-        aiService.textToVoice(chatMessage.getContent(), audioPath.toString());
+        Integer voiceDuration = aiService.textToVoice(chatMessage.getContent(), audioPath.toString());
 
         // 替换文件后缀从 .pcm 到 .silk
         Path silkPath = audioPath.resolveSibling(audioPath.getFileName().toString().replace(".pcm", ".silk"));
 
-        // TODO: 实现将 .pcm 文件转换为 .silk 文件的逻辑
+        //  实现将 .pcm 文件转换为 .silk 文件的逻辑
         // 参考方案：https://github.com/kn007/silk-v3-decoder/tree/master
-        // 使用这个依赖库，目前暂时不做
-        // 例如：convertWavToSilk(audioPath.toString(), silkPath.toString());
+        AudioFormatConversionSilk.convertToAudioFormat(audioPath.toString(), silkPath.toString());
 
         String voiceUrl = "http://" + IpUtil.getIp() + ":" + 9919 + "/" + silkPath;
-        int audioDurationMs = VideoDuration.getAudioDurationMs(audioPath.toString());
 
-        MessageApi.postVoice(chatMessage.getAppId(), chatMessage.getFromUserId(), voiceUrl, audioDurationMs);
+        MessageApi.postVoice(chatMessage.getAppId(), chatMessage.getFromUserId(), voiceUrl, voiceDuration);
         chatMessage.setPrepared(true);
-        //audioPath.toFile().deleteOnExit();
+        audioPath.toFile().deleteOnExit();
+        silkPath.toFile().deleteOnExit();
 
 
     }

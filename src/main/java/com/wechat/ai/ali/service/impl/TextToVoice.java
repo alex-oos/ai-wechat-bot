@@ -25,7 +25,7 @@ public class TextToVoice {
 
     public static void main(String[] args) {
 
-        new TextToVoice().textToVoice("今天天气怎么样？", "test.wav");
+        new TextToVoice().textToVoice("今天天气怎么样？", "test.pcm");
     }
 
     /**
@@ -35,7 +35,7 @@ public class TextToVoice {
      * @param content
      * @return
      */
-    public void textToVoice(String content, String audioPath) {
+    public Integer textToVoice(String content, String audioPath) {
 
         CountDownLatch latch = new CountDownLatch(1);
         SpeechSynthesizer synthesizer = new SpeechSynthesizer();
@@ -93,17 +93,18 @@ public class TextToVoice {
         // 将结果写入
         if (audioData == null) {
             log.warn("audioData为空");
-            return;
+            return null;
         }
         try {
-
             Files.write(Paths.get(audioPath), audioData.array(), StandardOpenOption.CREATE);
-        log.info("音频文件生成{}",audioPath);
+            log.info("音频文件生成{}", audioPath);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
+        int videoDuration = synthesizer.getTimestamps().stream().mapToInt(e -> e.getEndTime() - e.getBeginTime()).sum();
+        log.info("音频时长{}", videoDuration);
+        return videoDuration;
     }
-
 
 }

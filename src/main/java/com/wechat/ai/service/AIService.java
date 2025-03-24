@@ -28,7 +28,7 @@ public interface AIService {
 
     Map<String, Object> textToVideo(String content);
 
-    void textToVoice(String content, String audioPath);
+    Integer textToVoice(String content, String audioPath);
 
 
 }
