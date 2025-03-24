@@ -98,9 +98,10 @@ public class MsgSourceServiceImpl implements MsgSourceService {
             if (!groupNameFilter(chatMessage.getGroupIdNickName())) {
                 return;
             }
-            if (!prefixFilter(chatMessage.getContent(), botconfig.getGroupChatPrefix()) || !chatMessage.getIsAt()) {
+            if (!prefixFilter(chatMessage.getContent(), botconfig.getGroupChatPrefix()) && !chatMessage.getIsAt()) {
                 return;
             }
+
 
             session = groupSessionManager.createSession(groupIdAndUserId, botconfig.getSystemPrompt());
         }
