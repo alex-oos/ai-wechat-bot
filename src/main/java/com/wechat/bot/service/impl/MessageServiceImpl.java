@@ -37,16 +37,16 @@ public class MessageServiceImpl implements MessageService {
      */
     private final Map<String, String> contactMap = new ConcurrentHashMap<>();
 
+    /**
+     * 语音模式或文本模式切换,默认是文本模式
+     */
+    private final Map<String, Boolean> voiceModelMap = new ConcurrentHashMap<>();
+
     @Resource
     private MsgSourceService msgSourceService;
 
     @Resource
     private BotConfig botConfig;
-
-    /**
-     * 语音模式或文本模式切换,默认是文本模式
-     */
-    private final Map<String,Boolean> voiceModelMap = new ConcurrentHashMap<>();
 
     @Override
     public void receiveMsg(JSONObject requestBody) {
@@ -247,8 +247,12 @@ public class MessageServiceImpl implements MessageService {
                     chatMessage.setCtype(MsgTypeEnum.VIDEO);
                     return;
                 }
-                if (chatMessage.getContent().contains("语音模式")){
+                if (chatMessage.getContent().contains("语音模式")) {
                     voiceModelMap.put(chatMessage.getFromUserId(), true);
+                }
+                boolean isVoice = WordParticipleMatch.containsPartKeywords(content, List.of("关闭", "文字", "模式","文本"), 2);
+                if (isVoice) {
+                    voiceModelMap.remove(chatMessage.getFromUserId());
                 }
                 Boolean isVoiceModel = voiceModelMap.getOrDefault(chatMessage.getFromUserId(), false);
                 if (isVoiceModel) {
