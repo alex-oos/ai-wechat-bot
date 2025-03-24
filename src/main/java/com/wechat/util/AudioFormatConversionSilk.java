@@ -1,5 +1,7 @@
 package com.wechat.util;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -9,6 +11,7 @@ import java.io.InputStreamReader;
  * @since 2025/3/24 11:29
  * <p></p>
  */
+@Slf4j
 public class AudioFormatConversionSilk {
 
     public static void convertToAudioFormat(String inputFilePath, String outputFilePath) {
@@ -34,9 +37,11 @@ public class AudioFormatConversionSilk {
 
             int exitCode = process.waitFor();
             if (exitCode == 0) {
-                System.out.println("音频格式转换成功");
+                //System.out.println("音频格式转换成功");
             } else {
-                System.out.println("音频格式转换失败,错误码" + exitCode);
+                log.error("音频格式转换失败,错误码{}", exitCode);
+                throw new RuntimeException("音频格式转换失败");
+                //System.out.println("音频格式转换失败,错误码" + exitCode);
             }
         } catch (InterruptedException | IOException e) {
             throw new RuntimeException(e);

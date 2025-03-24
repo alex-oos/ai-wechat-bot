@@ -68,11 +68,11 @@ public class WordParticipleMatch {
     public static void main(String[] args) {
 
         //Set<String> keywords = new HashSet<>(Arrays.asList("助理", "说明书", "AI"));
-        List<String> keywords =Arrays.asList("助理", "说明书", "AI");
-        String test1 = "AI助理的说明书已发布"; // 全部包含 → true
+        List<String> keywords =Arrays.asList("关闭", "文字", "模式","文本");
+        String test1 = "文字模式"; // 全部包含 → true
         String test2 = "请下载说明书和教程";  // 缺少"AI" → false
 
-        System.out.println(containsPartKeywords(test1, keywords, 2)); // true
+        System.out.println(containsPartKeywords(test1, keywords, 1)); // true
         System.out.println(containsPartKeywords(test2, keywords, 1)); // false
     }
 
