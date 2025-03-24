@@ -10,19 +10,20 @@
   "callbackUrl": "http://127.0.0.1:9919/v2/api/callback/collect",
   "downloadUrl": "http://127.0.0.1:2532/download",
   "groupChatPrefix": [
-    "@bot"
+    "@bot","小助理"
   ],
   "groupNameWhiteList": [
-    "每日开心记录"
+    "ALL_GROUP"
   ],
   "imageRecognition": true,
   "singleChatPrefix": [
-    "机器人"
+    "ALL"
   ],
   "imageCreatePrefix": [
-    "画",
-    "图片",
-    "图"
+  	"画",
+		"图片",
+		"图",
+		"生成"
   ],
   "singleChatReplyPrefix": "",
   "speechRecognition": true,
