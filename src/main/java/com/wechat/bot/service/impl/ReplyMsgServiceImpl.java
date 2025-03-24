@@ -77,10 +77,15 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
     public void replyTextMsg(ChatMessage chatMessage) {
 
         String replayMsg = aiService.textToText(session);
-        if (chatMessage.getIsGroup() && chatMessage.getIsAt()) {
-            replayMsg="@" + chatMessage.getGroupMemberUserNickname() + " " + replayMsg;
+        // 群聊必须增加@,这样子可以很好的区分每个人聊天
+        String toUserId = null;
+        if (chatMessage.getIsGroup()) {
+            replayMsg = "@" + chatMessage.getGroupMemberUserNickname() + " " + replayMsg;
+            toUserId = chatMessage.getGroupMembersUserId();
+        } else {
+            toUserId = chatMessage.getToUserId();
         }
-        MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), replayMsg, chatMessage.getToUserId());
+        MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), replayMsg, toUserId);
         log.info("消息回复成功，回复人：{}，回复内容为：{}", chatMessage.getFromUserNickname(), replayMsg);
     }
 
