@@ -50,7 +50,7 @@ public class MsgSourceServiceImpl implements MsgSourceService {
 
         Session session = persionSessionManager.getSession(chatMessage.getFromUserId());
         if (session == null) {
-            if (!prefixFilter(chatMessage, botconfig.getSingleChatPrefix())) {
+            if (!prefixFilter(chatMessage.getContent(), botconfig.getSingleChatPrefix())) {
                 return;
             }
             session = persionSessionManager.createSession(chatMessage.getFromUserId(), botconfig.getSystemPrompt());
@@ -95,9 +95,13 @@ public class MsgSourceServiceImpl implements MsgSourceService {
         String groupIdAndUserId = chatMessage.getGroupId() + "-" + chatMessage.getGroupMembersUserId();
         Session session = groupSessionManager.getSession(groupIdAndUserId);
         if (session == null) {
-            if (!groupNameFilter(chatMessage) || !prefixFilter(chatMessage, botconfig.getGroupChatPrefix()) || chatMessage.getIsAt()) {
+            if (!groupNameFilter(chatMessage.getGroupIdNickName())) {
                 return;
             }
+            if (!prefixFilter(chatMessage.getContent(), botconfig.getGroupChatPrefix()) || !chatMessage.getIsAt()) {
+                return;
+            }
+
             session = groupSessionManager.createSession(groupIdAndUserId, botconfig.getSystemPrompt());
         }
         switch (chatMessage.getCtype()) {
@@ -125,7 +129,6 @@ public class MsgSourceServiceImpl implements MsgSourceService {
         replyMsgService.replyType(chatMessage, session);
 
     }
-
 
 
     private Boolean handleTextMessage(ChatMessage chatMessage, Session session, SessionManager sessionManager, String userId) {
@@ -189,7 +192,7 @@ public class MsgSourceServiceImpl implements MsgSourceService {
         MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), "恢复真人模式", chatMessage.getToUserId());
     }
 
-    private boolean prefixFilter(ChatMessage chatMessage, List<String> prefixes) {
+    private boolean prefixFilter(String content, List<String> prefixes) {
         // 如何不包含，默认代表所有全部都打开了
         if (prefixes.isEmpty()) {
             log.error("聊天前缀过滤目前过滤失败");
@@ -198,7 +201,7 @@ public class MsgSourceServiceImpl implements MsgSourceService {
         if (prefixes.contains("ALL")) {
             return true;
         }
-        long count = prefixes.stream().filter(e -> chatMessage.getContent().contains(e)).count();
+        long count = prefixes.stream().filter(e -> content.contains(e)).count();
 
         return count != 0;
     }
@@ -212,13 +215,13 @@ public class MsgSourceServiceImpl implements MsgSourceService {
     }
 
 
-    private boolean groupNameFilter(ChatMessage chatMessage) {
+    private boolean groupNameFilter(String groupIdNickName) {
 
         List<String> groupNameWhiteList = botconfig.getGroupNameWhiteList();
         if (groupNameWhiteList.isEmpty()) {
             return false;
         }
-        return groupNameWhiteList.get(0).equals("ALL_GROUP") || groupNameWhiteList.contains(chatMessage.getGroupIdNickName());
+        return groupNameWhiteList.get(0).equals("ALL_GROUP") || groupNameWhiteList.contains(groupIdNickName);
     }
 
 

@@ -74,7 +74,7 @@ public class MessageServiceImpl implements MessageService {
                 .isGroup(fromUserId.contains("@chatroom"))
                 .groupId(fromUserId)
                 .groupMembersUserId(wxid)
-                .isAt(false)
+                .isAt(true)
                 .rawMsg(requestBody)
                 .build();
 
