@@ -67,7 +67,6 @@ public class MessageServiceImpl implements MessageService {
                 .isMyMsg(wxid.equals(fromUserId))
                 .isGroup(fromUserId.contains("@chatroom"))
                 .groupId(fromUserId)
-                .isAt(receiveMsg.contains("@"))
                 .groupMembersUserId(wxid)
                 .rawMsg(requestBody)
                 .build();
@@ -99,19 +98,15 @@ public class MessageServiceImpl implements MessageService {
         String groupMembersUserId = split[0];
         updateContactMap(groupMembersUserId);
 
-        if (chatMessage.getIsAt()) {
-            content = content.replace('@', ' ').strip();
-            if (chatMessage.getContent().contains(chatMessage.getToUserNickname())) {
-                content = content.replace(chatMessage.getToUserNickname(), "").strip();
-            }
+        if (content.contains("@") && content.contains(chatMessage.getToUserNickname())) {
+            content = content.replace('@', ' ').strip().replace(chatMessage.getToUserNickname(), "");
+            chatMessage.setIsAt(true);
         }
         chatMessage.setContent(content);
         chatMessage.setGroupMembersUserId(groupMembersUserId);
         chatMessage.setGroupMemberUserNickname(contactMap.get(groupMembersUserId));
         chatMessage.setGroupIdNickName(contactMap.get(chatMessage.getGroupId()));
-        // 将单人聊天这里面的值都设置为空，以此来彻底区分
-        //chatMessage.setFromUserId(null);
-        //chatMessage.setFromUserNickname(null);
+
     }
 
 

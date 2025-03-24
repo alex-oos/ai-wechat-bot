@@ -53,7 +53,6 @@ public class MsgSourceServiceImpl implements MsgSourceService {
             if (isBotManual(chatMessage)) {
                 return;
             }
-            // 关闭单人聊天过滤
             if (!prefixFilter(chatMessage, botconfig.getSingleChatPrefix())) {
                 return;
             }
@@ -105,7 +104,7 @@ public class MsgSourceServiceImpl implements MsgSourceService {
             if (isBotManual(chatMessage)) {
                 return;
             }
-            if (!groupNameFilter(chatMessage) || !prefixFilter(chatMessage, botconfig.getGroupChatPrefix())) {
+            if (!groupNameFilter(chatMessage) || !prefixFilter(chatMessage, botconfig.getGroupChatPrefix()) || !chatMessage.getIsAt()) {
                 return;
             }
             session = groupSessionManager.createSession(groupIdAndUserId, botconfig.getSystemPrompt());
@@ -220,7 +219,10 @@ public class MsgSourceServiceImpl implements MsgSourceService {
     private boolean prefixFilter(ChatMessage chatMessage, List<String> prefixes) {
         // 如何不包含，默认代表所有全部都打开了
         if (prefixes.isEmpty()) {
-            log.warn("聊天前缀过滤目前不需要过滤,直接返回");
+            log.error("聊天前缀过滤目前过滤失败");
+            return false;
+        }
+        if (prefixes.contains("ALL")) {
             return true;
         }
         long count = prefixes.stream().filter(e -> chatMessage.getContent().contains(e)).count();

@@ -54,7 +54,6 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
                 this.replyTextMsg(chatMessage);
                 break;
             case IMAGE:
-                // TODO 先过滤掉，图片识别，后期再来做
                 if (chatMessage.getContent().contains("xml")) {
                     return;
                 }
@@ -78,6 +77,9 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
     public void replyTextMsg(ChatMessage chatMessage) {
 
         String replayMsg = aiService.textToText(session);
+        if (chatMessage.getIsGroup() && chatMessage.getIsAt()) {
+            replayMsg="@" + chatMessage.getGroupMemberUserNickname() + " " + replayMsg;
+        }
         MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), replayMsg, chatMessage.getToUserId());
         log.info("消息回复成功，回复人：{}，回复内容为：{}", chatMessage.getFromUserNickname(), replayMsg);
     }
@@ -87,6 +89,7 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
 
         aiService = chooseAiService();
         String replayMsg = aiService.textToText(session);
+
         MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), replayMsg, chatMessage.getToUserId());
         log.info("消息回复成功，回复人：{}，回复内容为：{}", chatMessage.getFromUserNickname(), replayMsg);
     }
@@ -114,6 +117,7 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
         String thumbUrl = "http://" + IpUtil.getIp() + ":" + 9919 + "/" + thumbPath;
         MessageApi.postVideo(chatMessage.getAppId(), chatMessage.getFromUserId(), videoUrl, thumbUrl, (Integer) map.get("videoDuration"));
         chatMessage.setPrepared(true);
+        thumbPath.toFile().deleteOnExit();
 
     }
 
@@ -142,8 +146,8 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
 
         MessageApi.postVoice(chatMessage.getAppId(), chatMessage.getFromUserId(), voiceUrl, voiceDuration);
         chatMessage.setPrepared(true);
-        //audioPath.toFile().deleteOnExit();
-        //silkPath.toFile().deleteOnExit();
+        audioPath.toFile().deleteOnExit();
+        silkPath.toFile().deleteOnExit();
 
 
     }
