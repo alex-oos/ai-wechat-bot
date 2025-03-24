@@ -21,7 +21,7 @@ public class AudioFormatConversionSilk {
         } else {
             command = "./tool/linux/silkenc";
         }
-        processBuilder.command(command, inputFilePath, outputFilePath, "-rate", "48000", "-tencent");
+        processBuilder.command(command, inputFilePath, outputFilePath, "-rate", "24000", "-tencent");
         processBuilder.redirectErrorStream(true);
 
         try {

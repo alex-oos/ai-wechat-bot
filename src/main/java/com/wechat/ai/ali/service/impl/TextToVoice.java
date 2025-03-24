@@ -44,7 +44,7 @@ public class TextToVoice {
                 .apiKey(AiConfig.botConfig.getDashscopeApiKey())
                 .model("sambert-zhiqi-v1")
                 .text(content)
-                .sampleRate(48000)
+                .sampleRate(24000)
                 .enableWordTimestamp(true)
                 .enablePhonemeTimestamp(true)
                 .format(SpeechSynthesisAudioFormat.PCM)

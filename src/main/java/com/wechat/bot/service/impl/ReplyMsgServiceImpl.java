@@ -142,8 +142,8 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
 
         MessageApi.postVoice(chatMessage.getAppId(), chatMessage.getFromUserId(), voiceUrl, voiceDuration);
         chatMessage.setPrepared(true);
-        audioPath.toFile().deleteOnExit();
-        silkPath.toFile().deleteOnExit();
+        //audioPath.toFile().deleteOnExit();
+        //silkPath.toFile().deleteOnExit();
 
 
     }
