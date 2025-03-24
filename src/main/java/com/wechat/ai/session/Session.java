@@ -26,9 +26,10 @@ import java.util.Objects;
 @Data
 public class Session {
 
+
     private Instant createTime;
 
-    private String sessionId;
+    private String userId;
 
     private String systemPrompt;
 
@@ -42,11 +43,14 @@ public class Session {
      */
     private List<MultiModalMessage> imageMessages;
 
+    /**
+     * 多模态对话信息
+     */
     private MultiModalConversationParam multiModalConversationParam;
 
     public Session(String sessionId, String systemPrompt) {
 
-        this.sessionId = sessionId;
+        this.userId = sessionId;
         if (systemPrompt == null) {
             systemPrompt = Objects.requireNonNull(FileUtil.readFile()).getSystemPrompt();
         }

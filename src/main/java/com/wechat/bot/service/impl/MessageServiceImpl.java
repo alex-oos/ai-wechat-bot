@@ -34,7 +34,7 @@ public class MessageServiceImpl implements MessageService {
     /**
      * 语音模式或文本模式切换,默认是文本模式
      */
-    private final Map<String, Boolean> voiceModelMap = new ConcurrentHashMap<>();
+    private final Map<String, MsgTypeEnum> msgTypeEnumMap = new ConcurrentHashMap<>();
 
     @Resource
     UserInfoService userInfoService;
@@ -212,19 +212,16 @@ public class MessageServiceImpl implements MessageService {
                     userId = chatMessage.getFromUserId();
                 }
                 if (content.contains("语音模式")) {
-                    voiceModelMap.put(userId, true);
+                    msgTypeEnumMap.put(userId, MsgTypeEnum.VOICE);
                 }
                 boolean containsPartKeywords = WordParticipleMatch.containsPartKeywords(content, List.of("关闭", "文字", "模式", "文本"), 2);
                 if (containsPartKeywords) {
-                    voiceModelMap.remove(userId);
+                    msgTypeEnumMap.remove(userId);
                 }
-                Boolean isVoiceModel = voiceModelMap.getOrDefault(userId, false);
-                if (isVoiceModel) {
-                    chatMessage.setCtype(MsgTypeEnum.VOICE);
-                    return;
-                }
+                MsgTypeEnum typeEnumMapOrDefault = msgTypeEnumMap.getOrDefault(userId, MsgTypeEnum.TEXT);
+                chatMessage.setCtype(typeEnumMapOrDefault);
+                return;
 
-                break;
             case IMAGE:
                 // 图片下载处理为base64位
                 if (!chatMessage.getIsGroup()) {
