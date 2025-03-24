@@ -7,6 +7,7 @@ import com.wechat.bot.entity.ChatMessage;
 import com.wechat.bot.enums.MsgTypeEnum;
 import com.wechat.bot.service.MessageService;
 import com.wechat.bot.service.ReplyMsgService;
+import com.wechat.bot.service.UserInfoService;
 import com.wechat.gewechat.service.MessageApi;
 import com.wechat.util.OkHttpUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +36,8 @@ public class GroupSchedule {
 
     @Resource
     private BotConfig botConfig;
+    @Resource
+    UserInfoService userInfoService;
 
     @Async
     @Scheduled(cron = "0 0 8 * * ?")
@@ -54,7 +57,7 @@ public class GroupSchedule {
         List<String> contactList = new ArrayList<>();
         // 早安寄语的制定人
         Collections.addAll(contactList, "相亲相爱一家人", "程序员大佬群");
-        Map<String, String> contactMap = messageService.getContactMap();
+        Map<String, String> contactMap = userInfoService.getUserInfo();
         Set<String> contactSet = contactMap.entrySet()
                 .stream()
                 .filter(entry -> contactList.contains(entry.getValue()))

@@ -7,6 +7,7 @@ import com.wechat.bot.entity.ChatMessage;
 import com.wechat.bot.enums.MsgTypeEnum;
 import com.wechat.bot.service.MessageService;
 import com.wechat.bot.service.ReplyMsgService;
+import com.wechat.bot.service.UserInfoService;
 import com.wechat.gewechat.service.MessageApi;
 import com.wechat.util.OkHttpUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -37,12 +38,17 @@ public class PersonSchedule {
 
     @Resource
     private BotConfig botConfig;
+
+    @Resource
+    private UserInfoService userInfoService;
+
     @Async
     @Scheduled(cron = "0 0 8 * * ?")
     public void goodMorning() {
 
         sendGreetingMessage("生成以%s开头的早安寄语，幽默，风趣一些", "早安寄语发送成功！");
     }
+
     @Async
     @Scheduled(cron = "0 0 22 * * ?")
     public void goodNight() {
@@ -55,7 +61,7 @@ public class PersonSchedule {
         List<String> contactList = new ArrayList<>();
         // 早安寄语的制定人
         Collections.addAll(contactList, "爸爸", "妈妈", "爷爷", "奶奶");
-        Map<String, String> contactMap = messageService.getContactMap();
+        Map<String, String> contactMap = userInfoService.getUserInfo();
         Set<String> contactSet = contactMap.entrySet()
                 .stream()
                 .filter(entry -> contactList.contains(entry.getValue()))
@@ -92,7 +98,7 @@ public class PersonSchedule {
     @Scheduled(cron = "0 30 8 * * ?")
     public void weatherReminder() throws IOException {
 
-       String response = OkHttpUtil.builder()
+        String response = OkHttpUtil.builder()
                 .url("https://v3.alapi.cn/api/tianqi?token=token")
                 .get().async();
         JSONObject responseJsonObject = JSONObject.parse(response);

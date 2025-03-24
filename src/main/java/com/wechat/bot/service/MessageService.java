@@ -37,7 +37,6 @@ public interface MessageService {
     void receiveMsg(JSONObject requestBody);
 
 
-    Map<String, String> getContactMap();
 
 
 

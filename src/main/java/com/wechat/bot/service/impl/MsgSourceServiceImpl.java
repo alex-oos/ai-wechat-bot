@@ -9,6 +9,7 @@ import com.wechat.bot.entity.ChatMessage;
 import com.wechat.bot.enums.MsgTypeEnum;
 import com.wechat.bot.service.MsgSourceService;
 import com.wechat.bot.service.ReplyMsgService;
+import com.wechat.bot.service.SessionService;
 import com.wechat.gewechat.service.MessageApi;
 import com.wechat.util.FileUtil;
 import com.wechat.util.WordParticipleMatch;
@@ -32,9 +33,8 @@ import java.util.stream.Collectors;
 @Service
 public class MsgSourceServiceImpl implements MsgSourceService {
 
-    private final SessionManager persionSessionManager = new SessionManager();
-
-    private final SessionManager groupSessionManager = new SessionManager();
+    @Resource
+    private SessionService sessionService;
 
     @Resource
     private BotConfig botconfig;
@@ -48,16 +48,18 @@ public class MsgSourceServiceImpl implements MsgSourceService {
     @Override
     public void personalMsg(ChatMessage chatMessage) {
 
+        SessionManager persionSessionManager = sessionService.getPersionSessionManager();
+        if (isBotManual(chatMessage)) {
+            return;
+        }
         Session session = persionSessionManager.getSession(chatMessage.getFromUserId());
         if (session == null) {
-            if (isBotManual(chatMessage)) {
-                return;
-            }
             if (!prefixFilter(chatMessage, botconfig.getSingleChatPrefix())) {
                 return;
             }
             session = persionSessionManager.createSession(chatMessage.getFromUserId(), botconfig.getSystemPrompt());
         }
+
         switch (chatMessage.getCtype()) {
             case TEXT:
                 if (!handleTextMessage(chatMessage, session, persionSessionManager, chatMessage.getFromUserId())) {
@@ -82,12 +84,7 @@ public class MsgSourceServiceImpl implements MsgSourceService {
             default:
                 return;
         }
-        if (session == null) {
-            return;
-        }
-        if (isBotManual(chatMessage)) {
-            return;
-        }
+
         session.setCreateTime(Instant.now());
         replyMsgService.replyType(chatMessage, session);
     }
@@ -98,13 +95,13 @@ public class MsgSourceServiceImpl implements MsgSourceService {
      */
     @Override
     public void groupMsg(ChatMessage chatMessage) {
-
+        if (isBotManual(chatMessage)) {
+            return;
+        }
+        SessionManager groupSessionManager = sessionService.getGroupSessionManager();
         String groupIdAndUserId = chatMessage.getGroupId() + "-" + chatMessage.getGroupMembersUserId();
         Session session = groupSessionManager.getSession(groupIdAndUserId);
         if (session == null) {
-            if (isBotManual(chatMessage)) {
-                return;
-            }
             if (!groupNameFilter(chatMessage) || !prefixFilter(chatMessage, botconfig.getGroupChatPrefix()) || !chatMessage.getIsAt()) {
                 return;
             }
@@ -131,12 +128,6 @@ public class MsgSourceServiceImpl implements MsgSourceService {
                 session.addQuery(chatMessage.getContent());
                 break;
         }
-        if (session == null) {
-            return;
-        }
-        if (isBotManual(chatMessage)) {
-            return;
-        }
         session.setCreateTime(Instant.now());
         replyMsgService.replyType(chatMessage, session);
 
@@ -151,7 +142,7 @@ public class MsgSourceServiceImpl implements MsgSourceService {
         if (isContain) {
             String replay = FileUtil.readUseTxt();
             MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), replay, chatMessage.getToUserId());
-            persionSessionManager.deleteSession(chatMessage.getFromUserId());
+            //persionSessionManager.deleteSession(chatMessage.getFromUserId());
             return true;
         }
         return false;
@@ -250,16 +241,5 @@ public class MsgSourceServiceImpl implements MsgSourceService {
         return groupNameWhiteList.get(0).equals("ALL_GROUP") || groupNameWhiteList.contains(chatMessage.getGroupIdNickName());
     }
 
-    @Override
-    public SessionManager getPersionSessionManager() {
-
-        return this.persionSessionManager;
-    }
-
-    @Override
-    public SessionManager getGroupSessionManager() {
-
-        return this.groupSessionManager;
-    }
 
 }

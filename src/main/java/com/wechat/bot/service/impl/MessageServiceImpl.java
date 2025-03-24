@@ -5,6 +5,7 @@ import com.alibaba.fastjson2.JSONObject;
 import com.wechat.bot.entity.BotConfig;
 import com.wechat.bot.entity.ChatMessage;
 import com.wechat.bot.enums.MsgTypeEnum;
+import com.wechat.bot.service.UserInfoService;
 import com.wechat.bot.service.MessageService;
 import com.wechat.bot.service.MsgSourceService;
 import com.wechat.gewechat.service.ContactApi;
@@ -33,14 +34,14 @@ import java.util.concurrent.ConcurrentHashMap;
 public class MessageServiceImpl implements MessageService {
 
     /**
-     * 联系人map，用线程安全的map
-     */
-    private final Map<String, String> contactMap = new ConcurrentHashMap<>();
-
-    /**
      * 语音模式或文本模式切换,默认是文本模式
      */
     private final Map<String, Boolean> voiceModelMap = new ConcurrentHashMap<>();
+
+    @Resource
+    UserInfoService userInfoService;
+
+    Map<String, String> userInfo;
 
     @Resource
     private MsgSourceService msgSourceService;
@@ -50,6 +51,8 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     public void receiveMsg(JSONObject requestBody) {
+
+        userInfo = userInfoService.getUserInfo();
 
         String appid = requestBody.getString("Appid");
         String wxid = requestBody.getString("Wxid");
@@ -83,8 +86,8 @@ public class MessageServiceImpl implements MessageService {
         }
         // 消息内容进行处理
         this.updateContactMaps(chatMessage);
-        chatMessage.setFromUserNickname(contactMap.get(chatMessage.getFromUserId()));
-        chatMessage.setToUserNickname(contactMap.get(chatMessage.getToUserId()));
+        chatMessage.setFromUserNickname(userInfo.get(chatMessage.getFromUserId()));
+        chatMessage.setToUserNickname(userInfo.get(chatMessage.getToUserId()));
         // 消息处理器
         this.messageContentProcessing(chatMessage);
         if (!chatMessage.getIsGroup()) {
@@ -115,8 +118,8 @@ public class MessageServiceImpl implements MessageService {
         }
         chatMessage.setContent(content);
         chatMessage.setGroupMembersUserId(groupMembersUserId);
-        chatMessage.setGroupMemberUserNickname(contactMap.get(groupMembersUserId));
-        chatMessage.setGroupIdNickName(contactMap.get(chatMessage.getGroupId()));
+        chatMessage.setGroupMemberUserNickname(userInfo.get(groupMembersUserId));
+        chatMessage.setGroupIdNickName(userInfo.get(chatMessage.getGroupId()));
 
     }
 
@@ -140,12 +143,12 @@ public class MessageServiceImpl implements MessageService {
 
     private void updateContactMap(String userId) {
 
-        if (!contactMap.containsKey(userId)) {
+        if (!userInfo.containsKey(userId)) {
             // 存到一个map里面不用每次都重新获取，降低请求次数
             // 获取好友的信息
             String nickName = getNickname(userId);
             if (nickName != null) {
-                contactMap.put(userId, nickName);
+                userInfo.put(userId, nickName);
             }
         }
     }
@@ -167,11 +170,6 @@ public class MessageServiceImpl implements MessageService {
         return null;
     }
 
-    @Override
-    public Map<String, String> getContactMap() {
-
-        return this.contactMap;
-    }
 
     /**
      * 过滤掉一些消息
