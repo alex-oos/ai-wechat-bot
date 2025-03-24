@@ -1,14 +1,12 @@
 package com.wechat.bot.service.impl;
 
-import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.wechat.bot.entity.BotConfig;
 import com.wechat.bot.entity.ChatMessage;
 import com.wechat.bot.enums.MsgTypeEnum;
-import com.wechat.bot.service.UserInfoService;
 import com.wechat.bot.service.MessageService;
 import com.wechat.bot.service.MsgSourceService;
-import com.wechat.gewechat.service.ContactApi;
+import com.wechat.bot.service.UserInfoService;
 import com.wechat.gewechat.service.DownloadApi;
 import com.wechat.util.ImageUtil;
 import com.wechat.util.IpUtil;
@@ -41,7 +39,6 @@ public class MessageServiceImpl implements MessageService {
     @Resource
     UserInfoService userInfoService;
 
-    Map<String, String> userInfo;
 
     @Resource
     private MsgSourceService msgSourceService;
@@ -52,7 +49,6 @@ public class MessageServiceImpl implements MessageService {
     @Override
     public void receiveMsg(JSONObject requestBody) {
 
-        userInfo = userInfoService.getUserInfo();
 
         String appid = requestBody.getString("Appid");
         String wxid = requestBody.getString("Wxid");
@@ -85,9 +81,7 @@ public class MessageServiceImpl implements MessageService {
             return;
         }
         // 消息内容进行处理
-        this.updateContactMaps(chatMessage);
-        chatMessage.setFromUserNickname(userInfo.get(chatMessage.getFromUserId()));
-        chatMessage.setToUserNickname(userInfo.get(chatMessage.getToUserId()));
+        userInfoService.updateUserInfo(chatMessage);
         // 消息处理器
         this.messageContentProcessing(chatMessage);
         if (!chatMessage.getIsGroup()) {
@@ -110,7 +104,7 @@ public class MessageServiceImpl implements MessageService {
         }
         String content = split[1].replace('\n', ' ').strip();
         String groupMembersUserId = split[0];
-        updateContactMap(groupMembersUserId);
+        userInfoService.updateUserInfo(groupMembersUserId);
 
         if (content.contains("@") && content.contains(chatMessage.getToUserNickname())) {
             content = content.replace('@', ' ').strip().replace(chatMessage.getToUserNickname(), "");
@@ -118,8 +112,8 @@ public class MessageServiceImpl implements MessageService {
         }
         chatMessage.setContent(content);
         chatMessage.setGroupMembersUserId(groupMembersUserId);
-        chatMessage.setGroupMemberUserNickname(userInfo.get(groupMembersUserId));
-        chatMessage.setGroupIdNickName(userInfo.get(chatMessage.getGroupId()));
+        chatMessage.setGroupMemberUserNickname(userInfoService.getUserInfo().get(groupMembersUserId));
+        chatMessage.setGroupIdNickName(userInfoService.getUserInfo().get(chatMessage.getGroupId()));
 
     }
 
@@ -127,47 +121,6 @@ public class MessageServiceImpl implements MessageService {
     private void logMessage(String format, Object... args) {
 
         log.info(format, args);
-    }
-
-
-    private void setChatMessageType(ChatMessage chatMessage, MsgTypeEnum type) {
-
-        chatMessage.setCtype(type);
-    }
-
-    private void updateContactMaps(ChatMessage chatMessage) {
-
-        updateContactMap(chatMessage.getFromUserId());
-        updateContactMap(chatMessage.getToUserId());
-    }
-
-    private void updateContactMap(String userId) {
-
-        if (!userInfo.containsKey(userId)) {
-            // 存到一个map里面不用每次都重新获取，降低请求次数
-            // 获取好友的信息
-            String nickName = getNickname(userId);
-            if (nickName != null) {
-                userInfo.put(userId, nickName);
-            }
-        }
-    }
-
-    private String getNickname(String userId) {
-
-        JSONObject briefInfo = ContactApi.getBriefInfo(botConfig.getAppId(), Collections.singletonList(userId));
-        if (briefInfo.getInteger("ret") == 200) {
-            JSONArray dataList = briefInfo.getJSONArray("data");
-            if (dataList.size() > 0) {
-                JSONObject userInfo = dataList.getJSONObject(0);
-                String remark = userInfo.getString("remark");
-                if (remark == null || remark.isBlank()) {
-                    return userInfo.getString("nickName");
-                }
-                return remark;
-            }
-        }
-        return null;
     }
 
 

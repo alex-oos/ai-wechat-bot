@@ -1,5 +1,7 @@
 package com.wechat.bot.service;
 
+import com.wechat.bot.entity.ChatMessage;
+
 import java.util.Map;
 
 /**
@@ -10,5 +12,9 @@ import java.util.Map;
 public interface UserInfoService {
 
     Map<String, String> getUserInfo();
+
+    void updateUserInfo(String userId);
+
+    void updateUserInfo(ChatMessage chatMessage);
 
 }
