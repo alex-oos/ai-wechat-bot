@@ -165,7 +165,5 @@ buildNumber.properties
 *.iml
 out
 gen
-*.json
-src/main/resources/static/config.json
 data/
 logs/
