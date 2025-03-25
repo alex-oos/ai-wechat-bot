@@ -65,21 +65,7 @@ public class MessageServiceImpl implements MessageService {
         String msgId = data.getString("NewMsgId");
         // 消息类型
         Integer msgType = data.getInteger("MsgType");
-        ChatMessage chatMessage = ChatMessage.builder()
-                .appId(appid)
-                .msgId(msgId)
-                .createTime(data.getLong("CreateTime"))
-                .ctype(MsgTypeEnum.getMsgTypeEnum(msgType))
-                .content(receiveMsg)
-                .fromUserId(fromUserId)
-                .toUserId(toUserId)
-                .isMyMsg(wxid.equals(fromUserId))
-                .isGroup(fromUserId.contains("@chatroom"))
-                .groupId(fromUserId)
-                .groupMembersUserId(wxid)
-                .isAt(false)
-                .rawMsg(requestBody)
-                .build();
+        ChatMessage chatMessage = ChatMessage.builder().appId(appid).msgId(msgId).createTime(data.getLong("CreateTime")).ctype(MsgTypeEnum.getMsgTypeEnum(msgType)).content(receiveMsg).fromUserId(fromUserId).toUserId(toUserId).isMyMsg(wxid.equals(fromUserId)).isGroup(fromUserId.contains("@chatroom")).groupId(fromUserId).groupMembersUserId(wxid).isAt(false).rawMsg(requestBody).build();
 
         // 过滤掉非用户信息
         if (filterNotUserMessage(chatMessage, msgSource)) {
@@ -93,7 +79,9 @@ public class MessageServiceImpl implements MessageService {
         // 消息内容进行处理
         userInfoService.updateUserInfo(chatMessage);
         // 消息处理器
-        this.messageContentProcessing(chatMessage);
+        if (this.contentProcessing(chatMessage)) {
+            return;
+        }
         if (!chatMessage.getIsGroup()) {
             logMessage("收到个人消息：来自：{}，消息内容为：{}", chatMessage.getFromUserNickname(), chatMessage.getContent());
             msgSourceService.personalMsg(chatMessage);
@@ -192,46 +180,18 @@ public class MessageServiceImpl implements MessageService {
     }
 
     /**
-     * 消息内容进行一系列的处理，处理逻辑比较复杂
+     * content 内容处理器,如果需要接入AI就返回false，否则就返回true，直接返回
      *
      * @param chatMessage
      */
-    private void messageContentProcessing(ChatMessage chatMessage) {
+    private Boolean contentProcessing(ChatMessage chatMessage) {
+
+        boolean isStop = false;
         //判断消息类型，进行一系列的操作
         switch (chatMessage.getCtype()) {
             case TEXT:
-                String content = chatMessage.getContent();
-                List<String> imageCreatePrefix = botConfig.getImageCreatePrefix();
-                boolean isImageType = WordParticipleMatch.containsPartKeywords(content, imageCreatePrefix, 2);
-                //画图，目前是强制写死，不然会冲突，必须包含画与图片两个关键字
-                if (isImageType) {
-                    chatMessage.setCtype(MsgTypeEnum.IMAGE);
-                    return;
-                }
-                boolean isVideoType = WordParticipleMatch.containsPartKeywords(content, List.of("视频", "生成"), 2);
-                if (isVideoType) {
-                    chatMessage.setCtype(MsgTypeEnum.VIDEO);
-                    return;
-                }
-                String userId = null;
-                if (chatMessage.getIsGroup()) {
-                    // 群消息，这里需要处理群消息
-                    this.processGroupMessage(chatMessage);
-                    userId = chatMessage.getFromUserId().concat("-").concat(chatMessage.getGroupMembersUserId());
-                } else {
-                    userId = chatMessage.getFromUserId();
-                }
-                if (content.contains("语音模式")) {
-                    msgTypeEnumMap.put(userId, MsgTypeEnum.VOICE);
-                }
-                boolean containsPartKeywords = WordParticipleMatch.containsPartKeywords(content, List.of("关闭", "文字", "模式", "文本"), 2);
-                if (containsPartKeywords) {
-                    msgTypeEnumMap.remove(userId);
-                }
-                MsgTypeEnum typeEnumMapOrDefault = msgTypeEnumMap.getOrDefault(userId, MsgTypeEnum.TEXT);
-                chatMessage.setCtype(typeEnumMapOrDefault);
-                return;
-
+                isStop = textMessage(chatMessage);
+                break;
             case IMAGE:
                 // 图片下载处理为base64位
                 if (!chatMessage.getIsGroup()) {
@@ -256,7 +216,7 @@ public class MessageServiceImpl implements MessageService {
                 break;
 
         }
-
+        return isStop;
 
     }
 
@@ -271,6 +231,73 @@ public class MessageServiceImpl implements MessageService {
             MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), replay, chatMessage.getToUserId());
             return true;
         }
+        return false;
+    }
+
+    /**
+     * 文本消息，各种状态转变
+     */
+    public Boolean textMessage(ChatMessage chatMessage) {
+
+        String userId = null;
+        if (chatMessage.getIsGroup()) {
+            // 群消息，这里需要处理群消息
+            this.processGroupMessage(chatMessage);
+            userId = chatMessage.getFromUserId().concat("-").concat(chatMessage.getGroupMembersUserId());
+        } else {
+            userId = chatMessage.getFromUserId();
+        }
+        String content = chatMessage.getContent();
+        //-------------------------------------------------------------------------------------------
+        // 生硬模式
+
+        // 先判断是否是语音模式
+        if (content.contains("语音模式")) {
+            msgTypeEnumMap.put(userId, MsgTypeEnum.VOICE);
+            MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), "语音模式已开启", chatMessage.getToUserId());
+            return true;
+        }
+        // 在判断是否是图片模式
+        if (content.contains("图片模式")) {
+            msgTypeEnumMap.put(userId, MsgTypeEnum.IMAGE);
+            MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), "图片模式已开启，发送想要生成的图片内容即可", chatMessage.getToUserId());
+            return true;
+        }
+        //再次判断是否是视频模式
+        if (content.contains("视频模式")) {
+            msgTypeEnumMap.put(userId, MsgTypeEnum.VIDEO);
+            MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), "视频模式已开启，描述一下想要生成的视频内容", chatMessage.getToUserId());
+            return true;
+        }
+        // 退出的方式
+        boolean containsPartKeywords = WordParticipleMatch.containsPartKeywords(content, List.of("关闭", "文字", "模式", "文本"), 2);
+        if (containsPartKeywords || content.contains("退出模式")) {
+            msgTypeEnumMap.remove(userId);
+            MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), "恢复成默认的文本模式", chatMessage.getToUserId());
+            return true;
+        }
+        // 如果上述都不是的话，那么就切换即可，需要留意是否有值
+        //--------------------------------------------------------------------------------------------
+        //柔和自动使用关键字判断模式
+        // 下面这些内容，是为了兼顾两种不一样的模式，而编写
+        List<String> imageCreatePrefix = botConfig.getImageCreatePrefix();
+        boolean isImageType = WordParticipleMatch.containsPartKeywords(content, imageCreatePrefix, 2);
+        ////画图，目前是强制写死，不然会冲突，必须包含画与图片两个关键字
+        if (isImageType) {
+            // 第一次进来会来到这边，第二次，就会走map，所以需要判断一下，如果map里面有这个key，就直接走map里面对应的值
+            msgTypeEnumMap.put(userId, MsgTypeEnum.IMAGE);
+            chatMessage.setCtype(MsgTypeEnum.IMAGE);
+            return false;
+        }
+        boolean isVideoType = WordParticipleMatch.containsPartKeywords(content, List.of("视频", "生成"), 2);
+        if (isVideoType) {
+            msgTypeEnumMap.put(userId, MsgTypeEnum.IMAGE);
+            chatMessage.setCtype(MsgTypeEnum.VIDEO);
+            return false;
+        }
+
+        MsgTypeEnum typeEnumMapOrDefault = msgTypeEnumMap.getOrDefault(userId, MsgTypeEnum.TEXT);
+        chatMessage.setCtype(typeEnumMapOrDefault);
         return false;
     }
 
