@@ -65,7 +65,21 @@ public class MessageServiceImpl implements MessageService {
         String msgId = data.getString("NewMsgId");
         // 消息类型
         Integer msgType = data.getInteger("MsgType");
-        ChatMessage chatMessage = ChatMessage.builder().appId(appid).msgId(msgId).createTime(data.getLong("CreateTime")).ctype(MsgTypeEnum.getMsgTypeEnum(msgType)).content(receiveMsg).fromUserId(fromUserId).toUserId(toUserId).isMyMsg(wxid.equals(fromUserId)).isGroup(fromUserId.contains("@chatroom")).groupId(fromUserId).groupMembersUserId(wxid).isAt(false).rawMsg(requestBody).build();
+        ChatMessage chatMessage = ChatMessage.builder()
+                .appId(appid)
+                .msgId(msgId)
+                .createTime(data.getLong("CreateTime"))
+                .ctype(MsgTypeEnum.getMsgTypeEnum(msgType))
+                .content(receiveMsg)
+                .fromUserId(fromUserId)
+                .toUserId(toUserId)
+                .isMyMsg(wxid.equals(fromUserId))
+                .isGroup(fromUserId.contains("@chatroom"))
+                .groupId(fromUserId)
+                .groupMembersUserId(wxid)
+                .isAt(false)
+                .rawMsg(requestBody)
+                .build();
 
         // 过滤掉非用户信息
         if (filterNotUserMessage(chatMessage, msgSource)) {
@@ -76,9 +90,9 @@ public class MessageServiceImpl implements MessageService {
         if (isBotManual(chatMessage)) {
             return;
         }
-        // 消息内容进行处理
+        //用户消息进行处理
         userInfoService.updateUserInfo(chatMessage);
-        // 消息处理器
+        // 消息内容进行处理
         if (this.contentProcessing(chatMessage)) {
             return;
         }
