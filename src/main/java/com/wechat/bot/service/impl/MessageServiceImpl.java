@@ -4,6 +4,7 @@ import com.alibaba.fastjson2.JSONObject;
 import com.wechat.bot.entity.BotConfig;
 import com.wechat.bot.entity.ChatMessage;
 import com.wechat.bot.enums.MsgTypeEnum;
+import com.wechat.bot.service.AiSystemRoleService;
 import com.wechat.bot.service.MessageService;
 import com.wechat.bot.service.MsgSourceService;
 import com.wechat.bot.service.UserInfoService;
@@ -41,12 +42,14 @@ public class MessageServiceImpl implements MessageService {
     @Resource
     UserInfoService userInfoService;
 
-
     @Resource
     private MsgSourceService msgSourceService;
 
     @Resource
     private BotConfig botConfig;
+
+    @Resource
+    private AiSystemRoleService aiSystemRoleService;
 
     @Override
     public void receiveMsg(JSONObject requestBody) {
@@ -199,14 +202,14 @@ public class MessageServiceImpl implements MessageService {
             case TEXT:
                 String content = chatMessage.getContent();
                 List<String> imageCreatePrefix = botConfig.getImageCreatePrefix();
-                boolean isContains = WordParticipleMatch.containsPartKeywords(content, imageCreatePrefix, 2);
+                boolean isImageType = WordParticipleMatch.containsPartKeywords(content, imageCreatePrefix, 2);
                 //画图，目前是强制写死，不然会冲突，必须包含画与图片两个关键字
-                if (isContains) {
+                if (isImageType) {
                     chatMessage.setCtype(MsgTypeEnum.IMAGE);
                     return;
                 }
-                boolean isVideo = WordParticipleMatch.containsPartKeywords(content, List.of("视频", "生成"), 2);
-                if (isVideo) {
+                boolean isVideoType = WordParticipleMatch.containsPartKeywords(content, List.of("视频", "生成"), 2);
+                if (isVideoType) {
                     chatMessage.setCtype(MsgTypeEnum.VIDEO);
                     return;
                 }
