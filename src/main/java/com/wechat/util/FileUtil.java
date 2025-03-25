@@ -1,13 +1,16 @@
 package com.wechat.util;
 
+import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.fastjson2.JSONWriter;
+import com.wechat.ai.entity.SystemPromptEntity;
 import com.wechat.bot.entity.BotConfig;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
 /**
  * @author Alex
@@ -62,15 +65,21 @@ public class FileUtil {
         return true;
     }
 
-    public static String readUseTxt() {
+    /**
+     * 阅读说明书
+     *
+     * @return
+     */
+    public static String readUseManual() {
 
-        return readFileText("docs/use.txt");
+        return readFileText("docs/instructions/usermanual.txt");
 
 
     }
 
     public static String readCronTxt() {
-        return readFileText("docs/systemPrompt/cron.txt");
+
+        return readFileText("docs/SystemPrompt/cron.txt");
 
     }
 
@@ -84,10 +93,16 @@ public class FileUtil {
         }
     }
 
+    public static List<SystemPromptEntity> readSystemPrompt() {
+
+        String content = readFileText("docs/SystemPrompt/systemPrompt.json");
+        List<SystemPromptEntity> list = JSONArray.parseArray(content, SystemPromptEntity.class);
+        return list;
+
+    }
+
     public static void main(String[] args) {
 
-        String s = readUseTxt();
-        System.out.println(s);
     }
 
 }

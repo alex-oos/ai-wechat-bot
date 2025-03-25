@@ -264,7 +264,7 @@ public class MessageServiceImpl implements MessageService {
 
         boolean isContain = WordParticipleMatch.containsPartKeywords(chatMessage.getContent(), List.of("助理", "使用说明", "说明书"), 2);
         if (isContain) {
-            String replay = FileUtil.readUseTxt();
+            String replay = FileUtil.readUseManual();
             MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), replay, chatMessage.getToUserId());
             return true;
         }
