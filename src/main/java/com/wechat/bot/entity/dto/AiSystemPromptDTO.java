@@ -1,14 +1,11 @@
 package com.wechat.bot.entity.dto;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.Date;
+import org.apache.ibatis.type.JdbcType;
 
 /**
  * @author Alex
@@ -32,10 +29,13 @@ public class AiSystemPromptDTO {
 
     private String content;
 
-    private Date createTime;
+    @TableField(value = "create_time", fill = FieldFill.INSERT, jdbcType = JdbcType.VARCHAR)
+    private String createTime;
 
-    private Date updateTime;
+    @TableField(value = "update_time", fill = FieldFill.UPDATE, jdbcType = JdbcType.VARCHAR)
+    private String updateTime;
 
+    @TableLogic(value = "0", delval = "1")
     private Integer deleted;
 
 

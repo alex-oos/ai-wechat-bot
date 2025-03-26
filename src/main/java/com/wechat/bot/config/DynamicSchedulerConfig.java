@@ -109,11 +109,14 @@ public class DynamicSchedulerConfig implements SchedulingConfigurer {
             future.cancel(true); // 终止任务执行
             taskMap.remove(taskId);
         }
+        timedTaskService.removeById(taskId);
     }
 
     public void removeAllTask() {
 
         taskMap.clear();
+        timedTaskService.remove(null);
+
 
     }
 
