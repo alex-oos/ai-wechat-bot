@@ -73,8 +73,8 @@ mybatis-plus:
     map-underscore-to-camel-case: true
     # MyBatis日志打印类
     # log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
-    # log-impl: org.apache.ibatis.logging.nologging.NoLoggingImpl   # 关闭日志
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl         # 打印到控制台
+    log-impl: org.apache.ibatis.logging.nologging.NoLoggingImpl   # 关闭日志
+    # log-impl: org.apache.ibatis.logging.stdout.StdOutImpl         # 打印到控制台
     auto-mapping-behavior: full
 # 日志设置
 logging:
