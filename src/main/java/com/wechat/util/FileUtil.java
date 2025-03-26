@@ -1,16 +1,13 @@
 package com.wechat.util;
 
-import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.fastjson2.JSONWriter;
-import com.wechat.ai.entity.SystemPromptEntity;
 import com.wechat.bot.entity.BotConfig;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
 
 /**
  * @author Alex
@@ -93,17 +90,9 @@ public class FileUtil {
         }
     }
 
-    public static List<SystemPromptEntity> readSystemPrompt() {
-
-        String content = readFileText("docs/systemPrompt/systemPrompt.json");
-        List<SystemPromptEntity> list = JSONArray.parseArray(content, SystemPromptEntity.class);
-        return list;
-
-    }
 
     public static void main(String[] args) {
 
-        readSystemPrompt();
     }
 
 }
