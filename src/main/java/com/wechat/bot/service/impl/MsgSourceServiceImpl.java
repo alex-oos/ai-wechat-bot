@@ -63,15 +63,6 @@ public class MsgSourceServiceImpl implements MsgSourceService {
 
         switch (chatMessage.getCtype()) {
             case TEXT:
-                // 提示词切换
-                if (aiSystemPromptService.updateAiSystemPrompt(chatMessage.getContent(), session)) {
-                    MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), "已切换角色", chatMessage.getToUserId());
-                    return;
-                }
-                // 如果想要查询所有角色，可以使用以下代码
-                if (queryALLRole(chatMessage)) {
-                    return;
-                }
                 if (!handleTextMessage(chatMessage, session, persionSessionManager, chatMessage.getFromUserId())) {
                     return;
                 }
@@ -119,14 +110,6 @@ public class MsgSourceServiceImpl implements MsgSourceService {
         }
         switch (chatMessage.getCtype()) {
             case TEXT:
-                // 提示词切换 默认 模式
-                if (aiSystemPromptService.updateAiSystemPrompt(chatMessage.getContent(), session)) {
-                    MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), "已切换角色", chatMessage.getToUserId());
-                    return;
-                }
-                if (queryALLRole(chatMessage)) {
-                    return;
-                }
                 if (!handleTextMessage(chatMessage, session, groupSessionManager, groupIdAndUserId)) {
                     return;
                 }
@@ -157,6 +140,15 @@ public class MsgSourceServiceImpl implements MsgSourceService {
         String content = chatMessage.getContent();
         if (isClearMemoryCommand(content)) {
             clearSessionAndReply(chatMessage, sessionManager, userId);
+            return false;
+        }
+        // 提示词切换 默认 模式
+        if (aiSystemPromptService.updateAiSystemPrompt(chatMessage.getContent(), session)) {
+            MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), "已切换角色", chatMessage.getToUserId());
+            return false;
+        }
+        // 查询所有角色列表
+        if (queryALLRole(chatMessage)) {
             return false;
         }
         handleImageMessages(chatMessage, session);
