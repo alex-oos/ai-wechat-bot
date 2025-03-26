@@ -54,9 +54,9 @@ spring:
 # MyBatis-plus配置
 mybatis-plus:
   # 注意：一定要对应mapper映射xml文件的所在路径
-  mapper-locations: classpath:com/springboot/mapper/xml/*.xml
+  mapper-locations: classpath:com/wechat/bot/mapper/xml/*.xml
   # 别名类型包
-  type-aliases-package: com.xiaomi.springboot.entity
+  type-aliases-package: com.wechat.bot.entity.dto
   global-config:
     banner: false   # 是否 mybatis-plus 在控制台输出的logo
     db-config:
