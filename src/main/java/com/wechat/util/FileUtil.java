@@ -79,7 +79,7 @@ public class FileUtil {
 
     public static String readCronTxt() {
 
-        return readFileText("docs/SystemPrompt/cron.txt");
+        return readFileText("docs/systemPrompt/cron.txt");
 
     }
 
@@ -89,13 +89,13 @@ public class FileUtil {
             byte[] bytes = Files.readAllBytes(Path.of(filePath));
             return new String(bytes);
         } catch (IOException e) {
-            throw new RuntimeException("文件读取失败，请检查config 文件是否存在");
+            throw new RuntimeException(String.format("文件读取失败，请检查%s文件是否存在", filePath));
         }
     }
 
     public static List<SystemPromptEntity> readSystemPrompt() {
 
-        String content = readFileText("docs/SystemPrompt/systemPrompt.json");
+        String content = readFileText("docs/systemPrompt/systemPrompt.json");
         List<SystemPromptEntity> list = JSONArray.parseArray(content, SystemPromptEntity.class);
         return list;
 
@@ -103,6 +103,7 @@ public class FileUtil {
 
     public static void main(String[] args) {
 
+        readSystemPrompt();
     }
 
 }

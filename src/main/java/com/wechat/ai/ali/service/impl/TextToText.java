@@ -10,7 +10,6 @@ import com.alibaba.dashscope.exception.ApiException;
 import com.alibaba.dashscope.exception.InputRequiredException;
 import com.alibaba.dashscope.exception.NoApiKeyException;
 import com.wechat.ai.config.AiConfig;
-import com.wechat.util.FileUtil;
 import io.reactivex.Flowable;
 import lombok.extern.slf4j.Slf4j;
 
@@ -113,7 +112,7 @@ public class TextToText {
 
             Generation gen = new Generation();
             Scanner scanner = new Scanner(System.in);
-            Message systemMsg = Message.builder().role(Role.SYSTEM.getValue()).content(FileUtil.readUseTxt()).build();
+            Message systemMsg = Message.builder().role(Role.SYSTEM.getValue()).content("你是一个AI助理").build();
             List<Message> messages = new ArrayList<>();
             messages.add(systemMsg);
             System.out.println("请输入你想问的问题：");
