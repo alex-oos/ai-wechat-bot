@@ -19,7 +19,7 @@ import java.util.Date;
 @NoArgsConstructor
 @Data
 @TableName(value = "system_config")
-public class SystemConfigDto implements Serializable {
+public class SystemConfigDTO implements Serializable {
 
     // 实现自增，必须数据库中设置自增
     @TableId(value = "id", type = IdType.AUTO) // 数据库ID自增，依赖于数据库。在插入操作生成SQL语句时，不会插入主键这一列

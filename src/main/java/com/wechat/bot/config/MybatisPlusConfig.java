@@ -15,7 +15,7 @@ import org.springframework.context.annotation.Configuration;
  */
 
 @Configuration
-//@MapperScan("com.wechat.bot.mapper")
+@MapperScan("com.wechat.bot.mapper")
 public class MybatisPlusConfig {
 
     /**

@@ -1,12 +1,13 @@
 package com.wechat.bot.entity.dto;
 
-import com.baomidou.mybatisplus.annotation.*;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
-import java.util.Date;
 
 /**
  * @author Alex
@@ -18,7 +19,7 @@ import java.util.Date;
 @NoArgsConstructor
 @Data
 @TableName(value = "friends")
-public class FriendDto implements Serializable {
+public class FriendDTO implements Serializable {
 
     // 实现自增，必须数据库中设置自增
     @TableId(value = "id", type = IdType.AUTO) // 数据库ID自增，依赖于数据库。在插入操作生成SQL语句时，不会插入主键这一列

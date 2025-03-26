@@ -72,7 +72,7 @@ public class FileUtil {
      */
     public static String readUseManual() {
 
-        return readFileText("docs/instructions/usermanual.txt");
+        return readFileText("docs/usermanual/version2.txt");
 
 
     }

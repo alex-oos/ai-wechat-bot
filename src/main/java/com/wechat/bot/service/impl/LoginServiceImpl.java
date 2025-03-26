@@ -3,14 +3,14 @@ package com.wechat.bot.service.impl;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.wechat.bot.entity.BotConfig;
-import com.wechat.bot.entity.dto.FriendDto;
-import com.wechat.bot.entity.dto.SystemConfigDto;
+import com.wechat.bot.entity.dto.FriendDTO;
+import com.wechat.bot.entity.dto.SystemConfigDTO;
 import com.wechat.bot.service.LoginService;
 import com.wechat.gewechat.service.ContactApi;
 import com.wechat.gewechat.service.LoginApi;
+import com.wechat.gewechat.util.OkhttpUtil;
 import com.wechat.util.FileUtil;
 import com.wechat.util.IpUtil;
-import com.wechat.gewechat.util.OkhttpUtil;
 import com.wechat.util.QRCodeUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
@@ -101,9 +101,9 @@ public class LoginServiceImpl implements LoginService {
     /**
      * 构建配置对象
      */
-    private SystemConfigDto buildConfigDto(Map<String, String> qrInfo, boolean isExistingConfig, SystemConfigDto originalConfig) {
+    private SystemConfigDTO buildConfigDto(Map<String, String> qrInfo, boolean isExistingConfig, SystemConfigDTO originalConfig) {
 
-        SystemConfigDto.SystemConfigDtoBuilder builder = SystemConfigDto.builder().token(OkhttpUtil.token);
+        SystemConfigDTO.SystemConfigDTOBuilder builder = SystemConfigDTO.builder().token(OkhttpUtil.token);
 
         if (isExistingConfig) {
             // 更新一下update_time 时间即可
@@ -248,7 +248,7 @@ public class LoginServiceImpl implements LoginService {
         log.info("获取好友列表成功");
 
         JSONArray data1 = detailInfo.getJSONArray("data");
-        List<FriendDto> javaList = data1.toJavaList(FriendDto.class);
+        List<FriendDTO> javaList = data1.toJavaList(FriendDTO.class);
 
         // 将好友信息保存到数据库中，方便下次直接使用
         JSONObject detailInfo1 = ContactApi.getDetailInfo(botConfig.getAppId(), chatrooms);

@@ -1,13 +1,9 @@
 package com.wechat.bot.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.wechat.bot.entity.dto.FriendDto;
-import com.wechat.bot.entity.dto.SystemConfigDto;
+import com.wechat.bot.entity.dto.FriendDTO;
 import com.wechat.bot.mapper.FriendMapper;
-import com.wechat.bot.mapper.SystemConfigMapper;
 import com.wechat.bot.service.FriendService;
-import com.wechat.bot.service.SystemConfigService;
-import org.springframework.stereotype.Service;
 
 /**
  * @author Alex
@@ -15,6 +11,6 @@ import org.springframework.stereotype.Service;
  * <p></p>
  */
 //@Service
-public class FriendServiceImpl extends ServiceImpl<FriendMapper, FriendDto> implements FriendService {
+public class FriendServiceImpl extends ServiceImpl<FriendMapper, FriendDTO> implements FriendService {
 
 }
