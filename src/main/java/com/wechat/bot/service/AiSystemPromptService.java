@@ -20,4 +20,5 @@ public interface AiSystemPromptService extends IService<AiSystemPromptDTO> {
      */
     Boolean updateAiSystemPrompt(String content, Session session);
 
+
 }

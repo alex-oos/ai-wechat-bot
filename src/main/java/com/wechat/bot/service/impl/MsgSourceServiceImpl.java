@@ -6,6 +6,7 @@ import com.wechat.ai.session.Session;
 import com.wechat.ai.session.SessionManager;
 import com.wechat.bot.entity.BotConfig;
 import com.wechat.bot.entity.ChatMessage;
+import com.wechat.bot.entity.dto.AiSystemPromptDTO;
 import com.wechat.bot.enums.MsgTypeEnum;
 import com.wechat.bot.service.AiSystemPromptService;
 import com.wechat.bot.service.MsgSourceService;
@@ -67,6 +68,10 @@ public class MsgSourceServiceImpl implements MsgSourceService {
                     MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), "已切换角色", chatMessage.getToUserId());
                     return;
                 }
+                // 如果想要查询所有角色，可以使用以下代码
+                if (queryALLRole(chatMessage)) {
+                    return;
+                }
                 if (!handleTextMessage(chatMessage, session, persionSessionManager, chatMessage.getFromUserId())) {
                     return;
                 }
@@ -110,12 +115,18 @@ public class MsgSourceServiceImpl implements MsgSourceService {
             if (!prefixFilter(chatMessage.getContent(), botconfig.getGroupChatPrefix()) && !chatMessage.getIsAt()) {
                 return;
             }
-
-
             session = groupSessionManager.createSession(groupIdAndUserId, botconfig.getSystemPrompt());
         }
         switch (chatMessage.getCtype()) {
             case TEXT:
+                // 提示词切换 默认 模式
+                if (aiSystemPromptService.updateAiSystemPrompt(chatMessage.getContent(), session)) {
+                    MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), "已切换角色", chatMessage.getToUserId());
+                    return;
+                }
+                if (queryALLRole(chatMessage)) {
+                    return;
+                }
                 if (!handleTextMessage(chatMessage, session, groupSessionManager, groupIdAndUserId)) {
                     return;
                 }
@@ -157,8 +168,7 @@ public class MsgSourceServiceImpl implements MsgSourceService {
         adjustImagePath(chatMessage);
         List<Map<String, Object>> list = new ArrayList<>();
         list.add(Collections.singletonMap("image", "file://" + chatMessage.getContent()));
-        MultiModalMessage userMessage = MultiModalMessage.builder().role(Role.USER.getValue())
-                .content(list).build();
+        MultiModalMessage userMessage = MultiModalMessage.builder().role(Role.USER.getValue()).content(list).build();
         session.getImageMessages().add(userMessage);
     }
 
@@ -174,17 +184,14 @@ public class MsgSourceServiceImpl implements MsgSourceService {
         if (imageMessages.size() == 1) {
             session.addQuery(chatMessage.getContent());
         }
-        List<MultiModalMessage> multiModalMessages = imageMessages.stream()
-                .filter(e -> e.getRole().equals(Role.USER.getValue()))
-                .collect(Collectors.toList());
+        List<MultiModalMessage> multiModalMessages = imageMessages.stream().filter(e -> e.getRole().equals(Role.USER.getValue())).collect(Collectors.toList());
         for (MultiModalMessage imageMessage : multiModalMessages) {
             List<Map<String, Object>> contentList = imageMessage.getContent();
             long count = contentList.stream().filter(e -> e.get("text") != null).count();
             if (count == 0) {
                 contentList.add(Collections.singletonMap("text", chatMessage.getContent()));
             } else {
-                MultiModalMessage userMsg = MultiModalMessage.builder().role(Role.USER.getValue())
-                        .content(List.of(Collections.singletonMap("text", chatMessage.getContent()))).build();
+                MultiModalMessage userMsg = MultiModalMessage.builder().role(Role.USER.getValue()).content(List.of(Collections.singletonMap("text", chatMessage.getContent()))).build();
                 imageMessages.add(userMsg);
             }
             chatMessage.setCtype(MsgTypeEnum.IMAGERECOGNITION);
@@ -232,6 +239,18 @@ public class MsgSourceServiceImpl implements MsgSourceService {
             return false;
         }
         return groupNameWhiteList.get(0).equals("ALL_GROUP") || groupNameWhiteList.contains(groupIdNickName);
+    }
+
+    private boolean queryALLRole(ChatMessage chatMessage) {
+
+        if (chatMessage.getContent().equals("角色列表")) {
+            List<AiSystemPromptDTO> list = aiSystemPromptService.list();
+            String replayContent = list.stream().map(item -> "角色：" + item.getRoleName() + ",角色类型：" + item.getRoleType()).collect(Collectors.joining("\n"));
+            replayContent = replayContent.concat("\n").concat("请输入#角色名称，切换角色");
+            MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), replayContent, chatMessage.getToUserId());
+            return true;
+        }
+        return false;
     }
 
 

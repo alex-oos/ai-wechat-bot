@@ -9,11 +9,10 @@ import com.wechat.bot.entity.ChatMessage;
  */
 public interface MsgSourceService {
 
-    void groupMsg(ChatMessage chatMessage);
-
 
     void personalMsg(ChatMessage chatMessage);
 
+    void groupMsg(ChatMessage chatMessage);
 
 
 }
