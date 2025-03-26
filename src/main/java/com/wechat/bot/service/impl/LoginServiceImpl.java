@@ -135,7 +135,7 @@ public class LoginServiceImpl implements LoginService {
             System.out.println("请访问下面地址：登录也可以");
             System.out.println("https://api.qrserver.com/v1/create-qr-code/?data=" + qrData);
             System.out.println("也可以扫下方二维码登录");
-            QRCodeUtil.generateQRCodeBase64(qrData, 10, 15, null);
+            QRCodeUtil.generateQRCodeBase64(qrData, 1, 1);
             return map;
         }
 

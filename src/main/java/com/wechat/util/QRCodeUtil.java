@@ -3,14 +3,10 @@ package com.wechat.util;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
 import com.google.zxing.MultiFormatWriter;
-import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * @author Alex
@@ -21,7 +17,7 @@ import java.util.Objects;
  */
 public class QRCodeUtil {
 
-    public static void generateQRCodeBase64(String url, int width, int height,String pngPath) {
+    public static void generateQRCodeBase64(String url, int width, int height) {
 
         try {
             // 生成位矩阵
@@ -31,9 +27,6 @@ public class QRCodeUtil {
             BitMatrix bitMatrix = new MultiFormatWriter().encode(
                     url, BarcodeFormat.QR_CODE, width, height, hints
             );
-            // 保存为图片文件,保存图片注销掉
-            //Path path = Paths.get(pngPath);
-            //MatrixToImageWriter.writeToPath(bitMatrix, "png", path);
             // 转换为 ASCII 并打印
             printQRCodeToTerminal(bitMatrix, true); // invert=true 适配深色背景终端
 
@@ -69,5 +62,10 @@ public class QRCodeUtil {
             System.out.println(line);
         }
     }
+
+/*     public static void main(String[] args) {
+        String url ="http://weixin.qq.com/x/A6a8tkeZJYxoFh5uIlah";
+        generateQRCodeBase64(url, 1, 1);
+    } */
 
 }
