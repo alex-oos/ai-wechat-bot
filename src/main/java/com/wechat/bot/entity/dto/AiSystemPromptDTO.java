@@ -8,7 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 
 /**
  * @author Alex
@@ -28,11 +28,13 @@ public class AiSystemPromptDTO {
 
     private String roleName;
 
+    private String roleType;
+
     private String content;
 
-    private LocalDateTime createTime;
+    private Date createTime;
 
-    private LocalDateTime update_time;
+    private Date updateTime;
 
     private Integer deleted;
 

@@ -7,6 +7,7 @@ import com.wechat.ai.session.SessionManager;
 import com.wechat.bot.entity.BotConfig;
 import com.wechat.bot.entity.ChatMessage;
 import com.wechat.bot.enums.MsgTypeEnum;
+import com.wechat.bot.service.AiSystemPromptService;
 import com.wechat.bot.service.MsgSourceService;
 import com.wechat.bot.service.ReplyMsgService;
 import com.wechat.bot.service.SessionService;
@@ -40,6 +41,9 @@ public class MsgSourceServiceImpl implements MsgSourceService {
     @Resource
     private ReplyMsgService replyMsgService;
 
+    @Resource
+    private AiSystemPromptService aiSystemPromptService;
+
     /**
      * 个人消息
      */
@@ -58,6 +62,11 @@ public class MsgSourceServiceImpl implements MsgSourceService {
 
         switch (chatMessage.getCtype()) {
             case TEXT:
+                // 提示词切换
+                if (aiSystemPromptService.updateAiSystemPrompt(chatMessage.getContent(), session)) {
+                    MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), "已切换角色", chatMessage.getToUserId());
+                    return;
+                }
                 if (!handleTextMessage(chatMessage, session, persionSessionManager, chatMessage.getFromUserId())) {
                     return;
                 }

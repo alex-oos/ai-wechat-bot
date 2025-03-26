@@ -4,7 +4,6 @@ import com.alibaba.fastjson2.JSONObject;
 import com.wechat.bot.entity.BotConfig;
 import com.wechat.bot.entity.ChatMessage;
 import com.wechat.bot.enums.MsgTypeEnum;
-import com.wechat.bot.service.AiSystemRoleService;
 import com.wechat.bot.service.MessageService;
 import com.wechat.bot.service.MsgSourceService;
 import com.wechat.bot.service.UserInfoService;
@@ -48,8 +47,6 @@ public class MessageServiceImpl implements MessageService {
     @Resource
     private BotConfig botConfig;
 
-    @Resource
-    private AiSystemRoleService aiSystemRoleService;
 
     @Override
     public void receiveMsg(JSONObject requestBody) {

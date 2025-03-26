@@ -27,8 +27,9 @@ public class MybatisPlusConfig {
         MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
         // 乐观锁插件
         interceptor.addInnerInterceptor(new OptimisticLockerInnerInterceptor());
-        // 分页插件
+        // 分页插件  // 如果配置多个插件, 切记分页最后添加
         interceptor.addInnerInterceptor(new PaginationInnerInterceptor(DbType.SQLITE));
+
         return interceptor;
     }
 
