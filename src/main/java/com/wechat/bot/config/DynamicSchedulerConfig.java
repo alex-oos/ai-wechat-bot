@@ -21,6 +21,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
 
@@ -91,7 +92,7 @@ public class DynamicSchedulerConfig implements SchedulingConfigurer {
     // 添加任务
     public void addTask(TimedTaskDTO task) {
 
-        Runnable taskRunnable = () -> executeTaskLogic(task);
+        Runnable taskRunnable = () -> executeTaskLogic(task.getId());
         Trigger trigger = triggerContext -> {
             CronTrigger cronTrigger = new CronTrigger(task.getCronExpression());
             return cronTrigger.nextExecutionTime(triggerContext);
@@ -120,9 +121,14 @@ public class DynamicSchedulerConfig implements SchedulingConfigurer {
 
     }
 
-    private void executeTaskLogic(TimedTaskDTO task) {
+    private void executeTaskLogic(Long taskId) {
         // 执行 SQL 或调用脚本（需实现具体逻辑）
         // 更新 last_execute_time 和 next_execute_time
+        // 校验一下定时任务的状态，如果状态修改了，那么就不在执行
+        TimedTaskDTO task = timedTaskService.getById(taskId);
+        if (task == null || !Objects.equals(task.getStatus(), TimedTaskEnum.ACTIVE.getStatus())) {
+            return;
+        }
         log.info("执行任务：{}", task.getTaskName());
         task.setLastExecuteTime(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
         try {
