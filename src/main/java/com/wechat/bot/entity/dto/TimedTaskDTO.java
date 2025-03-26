@@ -8,8 +8,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
-
 /**
  * @author Alex
  * @since 2025/3/26 15:10
@@ -38,7 +36,7 @@ public class TimedTaskDTO {
 
     private String status;
 
-    private Date createTime;
+    private String createTime;
 
     private Integer deleted;
 
