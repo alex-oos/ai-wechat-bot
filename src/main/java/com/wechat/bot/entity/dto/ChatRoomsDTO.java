@@ -1,11 +1,11 @@
 package com.wechat.bot.entity.dto;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.ibatis.type.JdbcType;
 
 import java.io.Serializable;
 
@@ -17,15 +17,13 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-
+@Builder
 @TableName(value = "chat_rooms")
 public class ChatRoomsDTO implements Serializable {
 
     // 实现自增，必须数据库中设置自增
-    @TableId(value = "id", type = IdType.AUTO) // 数据库ID自增，依赖于数据库。在插入操作生成SQL语句时，不会插入主键这一列
-    private Long id;
-
-    private String userName;
+    @TableId(value = "chat_room_id")
+    private String chatRoomId;
 
     private String nickName;
 
@@ -43,27 +41,17 @@ public class ChatRoomsDTO implements Serializable {
 
     private String signature;
 
-    private String alias;
+    //private String chatRoomNotify;
+    //
+    //private String chatRoomOwner;
+    //
+    //private String smallHeadImgUrl;
 
-    private String snsBgImg;
+    @TableField(value = "create_time", fill = FieldFill.INSERT, jdbcType = JdbcType.VARCHAR)
+    private String createTime;
 
-    private String country;
-
-    private String bigHeadImgUrl;
-
-    private String smallHeadImgUrl;
-
-    private String description;
-
-    private String cardImgUrl;
-
-    private String labelList;
-
-    private String province;
-
-    private String city;
-
-    private String phoneNumList;
+    @TableLogic(value = "0", delval = "1")
+    private Integer deleted;
 
 
 }

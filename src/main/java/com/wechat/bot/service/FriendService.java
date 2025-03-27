@@ -10,4 +10,11 @@ import com.wechat.bot.entity.dto.FriendDTO;
  */
 public interface FriendService extends IService<FriendDTO> {
 
+    /**
+     * 同步通讯录
+     */
+    void syncContacts();
+
+
+
 }

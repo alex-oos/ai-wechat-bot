@@ -23,8 +23,10 @@ public class BotInitializeService implements ApplicationRunner {
 
 
     @Resource
-    private LoginService loginService;
+    FriendService friendService;
 
+    @Resource
+    private LoginService loginService;
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
@@ -32,9 +34,11 @@ public class BotInitializeService implements ApplicationRunner {
         loginService.login();
         TimeUnit.SECONDS.sleep(5);
         loginService.setCallbackUrl();
+        //首次登录的时候同步一下好友信息
+        //friendService.syncContacts();
+
 
     }
-
 
 
 }
