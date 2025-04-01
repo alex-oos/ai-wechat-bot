@@ -247,11 +247,6 @@ public class MessageServiceImpl implements MessageService {
                     chatMessage.setCtype(MsgTypeEnum.TAKESHOT);
                 }
                 break;
-            case TAKESHOT:
-                //WechatMsgParser.MsgInfo msgInfo1 = WechatMsgParser.parseXml(chatMessage.getContent());
-                chatMessage.setContent("你拍了拍一下我");
-                //chatMessage.setCtype(MsgTypeEnum.TAKESHOT);
-                break;
             default:
                 return false;
 
