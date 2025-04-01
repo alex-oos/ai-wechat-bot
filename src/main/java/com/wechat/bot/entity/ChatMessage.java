@@ -123,6 +123,8 @@ public class ChatMessage {
      */
     private String appId;
 
+    private String replayContent;
+
 
     public void prepare() {
 

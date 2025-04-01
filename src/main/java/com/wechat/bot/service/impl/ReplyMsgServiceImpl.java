@@ -77,15 +77,16 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
     public void replyTextMsg(ChatMessage chatMessage) {
 
         String replayMsg = aiService.textToText(session);
-        // 群聊必须增加@,这样子可以很好的区分每个人聊天
-        String toUserId = null;
+        chatMessage.setReplayContent(replayMsg);
         if (chatMessage.getIsGroup()) {
-            replayMsg = "@" + chatMessage.getGroupMemberUserNickname() + " " + replayMsg;
-            toUserId = chatMessage.getGroupMembersUserId();
-        } else {
-            toUserId = chatMessage.getToUserId();
+            this.replayAitMsg(chatMessage);
+            if (!chatMessage.getPrepared()) {
+                this.replayQuoteMsg(replayMsg, chatMessage.getMsgId(), chatMessage.getAppId(), chatMessage.getGroupMembersUserId());
+                //MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), replayMsg, chatMessage.getGroupId());
+            }
+            return;
         }
-        MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), replayMsg, toUserId);
+        MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), replayMsg, chatMessage.getToUserId());
         log.info("消息回复成功，回复人：{}，回复内容为：{}", chatMessage.getFromUserNickname(), replayMsg);
     }
 
@@ -182,13 +183,71 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
     @Override
     public AIService chooseAiService() {
 
-        // 找到正常的服务，然后取出枚举值
-        //AiEnum aiEnum = AiEnum.getByBotType(Objects.requireNonNull(FileUtil.readFile()).getAiType());
         AiEnum aiEnum = null;
         if (botconfig != null) {
             aiEnum = AiEnum.getByBotType(botconfig.getAiType());
         }
         return AiServiceFactory.getAiService(aiEnum);
     }
+
+
+    @Override
+    public void replayQuoteMsg(String replayContent, String referMsgId, String appId, String fromUserId) {
+
+        // 构建引用消息XML
+        //String appMsg = String.format(
+        //        "<appmsg appid=\"\" sdkver=\"0\">" +
+        //                "<title>%s</title>" +
+        //                "<des /><action /><type>57</type>" +
+        //                "<showtype>0</showtype><soundtype>0</soundtype>" +
+        //                "<mediatagname /><messageext /><messageaction /><content />" +
+        //                "<contentattr>0</contentattr><url /><lowurl /><dataurl />" +
+        //                "<lowdataurl /><songalbumurl /><songlyric />" +
+        //                "<appattach>" +
+        //                "<totallen>0</totallen><attachid /><emoticonmd5 /><fileext /><aeskey />" +
+        //                "</appattach>" +
+        //                "<extinfo /><sourceusername /><sourcedisplayname />" +
+        //                "<thumburl /><md5 /><statextstr />" +
+        //                "<refermsg>" +
+        //                "<type>1</type>" +
+        //                "<svrid>%s</svrid>" +
+        //                "<chatusr>%s</chatusr>" +
+        //                "</refermsg>" +
+        //                "</appmsg>",
+        //        replayContent,
+        //        referMsgId,
+        //        toWxid
+        //);
+        String appMsg = String.format(
+                "<appmsg>\n" +
+                        "    <title>%s</title>\n" +
+                        "    <type>57</type>\n" +
+                        "    <refermsg>\n" +
+                        "        <type>49</type>\n" +
+                        "        <svrid>%s</svrid>\n" +
+                        "        <chatusr>%s</chatusr>\n" +
+                        "    </refermsg>\n" +
+                        "</appmsg>", replayContent, referMsgId, fromUserId
+        );
+        MessageApi.postAppMsg(appId, fromUserId, appMsg);
+    }
+
+
+    @Override
+    public void replayAitMsg(ChatMessage chatMessage) {
+        // 群聊必须增加@,这样子可以很好的区分每个人聊天
+        // 判断消息类型是否是群聊消息
+        if (!(chatMessage.getIsGroup() && chatMessage.getIsAt())) {
+            return;
+        }
+        //拼接艾特类型的消息
+        String replayMsg = "@" + chatMessage.getGroupMemberUserNickname() + " " + chatMessage.getReplayContent();
+        // 发送文本消息
+        MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), replayMsg, chatMessage.getGroupMembersUserId());
+        chatMessage.setPrepared(true);
+
+
+    }
+
 
 }

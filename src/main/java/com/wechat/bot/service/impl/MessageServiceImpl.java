@@ -7,6 +7,7 @@ import com.wechat.bot.enums.MsgTypeEnum;
 import com.wechat.bot.service.MessageService;
 import com.wechat.bot.service.MsgSourceService;
 import com.wechat.bot.service.UserInfoService;
+import com.wechat.bot.util.WechatMsgParser;
 import com.wechat.gewechat.service.DownloadApi;
 import com.wechat.gewechat.service.MessageApi;
 import com.wechat.util.FileUtil;
@@ -61,12 +62,11 @@ public class MessageServiceImpl implements MessageService {
         String msgSource = data.getString("MsgSource");
         String msgId = data.getString("NewMsgId");
         // 消息类型
-        Integer msgType = data.getInteger("MsgType");
         ChatMessage chatMessage = ChatMessage.builder()
                 .appId(appid)
                 .msgId(msgId)
                 .createTime(data.getLong("CreateTime"))
-                .ctype(MsgTypeEnum.getMsgTypeEnum(msgType))
+                .ctype(MsgTypeEnum.getMsgTypeEnum(data.getInteger("MsgType")))
                 .content(receiveMsg)
                 .fromUserId(fromUserId)
                 .toUserId(toUserId)
@@ -76,13 +76,13 @@ public class MessageServiceImpl implements MessageService {
                 .groupMembersUserId(wxid)
                 .isAt(false)
                 .rawMsg(requestBody)
+                .prepared(false)
                 .build();
 
         // 过滤掉非用户信息
         if (filterNotUserMessage(chatMessage, msgSource)) {
             return;
         }
-
 
         if (isBotManual(chatMessage)) {
             return;
@@ -103,6 +103,7 @@ public class MessageServiceImpl implements MessageService {
         logMessage("群消息:《{}》中，{}的消息内容为：{}", chatMessage.getGroupIdNickName(), chatMessage.getGroupMemberUserNickname(), chatMessage.getContent());
         msgSourceService.groupMsg(chatMessage);
     }
+
 
     private void processGroupMessage(ChatMessage chatMessage) {
 
@@ -221,8 +222,23 @@ public class MessageServiceImpl implements MessageService {
                 }
                 break;
             case VOICE:
+                //    link 消息内容处理
             case LINK:
+                break;
             case VIDEO:
+                //  引用消息内容进行处理
+            case APPMSG:
+                String content = chatMessage.getContent();
+                if (!content.contains("xml")) {
+                    return true;
+                }
+                WechatMsgParser.MsgInfo msgInfo = WechatMsgParser.parseXml(content);
+                // 继续判断 里面的type 是否是49 如果是，继续流转
+                if (msgInfo.getType().equals("57")) {
+                    chatMessage.setContent(msgInfo.getTitle());
+                    chatMessage.setCtype(MsgTypeEnum.TEXT);
+                }
+                break;
             default:
                 break;
 
@@ -311,5 +327,6 @@ public class MessageServiceImpl implements MessageService {
         chatMessage.setCtype(typeEnumMapOrDefault);
         return false;
     }
+
 
 }

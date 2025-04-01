@@ -3,8 +3,6 @@ package com.wechat.bot.service;
 import com.alibaba.fastjson2.JSONObject;
 import com.wechat.bot.entity.ChatMessage;
 
-import java.util.Map;
-
 /**
  * @author Alex
  * @since 2025/1/26 19:59
@@ -14,6 +12,7 @@ public interface MessageService {
 
     /**
      * 过滤掉非用户消息
+     *
      * @param chatMessage
      * @param msgSource
      * @return
@@ -35,8 +34,6 @@ public interface MessageService {
      */
 
     void receiveMsg(JSONObject requestBody);
-
-
 
 
 

@@ -34,4 +34,21 @@ public interface ReplyMsgService {
 
     void imageRecognition(ChatMessage chatMessage);
 
+    /**
+     * 回复类型是引用类型的消息，一般个人回复，不使用，群聊消息才使用
+     *
+     * @param content
+     * @param referMsgId
+     * @return
+     */
+    void replayQuoteMsg(String content, String referMsgId, String appId, String toWxid);
+
+    /**
+     * 回复的类型是艾特的信息，仅仅支持群聊才可以
+     *
+     * @param chatMessage
+     */
+    void replayAitMsg(ChatMessage chatMessage);
+
+
 }

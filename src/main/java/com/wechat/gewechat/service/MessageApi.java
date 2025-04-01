@@ -118,6 +118,7 @@ public class MessageApi {
 
     /**
      * 发送appmsg消息
+     * 本接口可用于发送所有包含节点的消息，例如：音乐分享、视频号、引用消息等等
      */
     public static JSONObject postAppMsg(String appId, String toWxid, String appmsg) {
 
