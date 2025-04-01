@@ -41,7 +41,7 @@ public interface ReplyMsgService {
      * @param referMsgId
      * @return
      */
-    void replayQuoteMsg(String content, String referMsgId, String appId, String toWxid);
+    void replayQuoteMsg(ChatMessage chatMessage);
 
     /**
      * 回复的类型是艾特的信息，仅仅支持群聊才可以

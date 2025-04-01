@@ -81,7 +81,7 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
         if (chatMessage.getIsGroup()) {
             this.replayAitMsg(chatMessage);
             if (!chatMessage.getPrepared()) {
-                this.replayQuoteMsg(replayMsg, chatMessage.getMsgId(), chatMessage.getAppId(), chatMessage.getGroupMembersUserId());
+                this.replayQuoteMsg(chatMessage);
                 //MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), replayMsg, chatMessage.getGroupId());
             }
             return;
@@ -192,7 +192,7 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
 
 
     @Override
-    public void replayQuoteMsg(String replayContent, String referMsgId, String appId, String fromUserId) {
+    public void replayQuoteMsg(ChatMessage chatMessage) {
 
         // 构建引用消息XML
         //String appMsg = String.format(
@@ -227,9 +227,11 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
                         "        <svrid>%s</svrid>\n" +
                         "        <chatusr>%s</chatusr>\n" +
                         "    </refermsg>\n" +
-                        "</appmsg>", replayContent, referMsgId, fromUserId
+                        "</appmsg>", chatMessage.getReplayContent(), chatMessage.getMsgId(), chatMessage.getFromUserId()
         );
-        MessageApi.postAppMsg(appId, fromUserId, appMsg);
+
+        MessageApi.postAppMsg(chatMessage.getAppId(), chatMessage.getFromUserId(), appMsg);
+        chatMessage.setPrepared(true);
     }
 
 
