@@ -18,7 +18,7 @@ public interface ReplyMsgService {
 
     void replyTextMsg(ChatMessage chatMessage, Session session);
 
-    void replyType(ChatMessage chatMessage, Session session);
+    void replayMessage(ChatMessage chatMessage, Session session);
 
     void replyImageMsg(ChatMessage chatMessage);
 

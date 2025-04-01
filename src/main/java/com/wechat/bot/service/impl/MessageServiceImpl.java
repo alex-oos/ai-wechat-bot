@@ -239,14 +239,13 @@ public class MessageServiceImpl implements MessageService {
                     return true;
                 }
                 WechatMsgParser.MsgInfo msgInfo = WechatMsgParser.parseXml(content);
-                // 继续判断 里面的type 是否是49 如果是，继续流转
+                // 继续判断 里面的type 是否是57 如果是，继续流转
                 if (msgInfo.getType().equals("57")) {
                     chatMessage.setContent(msgInfo.getTitle());
-                    chatMessage.setCtype(MsgTypeEnum.TEXT);
                 }
                 break;
             default:
-                break;
+                return false;
 
         }
         return isStop;

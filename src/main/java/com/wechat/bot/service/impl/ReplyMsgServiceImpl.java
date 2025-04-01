@@ -44,7 +44,7 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
 
 
     @Override
-    public void replyType(ChatMessage chatMessage, Session session1) {
+    public void replayMessage(ChatMessage chatMessage, Session session1) {
 
         session = session1;
         aiService = chooseAiService();
@@ -64,6 +64,9 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
                 break;
             case IMAGERECOGNITION:
                 this.imageRecognition(chatMessage);
+                break;
+            case APPMSG:
+                this.replyTextMsg(chatMessage);
                 break;
             default:
                 break;

@@ -81,12 +81,15 @@ public class MsgSourceServiceImpl implements MsgSourceService {
                 break;
             case VIDEO:
                 break;
+            case APPMSG:
+                session.addQuery(chatMessage.getContent());
+                break;
             default:
                 return;
         }
 
         session.setCreateTime(Instant.now());
-        replyMsgService.replyType(chatMessage, session);
+        replyMsgService.replayMessage(chatMessage, session);
     }
 
 
@@ -128,9 +131,14 @@ public class MsgSourceServiceImpl implements MsgSourceService {
             case VOICE:
                 session.addQuery(chatMessage.getContent());
                 break;
+            case APPMSG:
+                session.addQuery(chatMessage.getContent());
+                break;
+            default:
+                return;
         }
         session.setCreateTime(Instant.now());
-        replyMsgService.replyType(chatMessage, session);
+        replyMsgService.replayMessage(chatMessage, session);
 
     }
 
