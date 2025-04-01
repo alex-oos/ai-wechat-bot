@@ -81,8 +81,8 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
         if (chatMessage.getIsGroup()) {
             this.replayAitMsg(chatMessage);
             if (!chatMessage.getPrepared()) {
-                this.replayQuoteMsg(chatMessage);
-                //MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), replayMsg, chatMessage.getGroupId());
+                //this.replayQuoteMsg(chatMessage);
+                MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), replayMsg, chatMessage.getGroupId());
             }
             return;
         }
