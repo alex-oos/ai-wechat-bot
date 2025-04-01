@@ -31,7 +31,7 @@ public class Text2Video {
         VideoSynthesis vs = new VideoSynthesis();
         VideoSynthesisParam param =
                 VideoSynthesisParam.builder()
-                        .model("wanx2.1-t2v-turbo")
+                        .model("wanx2.1-t2v-plus")
                         .apiKey(AiConfig.botConfig.getDashscopeApiKey())
                         .prompt(content)
                         .size("1280*720")

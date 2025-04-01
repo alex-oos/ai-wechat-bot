@@ -26,7 +26,8 @@ import java.util.Map;
  * <p>
  * 通义千问  https://help.aliyun.com/zh/model-studio/developer-reference/use-qwen-by-calling-api?spm=a2c6h.13066369.question.6.66921a93YmGP7w
  * https://www.alibabacloud.com/help/zh/model-studio/developer-reference/use-qwen-by-calling-api
- * </p>
+ *  模型列表
+ *  https://help.aliyun.com/zh/model-studio/models?spm=a2c4g.11186623.J_XmGx2FZCDAeIy2ZCWL7sW.1.2e7072a3N1136G&scm=20140722.ID_2840914.P_133.MO_2092-ST_8403-V_1#21ab4c25c7lml
  */
 
 @Slf4j
