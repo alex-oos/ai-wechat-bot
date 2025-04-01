@@ -211,18 +211,18 @@ public class MessageServiceImpl implements MessageService {
                 break;
             case IMAGE:
                 // 图片下载处理为base64位
-                    JSONObject jsonObject = DownloadApi.downloadImage(chatMessage.getAppId(), chatMessage.getContent(), 2);
-                    if (jsonObject.getInteger("ret") != 200) {
-                        throw new RuntimeException("图片下载失败");
-                    }
-                    String imageStr = jsonObject.getJSONObject("data").getString("fileUrl");
-                    String imageUrl = "http://" + IpUtil.getIp() + ":2532/download/" + imageStr;
-                    Path imagePath = Path.of("data", "images", imageStr);
-                    imagePath.getParent().toFile().mkdirs();
-                    ImageUtil.downloadImage(imageUrl, imagePath.toString());
-                    // 图片下载可能会出现下载失败，而报错，请检查一下你的容器，容器内是否有问题
-                    chatMessage.setContent(imagePath.toAbsolutePath().toString());
-                    chatMessage.setCtype(MsgTypeEnum.IMAGERECOGNITION);
+                JSONObject jsonObject = DownloadApi.downloadImage(chatMessage.getAppId(), chatMessage.getContent(), 2);
+                if (jsonObject.getInteger("ret") != 200) {
+                    throw new RuntimeException("图片下载失败");
+                }
+                String imageStr = jsonObject.getJSONObject("data").getString("fileUrl");
+                String imageUrl = "http://" + IpUtil.getIp() + ":2532/download/" + imageStr;
+                Path imagePath = Path.of("data", "images", imageStr);
+                imagePath.getParent().toFile().mkdirs();
+                ImageUtil.downloadImage(imageUrl, imagePath.toString());
+                // 图片下载可能会出现下载失败，而报错，请检查一下你的容器，容器内是否有问题
+                chatMessage.setContent(imagePath.toAbsolutePath().toString());
+                chatMessage.setCtype(MsgTypeEnum.IMAGERECOGNITION);
 
                 break;
             case VOICE:
@@ -232,16 +232,19 @@ public class MessageServiceImpl implements MessageService {
                 break;
             case VIDEO:
                 break;
-                //  引用消息内容进行处理
+            //  引用消息内容进行处理
             case APPMSG:
-                String content = chatMessage.getContent();
-                if (!content.contains("xml")) {
-                    return true;
-                }
-                WechatMsgParser.MsgInfo msgInfo = WechatMsgParser.parseXml(content);
+                WechatMsgParser.MsgInfo msgInfo = WechatMsgParser.parseXml(chatMessage.getContent());
                 // 继续判断 里面的type 是否是57 如果是，继续流转
                 if (msgInfo.getType().equals("57")) {
                     chatMessage.setContent(msgInfo.getTitle());
+                    chatMessage.setCtype(MsgTypeEnum.APPMSG);
+                }
+                break;
+            case TAKESHOT:
+                if (WechatMsgParser.interactiveMessage(chatMessage.getContent())) {
+                    chatMessage.setContent("你拍了拍一下我");
+                    chatMessage.setCtype(MsgTypeEnum.TAKESHOT);
                 }
                 break;
             default:

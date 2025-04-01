@@ -9,6 +9,7 @@ import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 
 import java.io.ByteArrayInputStream;
+import java.io.StringReader;
 
 /**
  * @author Alex
@@ -28,6 +29,12 @@ public class WechatMsgParser {
         System.out.println(JSONObject.from(msgInfo));
     }
 
+    /**
+     * 引用数据解析
+     *
+     * @param content
+     * @return
+     */
     public static MsgInfo parseXml(String content) {
 
         MsgInfo msgInfo = null;
@@ -87,6 +94,33 @@ public class WechatMsgParser {
         return str.replace("&lt;", "<").replace("&gt;", ">")
                 .replace("&amp;", "&").replace("&apos;", "'")
                 .replace("&quot;", "\"");
+    }
+
+    /**
+     * 返回是否是拍一拍消息
+     *
+     * @return
+     */
+    public static Boolean interactiveMessage(String xmlStr) {
+
+        try {
+            // 创建SAXReader解析器（网页5、6、7）
+            SAXReader reader = new SAXReader();
+            // 将XML字符串转换为Document对象（网页5、7）
+            Document document = reader.read(new StringReader(xmlStr));
+
+            // 获取根节点sysmsg（网页4、5）
+            Element sysmsgElement = document.getRootElement();
+
+            // 读取type属性值（网页7）
+            String typeValue = sysmsgElement.attributeValue("type");
+            boolean isPat = "pat".equalsIgnoreCase(typeValue);
+            return isPat;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+
     }
 
     // 数据结构定义
