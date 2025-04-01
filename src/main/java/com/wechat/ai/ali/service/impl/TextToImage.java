@@ -42,7 +42,7 @@ public class TextToImage {
                 ImageSynthesisParam.builder()
                         //.apiKey(System.getenv("DASHSCOPE_API_KEY"))
                         .apiKey(AiConfig.botConfig.getDashscopeApiKey())
-                        .model("wanx2.1-t2i-turbo")
+                        .model("wanx2.1-t2i-plus")
                         .prompt(content)
                         .n(1)
                         .size("1024*1024")
