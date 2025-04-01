@@ -54,9 +54,6 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
                 this.replyTextMsg(chatMessage);
                 break;
             case IMAGE:
-                if (chatMessage.getContent().contains("xml")) {
-                    return;
-                }
                 this.replyImageMsg(chatMessage);
                 break;
             case VOICE:

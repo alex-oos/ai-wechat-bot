@@ -199,6 +199,11 @@ public class MessageServiceImpl implements MessageService {
     private Boolean contentProcessing(ChatMessage chatMessage) {
 
         boolean isStop = false;
+        // 群聊信息先进行统一处理一下
+        if (chatMessage.getIsGroup()) {
+            this.processGroupMessage(chatMessage);
+
+        }
         //判断消息类型，进行一系列的操作
         switch (chatMessage.getCtype()) {
             case TEXT:
@@ -206,7 +211,6 @@ public class MessageServiceImpl implements MessageService {
                 break;
             case IMAGE:
                 // 图片下载处理为base64位
-                if (!chatMessage.getIsGroup()) {
                     JSONObject jsonObject = DownloadApi.downloadImage(chatMessage.getAppId(), chatMessage.getContent(), 2);
                     if (jsonObject.getInteger("ret") != 200) {
                         throw new RuntimeException("图片下载失败");
@@ -219,13 +223,15 @@ public class MessageServiceImpl implements MessageService {
                     // 图片下载可能会出现下载失败，而报错，请检查一下你的容器，容器内是否有问题
                     chatMessage.setContent(imagePath.toAbsolutePath().toString());
                     chatMessage.setCtype(MsgTypeEnum.IMAGERECOGNITION);
-                }
+
                 break;
             case VOICE:
                 //    link 消息内容处理
+                break;
             case LINK:
                 break;
             case VIDEO:
+                break;
                 //  引用消息内容进行处理
             case APPMSG:
                 String content = chatMessage.getContent();
@@ -269,7 +275,7 @@ public class MessageServiceImpl implements MessageService {
         String userId = null;
         if (chatMessage.getIsGroup()) {
             // 群消息，这里需要处理群消息
-            this.processGroupMessage(chatMessage);
+            //this.processGroupMessage(chatMessage);
             userId = chatMessage.getFromUserId().concat("-").concat(chatMessage.getGroupMembersUserId());
         } else {
             userId = chatMessage.getFromUserId();
