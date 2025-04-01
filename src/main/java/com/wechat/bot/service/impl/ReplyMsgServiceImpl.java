@@ -68,6 +68,9 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
             case APPMSG:
                 this.replyTextMsg(chatMessage);
                 break;
+            case TAKESHOT:
+                this.replyTextMsg(chatMessage);
+                break;
             default:
                 break;
         }

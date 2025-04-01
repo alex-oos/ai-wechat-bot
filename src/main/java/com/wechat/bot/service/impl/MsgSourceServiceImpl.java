@@ -84,6 +84,9 @@ public class MsgSourceServiceImpl implements MsgSourceService {
             case APPMSG:
                 session.addQuery(chatMessage.getContent());
                 break;
+            case TAKESHOT:
+                session.addQuery(chatMessage.getContent());
+                break;
             default:
                 return;
         }
@@ -132,6 +135,9 @@ public class MsgSourceServiceImpl implements MsgSourceService {
                 session.addQuery(chatMessage.getContent());
                 break;
             case APPMSG:
+                session.addQuery(chatMessage.getContent());
+                break;
+            case TAKESHOT:
                 session.addQuery(chatMessage.getContent());
                 break;
             default:

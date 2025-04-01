@@ -234,15 +234,16 @@ public class MessageServiceImpl implements MessageService {
                 break;
                 //  引用消息内容进行处理
             case APPMSG:
-                String content = chatMessage.getContent();
-                if (!content.contains("xml")) {
-                    return true;
-                }
-                WechatMsgParser.MsgInfo msgInfo = WechatMsgParser.parseXml(content);
+                WechatMsgParser.MsgInfo msgInfo = WechatMsgParser.parseXml(chatMessage.getContent());
                 // 继续判断 里面的type 是否是57 如果是，继续流转
                 if (msgInfo.getType().equals("57")) {
                     chatMessage.setContent(msgInfo.getTitle());
                 }
+                break;
+            case TAKESHOT:
+                //WechatMsgParser.MsgInfo msgInfo1 = WechatMsgParser.parseXml(chatMessage.getContent());
+                chatMessage.setContent("你拍了拍一下我");
+                //chatMessage.setCtype(MsgTypeEnum.TAKESHOT);
                 break;
             default:
                 return false;
