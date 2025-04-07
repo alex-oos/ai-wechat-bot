@@ -1,11 +1,8 @@
 package com.wechat.ai.service;
 
 import com.wechat.ai.enums.AiEnum;
-import com.wechat.ai.session.Session;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.Map;
 
 /**
  * @author Alex
@@ -23,30 +20,6 @@ public abstract class AbstractAiService implements AIService {
     public AbstractAiService(AiEnum aiEnum) {
 
         this.aiEnum = aiEnum;
-    }
-
-    @Override
-    public String imageToImage(String content) {
-
-        return "";
-    }
-
-    @Override
-    public String imageToImage(String content, String style) {
-
-        return "";
-    }
-
-    @Override
-    public String imageToImage(String content, String style, String prompt) {
-
-        return "";
-    }
-
-    @Override
-    public String imageToImage(String content, String style, String prompt, String negativePrompt) {
-
-        return "";
     }
 
 

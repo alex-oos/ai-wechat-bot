@@ -18,14 +18,6 @@ public interface AIService {
 
     String imageToText(Session session);
 
-    String imageToImage(String content);
-
-    String imageToImage(String content, String style);
-
-    String imageToImage(String content, String style, String prompt);
-
-    String imageToImage(String content, String style, String prompt, String negativePrompt);
-
     Map<String, Object> textToVideo(String content);
 
     Integer textToVoice(String content, String audioPath);
