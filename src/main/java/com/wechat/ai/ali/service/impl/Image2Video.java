@@ -20,19 +20,33 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class Image2Video {
 
+
+    public static void main(String[] args) {
+
+        try {
+            image2video(null, null);
+        } catch (ApiException | NoApiKeyException | InputRequiredException e) {
+            System.out.println(e.getMessage());
+        }
+        System.exit(0);
+    }
+
     /**
      * Create a video compositing task and wait for the task to complete.
      * https://help.aliyun.com/zh/model-studio/developer-reference/image-to-video-api-reference?spm=a2c4g.11186623.help-menu-2400256.d_3_3_5_0.242058ab3gKUDp#ecd1180f3c026
      */
-    public static void image2video() throws ApiException, NoApiKeyException, InputRequiredException {
+    public static void image2video(String content, String imgUrl) throws ApiException, NoApiKeyException, InputRequiredException {
+
 
         VideoSynthesis vs = new VideoSynthesis();
         VideoSynthesisParam param =
                 VideoSynthesisParam.builder()
                         .model("wanx2.1-i2v-turbo")
                         .apiKey(AiConfig.botConfig.getDashscopeApiKey())
-                        .prompt("一只猫在草地上奔跑")
-                        .imgUrl("https://cdn.translate.alibaba.com/r/wanx-demo-1.png")
+                        //.prompt("一只猫在草地上奔跑")
+                        .prompt(content)
+                        .imgUrl(imgUrl)
+                        //.imgUrl("https://cdn.translate.alibaba.com/r/wanx-demo-1.png")
                         .build();
         // 异步调用
         VideoSynthesisResult task = vs.asyncCall(param);
@@ -43,18 +57,6 @@ public class Image2Video {
         // apiKey 已经配置在环境变量，因此这里可以设置为 null
         VideoSynthesisResult result = vs.wait(task, AiConfig.botConfig.getDashscopeApiKey());
         System.out.println(JsonUtils.toJson(result));
-    }
-
-
-
-    public static void main(String[] args) {
-
-        try {
-            image2video();
-        } catch (ApiException | NoApiKeyException | InputRequiredException e) {
-            System.out.println(e.getMessage());
-        }
-        System.exit(0);
     }
 
 }

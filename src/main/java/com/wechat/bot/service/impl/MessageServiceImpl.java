@@ -226,11 +226,13 @@ public class MessageServiceImpl implements MessageService {
 
                 break;
             case VOICE:
-                //    link 消息内容处理
+                isStop = true;
                 break;
             case LINK:
+                isStop = true;
                 break;
             case VIDEO:
+                isStop = true;
                 break;
             //  引用消息内容进行处理
             case APPMSG:
@@ -241,6 +243,7 @@ public class MessageServiceImpl implements MessageService {
                     chatMessage.setCtype(MsgTypeEnum.APPMSG);
                 }
                 break;
+            //    拍一拍消息处理
             case TAKESHOT:
                 if (WechatMsgParser.interactiveMessage(chatMessage.getContent())) {
                     chatMessage.setContent("你拍了拍一下我");
@@ -248,7 +251,7 @@ public class MessageServiceImpl implements MessageService {
                 }
                 break;
             default:
-                return false;
+                return true;
 
         }
         return isStop;
