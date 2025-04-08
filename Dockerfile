@@ -33,7 +33,8 @@ RUN apt install -y openjdk-11-jdk \
 WORKDIR /app
 COPY . /app
 
-RUN cd /app && mvn  -B clean install -P${env} -Dmaven.test.skip=true -Dautoconfig.skip -pl ai-wechat-bot -am  && cp -r ai-wechat-bot/target /app
+RUN cd /app  \
+    && mvn  -B clean install  -Dmaven.test.skip=true -Dautoconfig.skip
 
 EXPOSE 9919
 CMD ["java","-jar","/app/ai-wechat-bot.jar"]
