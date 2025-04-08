@@ -1,5 +1,6 @@
 package com.wechat.bot.entity;
 
+import com.wechat.ai.session.Session;
 import com.wechat.bot.enums.MsgTypeEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -124,6 +125,8 @@ public class ChatMessage {
     private String appId;
 
     private String replayContent;
+
+    private Session session;
 
 
     public void prepare() {

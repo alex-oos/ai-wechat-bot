@@ -57,6 +57,7 @@ public class UserInfoServiceImpl implements UserInfoService {
         chatMessage.setFromUserNickname(this.userInfo.get(chatMessage.getFromUserId()));
         chatMessage.setToUserNickname(this.userInfo.get(chatMessage.getToUserId()));
 
+
     }
 
     private String getNickname(String userId) {

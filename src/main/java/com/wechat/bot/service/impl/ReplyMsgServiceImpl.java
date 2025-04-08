@@ -3,7 +3,6 @@ package com.wechat.bot.service.impl;
 import com.wechat.ai.enums.AiEnum;
 import com.wechat.ai.factory.AiServiceFactory;
 import com.wechat.ai.service.AIService;
-import com.wechat.ai.session.Session;
 import com.wechat.bot.entity.BotConfig;
 import com.wechat.bot.entity.ChatMessage;
 import com.wechat.bot.service.ReplyMsgService;
@@ -39,13 +38,9 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
 
     private AIService aiService;
 
-    private Session session;
-
-
     @Override
-    public void replayMessage(ChatMessage chatMessage, Session session1) {
+    public void replayMessage(ChatMessage chatMessage) {
 
-        session = session1;
         aiService = chooseAiService();
         // 判断类型
         switch (chatMessage.getCtype()) {
@@ -75,10 +70,11 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
         }
     }
 
+
     @Override
     public void replyTextMsg(ChatMessage chatMessage) {
 
-        String replayMsg = aiService.textToText(session);
+        String replayMsg = aiService.textToText(chatMessage.getSession());
         chatMessage.setReplayContent(replayMsg);
         if (chatMessage.getIsGroup()) {
             this.replayAitMsg(chatMessage);
@@ -92,15 +88,6 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
         log.info("消息回复成功，回复人：{}，回复内容为：{}", chatMessage.getFromUserNickname(), replayMsg);
     }
 
-    @Override
-    public void replyTextMsg(ChatMessage chatMessage, Session session) {
-
-        aiService = chooseAiService();
-        String replayMsg = aiService.textToText(session);
-
-        MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), replayMsg, chatMessage.getToUserId());
-        log.info("消息回复成功，回复人：{}，回复内容为：{}", chatMessage.getFromUserNickname(), replayMsg);
-    }
 
     @Override
     public void replyImageMsg(ChatMessage chatMessage) {
@@ -148,7 +135,7 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
     @Override
     public void imageRecognition(ChatMessage chatMessage) {
 
-        String s = aiService.imageToText(session);
+        String s = aiService.imageToText(chatMessage.getSession());
         log.info("图片识别成功，图片内容：{}", s);
         MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), s, chatMessage.getToUserId());
         chatMessage.setPrepared(true);
@@ -167,7 +154,7 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
     @Override
     public void replyAudioMsg(ChatMessage chatMessage) {
 
-        String replayMsg = aiService.textToText(session);
+        String replayMsg = aiService.textToText(chatMessage.getSession());
         log.info("文本内容：{}", replayMsg);
         String date = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
         Path audioPath = Path.of("data", "audio", date, UUID.randomUUID().toString().concat(".pcm"));

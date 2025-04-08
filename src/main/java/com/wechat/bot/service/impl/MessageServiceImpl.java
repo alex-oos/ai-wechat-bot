@@ -222,7 +222,6 @@ public class MessageServiceImpl implements MessageService {
                 // 图片下载可能会出现下载失败，而报错，请检查一下你的容器，容器内是否有问题
                 chatMessage.setContent(imagePath.toAbsolutePath().toString());
                 chatMessage.setCtype(MsgTypeEnum.IMAGERECOGNITION);
-
                 break;
             case VOICE:
                 isStop = true;
@@ -317,24 +316,24 @@ public class MessageServiceImpl implements MessageService {
         //--------------------------------------------------------------------------------------------
         //柔和自动使用关键字判断模式
         // 下面这些内容，是为了兼顾两种不一样的模式，而编写
-        List<String> imageCreatePrefix = botConfig.getImageCreatePrefix();
-        boolean isImageType = WordParticipleMatch.containsPartKeywords(content, imageCreatePrefix, 2);
-        ////画图，目前是强制写死，不然会冲突，必须包含画与图片两个关键字
-        if (isImageType) {
-            // 第一次进来会来到这边，第二次，就会走map，所以需要判断一下，如果map里面有这个key，就直接走map里面对应的值
-            msgTypeEnumMap.put(userId, MsgTypeEnum.IMAGE);
-            chatMessage.setCtype(MsgTypeEnum.IMAGE);
-            return false;
-        }
-        boolean isVideoType = WordParticipleMatch.containsPartKeywords(content, List.of("视频", "生成"), 2);
-        if (isVideoType) {
-            msgTypeEnumMap.put(userId, MsgTypeEnum.IMAGE);
-            chatMessage.setCtype(MsgTypeEnum.VIDEO);
-            return false;
-        }
-
-        MsgTypeEnum typeEnumMapOrDefault = msgTypeEnumMap.getOrDefault(userId, MsgTypeEnum.TEXT);
-        chatMessage.setCtype(typeEnumMapOrDefault);
+        //List<String> imageCreatePrefix = botConfig.getImageCreatePrefix();
+        //boolean isImageType = WordParticipleMatch.containsPartKeywords(content, imageCreatePrefix, 2);
+        //////画图，目前是强制写死，不然会冲突，必须包含画与图片两个关键字
+        //if (isImageType) {
+        //    // 第一次进来会来到这边，第二次，就会走map，所以需要判断一下，如果map里面有这个key，就直接走map里面对应的值
+        //    msgTypeEnumMap.put(userId, MsgTypeEnum.IMAGE);
+        //    chatMessage.setCtype(MsgTypeEnum.IMAGE);
+        //    return false;
+        //}
+        //boolean isVideoType = WordParticipleMatch.containsPartKeywords(content, List.of("视频", "生成"), 2);
+        //if (isVideoType) {
+        //    msgTypeEnumMap.put(userId, MsgTypeEnum.IMAGE);
+        //    chatMessage.setCtype(MsgTypeEnum.VIDEO);
+        //    return false;
+        //}
+        //
+        //MsgTypeEnum typeEnumMapOrDefault = msgTypeEnumMap.getOrDefault(userId, MsgTypeEnum.TEXT);
+        //chatMessage.setCtype(typeEnumMapOrDefault);
         return false;
     }
 

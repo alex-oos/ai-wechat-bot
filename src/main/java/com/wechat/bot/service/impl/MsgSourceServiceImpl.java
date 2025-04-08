@@ -92,7 +92,8 @@ public class MsgSourceServiceImpl implements MsgSourceService {
         }
 
         session.setCreateTime(Instant.now());
-        replyMsgService.replayMessage(chatMessage, session);
+        chatMessage.setSession(session);
+        replyMsgService.replayMessage(chatMessage);
     }
 
 
@@ -144,7 +145,8 @@ public class MsgSourceServiceImpl implements MsgSourceService {
                 return;
         }
         session.setCreateTime(Instant.now());
-        replyMsgService.replayMessage(chatMessage, session);
+        chatMessage.setSession(session);
+        replyMsgService.replayMessage(chatMessage);
 
     }
 

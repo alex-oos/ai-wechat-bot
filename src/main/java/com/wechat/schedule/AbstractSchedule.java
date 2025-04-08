@@ -66,6 +66,7 @@ public abstract class AbstractSchedule {
         contactSet.forEach(contact -> {
             String[] split = contact.split("-");
             String content = String.format(contentTemplate, split[1]);
+
             ChatMessage chatMessage = ChatMessage.builder()
                     .fromUserId(split[0])
                     .toUserId(toUserId)
@@ -75,7 +76,8 @@ public abstract class AbstractSchedule {
                     .build();
             Session session = new Session(contact, null);
             session.addQuery(chatMessage.getContent());
-            replyMsgService.replyTextMsg(chatMessage, session);
+            chatMessage.setSession(session);
+            replyMsgService.replyTextMsg(chatMessage);
         });
         log.info(logMessage);
     }
