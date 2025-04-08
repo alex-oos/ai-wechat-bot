@@ -37,4 +37,4 @@ RUN cd /app  \
     && mvn  -B clean install  -Dmaven.test.skip=true -Dautoconfig.skip
 
 EXPOSE 9919
-CMD ["java","-jar","/app/ai-wechat-bot.jar"]
+CMD ["java","-jar","/app/target/ai-wechat-bot.jar"]
