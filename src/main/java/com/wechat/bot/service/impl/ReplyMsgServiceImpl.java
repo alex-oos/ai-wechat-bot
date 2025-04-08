@@ -9,7 +9,6 @@ import com.wechat.bot.entity.ChatMessage;
 import com.wechat.bot.service.ReplyMsgService;
 import com.wechat.gewechat.service.MessageApi;
 import com.wechat.util.AudioFormatConversionSilk;
-import com.wechat.util.IpUtil;
 import com.wechat.util.VideoScreenshotUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.task.TaskExecutor;
@@ -124,7 +123,7 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
         Path thumbPath = Path.of("data", "images", date, UUID.randomUUID().toString().concat(".jpg"));
         thumbPath.toFile().getParentFile().mkdirs();
         VideoScreenshotUtil.useJavacv(videoUrl, thumbPath.toString());
-        String thumbUrl = "http://" + IpUtil.getIp() + ":" + 9919 + "/" + thumbPath;
+        String thumbUrl = "http://" + botconfig.getLocalhostIp() + ":" + 9919 + "/" + thumbPath;
         MessageApi.postVideo(chatMessage.getAppId(), chatMessage.getFromUserId(), videoUrl, thumbUrl, (Integer) map.get("videoDuration"));
         chatMessage.setPrepared(true);
         thumbPath.toFile().deleteOnExit();
@@ -133,34 +132,6 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
 
     @Override
     public void replyFileMsg(ChatMessage chatMessage) {
-
-    }
-
-
-    @Override
-    public void replyAudioMsg(ChatMessage chatMessage) {
-
-        String replayMsg = aiService.textToText(session);
-        log.info("文本内容：{}", replayMsg);
-        String date = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-        Path audioPath = Path.of("data", "audio", date, UUID.randomUUID().toString().concat(".pcm"));
-        audioPath.getParent().toFile().mkdirs();
-        Integer voiceDuration = aiService.textToVoice(replayMsg, audioPath.toString());
-
-        // 替换文件后缀从 .pcm 到 .silk
-        Path silkPath = audioPath.resolveSibling(audioPath.getFileName().toString().replace(".pcm", ".silk"));
-
-        //  实现将 .pcm 文件转换为 .silk 文件的逻辑
-        // 参考方案：https://github.com/kn007/silk-v3-decoder/tree/master
-        AudioFormatConversionSilk.convertToAudioFormat(audioPath.toString(), silkPath.toString());
-
-        String voiceUrl = "http://" + IpUtil.getIp() + ":" + 9919 + "/" + silkPath;
-
-        MessageApi.postVoice(chatMessage.getAppId(), chatMessage.getFromUserId(), voiceUrl, voiceDuration);
-        chatMessage.setPrepared(true);
-        audioPath.toFile().deleteOnExit();
-        silkPath.toFile().deleteOnExit();
-
 
     }
 
@@ -193,6 +164,49 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
         return AiServiceFactory.getAiService(aiEnum);
     }
 
+    @Override
+    public void replyAudioMsg(ChatMessage chatMessage) {
+
+        String replayMsg = aiService.textToText(session);
+        log.info("文本内容：{}", replayMsg);
+        String date = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        Path audioPath = Path.of("data", "audio", date, UUID.randomUUID().toString().concat(".pcm"));
+        audioPath.getParent().toFile().mkdirs();
+        Integer voiceDuration = aiService.textToVoice(replayMsg, audioPath.toString());
+
+        // 替换文件后缀从 .pcm 到 .silk
+        Path silkPath = audioPath.resolveSibling(audioPath.getFileName().toString().replace(".pcm", ".silk"));
+
+        //  实现将 .pcm 文件转换为 .silk 文件的逻辑
+        // 参考方案：https://github.com/kn007/silk-v3-decoder/tree/master
+        AudioFormatConversionSilk.convertToAudioFormat(audioPath.toString(), silkPath.toString());
+
+        String voiceUrl = "http://" + botconfig.getLocalhostIp() + ":" + 9919 + "/" + silkPath;
+
+        MessageApi.postVoice(chatMessage.getAppId(), chatMessage.getFromUserId(), voiceUrl, voiceDuration);
+        chatMessage.setPrepared(true);
+        audioPath.toFile().deleteOnExit();
+        silkPath.toFile().deleteOnExit();
+
+
+    }
+
+
+    @Override
+    public void replayAitMsg(ChatMessage chatMessage) {
+        // 群聊必须增加@,这样子可以很好的区分每个人聊天
+        // 判断消息类型是否是群聊消息
+        if (!(chatMessage.getIsGroup() && chatMessage.getIsAt())) {
+            return;
+        }
+        //拼接艾特类型的消息
+        String replayMsg = "@" + chatMessage.getGroupMemberUserNickname() + " " + chatMessage.getReplayContent();
+        // 发送文本消息
+        MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), replayMsg, chatMessage.getGroupMembersUserId());
+        chatMessage.setPrepared(true);
+
+
+    }
 
     @Override
     public void replayQuoteMsg(ChatMessage chatMessage) {
@@ -221,38 +235,10 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
         //        referMsgId,
         //        toWxid
         //);
-        String appMsg = String.format(
-                "<appmsg>\n" +
-                        "    <title>%s</title>\n" +
-                        "    <type>57</type>\n" +
-                        "    <refermsg>\n" +
-                        "        <type>49</type>\n" +
-                        "        <svrid>%s</svrid>\n" +
-                        "        <chatusr>%s</chatusr>\n" +
-                        "    </refermsg>\n" +
-                        "</appmsg>", chatMessage.getReplayContent(), chatMessage.getMsgId(), chatMessage.getFromUserId()
-        );
+        String appMsg = String.format("<appmsg>\n" + "    <title>%s</title>\n" + "    <type>57</type>\n" + "    <refermsg>\n" + "        <type>49</type>\n" + "        <svrid>%s</svrid>\n" + "        <chatusr>%s</chatusr>\n" + "    </refermsg>\n" + "</appmsg>", chatMessage.getReplayContent(), chatMessage.getMsgId(), chatMessage.getFromUserId());
 
         MessageApi.postAppMsg(chatMessage.getAppId(), chatMessage.getFromUserId(), appMsg);
         chatMessage.setPrepared(true);
     }
-
-
-    @Override
-    public void replayAitMsg(ChatMessage chatMessage) {
-        // 群聊必须增加@,这样子可以很好的区分每个人聊天
-        // 判断消息类型是否是群聊消息
-        if (!(chatMessage.getIsGroup() && chatMessage.getIsAt())) {
-            return;
-        }
-        //拼接艾特类型的消息
-        String replayMsg = "@" + chatMessage.getGroupMemberUserNickname() + " " + chatMessage.getReplayContent();
-        // 发送文本消息
-        MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), replayMsg, chatMessage.getGroupMembersUserId());
-        chatMessage.setPrepared(true);
-
-
-    }
-
 
 }

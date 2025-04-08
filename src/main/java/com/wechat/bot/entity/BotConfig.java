@@ -67,4 +67,7 @@ public class BotConfig {
      */
     private List<String> imageCreatePrefix;
 
+
+    private String localhostIp;
+
 }

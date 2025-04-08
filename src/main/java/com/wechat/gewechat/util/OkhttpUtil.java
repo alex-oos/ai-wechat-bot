@@ -1,7 +1,6 @@
 package com.wechat.gewechat.util;
 
 import com.alibaba.fastjson2.JSONObject;
-import com.wechat.util.IpUtil;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 
@@ -22,15 +21,16 @@ import java.util.concurrent.TimeUnit;
 public class OkhttpUtil {
 
     // docker 容器的ip地址，也可以使用其他的，写一个默认的今后再也不用修改了
-    private static String baseUrl = null;
+    public static String baseUrl = null;
 
     public static String token = null;
 
-    static {
-
-        baseUrl = "http://".concat(IpUtil.getIp()).concat(":2531/v2/api");
-
-    }
+    //static {
+    //    // docker 容器外使用这个
+    //    //baseUrl = "http://".concat(IpUtil.getIp()).concat(":2531/v2/api");
+    //    baseUrl = Objects.requireNonNull(FileUtil.readFile()).getBaseUrl();
+    //
+    //}
 
     public static OkHttpClient okHttpClient() {
 

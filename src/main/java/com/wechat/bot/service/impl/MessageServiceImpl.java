@@ -12,7 +12,6 @@ import com.wechat.gewechat.service.DownloadApi;
 import com.wechat.gewechat.service.MessageApi;
 import com.wechat.util.FileUtil;
 import com.wechat.util.ImageUtil;
-import com.wechat.util.IpUtil;
 import com.wechat.util.WordParticipleMatch;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -216,7 +215,7 @@ public class MessageServiceImpl implements MessageService {
                     throw new RuntimeException("图片下载失败");
                 }
                 String imageStr = jsonObject.getJSONObject("data").getString("fileUrl");
-                String imageUrl = "http://" + IpUtil.getIp() + ":2532/download/" + imageStr;
+                String imageUrl = botConfig.getDownloadUrl() + "/" + imageStr;
                 Path imagePath = Path.of("data", "images", imageStr);
                 imagePath.getParent().toFile().mkdirs();
                 ImageUtil.downloadImage(imageUrl, imagePath.toString());

@@ -10,7 +10,6 @@ import com.wechat.gewechat.service.ContactApi;
 import com.wechat.gewechat.service.LoginApi;
 import com.wechat.gewechat.util.OkhttpUtil;
 import com.wechat.util.FileUtil;
-import com.wechat.util.IpUtil;
 import com.wechat.util.QRCodeUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
@@ -40,6 +39,7 @@ public class LoginServiceImpl implements LoginService {
     @Override
     public void login() {
 
+        OkhttpUtil.baseUrl = botConfig.getBaseUrl();
         if (botConfig.getAppId() == null || botConfig.getAppId().isEmpty()) {
             //第一次登录
             handleNewConfig();
@@ -213,10 +213,9 @@ public class LoginServiceImpl implements LoginService {
     @Override
     public void setCallbackUrl() {
 
-        String callbackUrl = "http://" + IpUtil.getIp() + ":9919/v2/api/callback/collect";
 
         // 设置一下回调地址
-        JSONObject callbackResponse = LoginApi.setCallback(botConfig.getToken(), callbackUrl);
+        JSONObject callbackResponse = LoginApi.setCallback(botConfig.getToken(), botConfig.getCallbackUrl());
         if (callbackResponse.getInteger("ret") != 200) {
             throw new RuntimeException(String.format("设置回调地址失败,项目启动失败，请检查相关配置，返回结果为：%s", callbackResponse.toJSONString()));
         }
