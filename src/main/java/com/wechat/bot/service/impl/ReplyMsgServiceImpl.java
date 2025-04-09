@@ -155,7 +155,6 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
     public void replyAudioMsg(ChatMessage chatMessage) {
 
         String replayMsg = aiService.textToText(chatMessage.getSession());
-        log.info("文本内容：{}", replayMsg);
         String date = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
         Path audioPath = Path.of("data", "audio", date, UUID.randomUUID().toString().concat(".pcm"));
         audioPath.getParent().toFile().mkdirs();

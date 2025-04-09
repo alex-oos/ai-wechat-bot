@@ -104,7 +104,7 @@ public class TextToVoice {
 
         int videoDuration = synthesizer.getTimestamps().stream().mapToInt(e -> e.getEndTime() - e.getBeginTime()).sum();
         //log.info("音频时长{}", videoDuration);
-        log.info("音频文件生成成功");
+        log.debug("音频文件生成成功");
         return videoDuration;
     }
 

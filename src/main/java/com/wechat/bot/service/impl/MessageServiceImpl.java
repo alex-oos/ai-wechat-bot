@@ -6,6 +6,7 @@ import com.wechat.bot.entity.ChatMessage;
 import com.wechat.bot.enums.MsgTypeEnum;
 import com.wechat.bot.service.MessageService;
 import com.wechat.bot.service.MsgSourceService;
+import com.wechat.bot.service.MsgTypeManageService;
 import com.wechat.bot.service.UserInfoService;
 import com.wechat.bot.util.WechatMsgParser;
 import com.wechat.gewechat.service.DownloadApi;
@@ -21,8 +22,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Alex
@@ -33,13 +32,11 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 public class MessageServiceImpl implements MessageService {
 
-    /**
-     * 语音模式或文本模式切换,默认是文本模式
-     */
-    private final Map<String, MsgTypeEnum> msgTypeEnumMap = new ConcurrentHashMap<>();
+    @Resource
+    private MsgTypeManageService msgTypeManageService;
 
     @Resource
-    UserInfoService userInfoService;
+    private UserInfoService userInfoService;
 
     @Resource
     private MsgSourceService msgSourceService;
@@ -61,22 +58,7 @@ public class MessageServiceImpl implements MessageService {
         String msgSource = data.getString("MsgSource");
         String msgId = data.getString("NewMsgId");
         // 消息类型
-        ChatMessage chatMessage = ChatMessage.builder()
-                .appId(appid)
-                .msgId(msgId)
-                .createTime(data.getLong("CreateTime"))
-                .ctype(MsgTypeEnum.getMsgTypeEnum(data.getInteger("MsgType")))
-                .content(receiveMsg)
-                .fromUserId(fromUserId)
-                .toUserId(toUserId)
-                .isMyMsg(wxid.equals(fromUserId))
-                .isGroup(fromUserId.contains("@chatroom"))
-                .groupId(fromUserId)
-                .groupMembersUserId(wxid)
-                .isAt(false)
-                .rawMsg(requestBody)
-                .prepared(false)
-                .build();
+        ChatMessage chatMessage = ChatMessage.builder().appId(appid).msgId(msgId).createTime(data.getLong("CreateTime")).ctype(MsgTypeEnum.getMsgTypeEnum(data.getInteger("MsgType"))).content(receiveMsg).fromUserId(fromUserId).toUserId(toUserId).isMyMsg(wxid.equals(fromUserId)).isGroup(fromUserId.contains("@chatroom")).groupId(fromUserId).groupMembersUserId(wxid).isAt(false).rawMsg(requestBody).prepared(false).build();
 
         // 过滤掉非用户信息
         if (filterNotUserMessage(chatMessage, msgSource)) {
@@ -289,26 +271,26 @@ public class MessageServiceImpl implements MessageService {
 
         // 先判断是否是语音模式
         if (content.contains("语音模式")) {
-            msgTypeEnumMap.put(userId, MsgTypeEnum.VOICE);
+            msgTypeManageService.add(userId, MsgTypeEnum.VOICE);
             MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), "语音模式已开启", chatMessage.getToUserId());
             return true;
         }
         // 在判断是否是图片模式
         if (content.contains("图片模式")) {
-            msgTypeEnumMap.put(userId, MsgTypeEnum.IMAGE);
+            msgTypeManageService.add(userId, MsgTypeEnum.IMAGE);
             MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), "图片模式已开启，发送想要生成的图片内容即可", chatMessage.getToUserId());
             return true;
         }
         //再次判断是否是视频模式
         if (content.contains("视频模式")) {
-            msgTypeEnumMap.put(userId, MsgTypeEnum.VIDEO);
+            msgTypeManageService.add(userId, MsgTypeEnum.VIDEO);
             MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), "视频模式已开启，描述一下想要生成的视频内容", chatMessage.getToUserId());
             return true;
         }
         // 退出的方式
         boolean containsPartKeywords = WordParticipleMatch.containsPartKeywords(content, List.of("关闭", "文字", "模式", "文本"), 2);
         if (containsPartKeywords || content.contains("退出模式")) {
-            msgTypeEnumMap.remove(userId);
+            msgTypeManageService.clear(userId);
             MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), "恢复成默认的文本模式", chatMessage.getToUserId());
             return true;
         }
@@ -331,9 +313,8 @@ public class MessageServiceImpl implements MessageService {
         //    chatMessage.setCtype(MsgTypeEnum.VIDEO);
         //    return false;
         //}
-        //
-        //MsgTypeEnum typeEnumMapOrDefault = msgTypeEnumMap.getOrDefault(userId, MsgTypeEnum.TEXT);
-        //chatMessage.setCtype(typeEnumMapOrDefault);
+        MsgTypeEnum typeEnumMapOrDefault = msgTypeManageService.get(userId);
+        chatMessage.setCtype(typeEnumMapOrDefault);
         return false;
     }
 

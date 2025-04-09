@@ -4,10 +4,7 @@ package com.wechat.ai.session;
 import com.alibaba.dashscope.common.Message;
 
 import java.time.Instant;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -52,23 +49,6 @@ public class SessionManager {
         }
     }
 
-    public void addMessage(String userId, String query, String reply) {
-
-        Session session = sessions.get(userId);
-        if (session != null) {
-            if (query != null) {
-                session.addQuery(query);
-            }
-            if (reply != null) {
-                session.addReply(reply);
-            }
-            int currentTokens = calculateTokens(session.getTextMessages());
-            if (currentTokens > MAX_TOKENS) {
-                trimSession(session, currentTokens);
-            }
-        }
-    }
-
     private void trimSession(Session session, int currentTokens) {
 
         List<Message> messages = session.getTextMessages();
@@ -87,6 +67,23 @@ public class SessionManager {
         return tokens;
     }
 
+    public void addMessage(String userId, String query, String reply) {
+
+        Session session = sessions.get(userId);
+        if (session != null) {
+            if (query != null) {
+                session.addQuery(query);
+            }
+            if (reply != null) {
+                session.addReply(reply);
+            }
+            int currentTokens = calculateTokens(session.getTextMessages());
+            if (currentTokens > MAX_TOKENS) {
+                trimSession(session, currentTokens);
+            }
+        }
+    }
+
     public Session getSession(String userId) {
 
         return sessions.get(userId);
@@ -101,8 +98,9 @@ public class SessionManager {
     /**
      * 自动清除过期会话
      */
-    public void clearExpiredSessions() {
+    public List<String> clearExpiredSessions() {
 
+        List<String> userIds = new ArrayList<>();
         Set<String> userSet = sessions.keySet();
         Instant now = Instant.now();
         for (String userId : userSet) {
@@ -111,8 +109,10 @@ public class SessionManager {
             // 当前时间是否在10分钟之内，如果超过10分钟，则删除会话
             if (now.isAfter(createTime.plusSeconds(60 * 10))) {
                 sessions.remove(userId);
+                userIds.add(userId);
             }
         }
+        return userIds;
     }
 
 

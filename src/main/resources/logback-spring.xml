@@ -53,9 +53,11 @@
     <!-- 日志输出级别，OFF level > FATAL > ERROR > WARN > INFO > DEBUG > ALL level -->
     <logger name="com.springboot" level="INFO"/>
     <logger name="org.springframework" level="WARN"/>
+    <logger name="com.wechat" level="INFO"/>
 
     <root level="INFO">
         <appender-ref ref="LOG_FILE"/>
         <appender-ref ref="CONSOLE"/>
     </root>
+
 </configuration>
