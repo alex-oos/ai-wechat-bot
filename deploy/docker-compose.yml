@@ -1,11 +1,25 @@
-version: '3'
+version: '3.8'
+
 services:
-  gewechat:
-    image: gewe
+  gewe:
+    image: registry.cn-hangzhou.aliyuncs.com/gewe/gewe:latest
     container_name: gewe
+    command: /usr/sbin/init
+    privileged: true
+    restart: always
     volumes:
       - ./gewechat/data:/root/temp
     ports:
       - "2531:2531"
       - "2532:2532"
-    restart: always
+    networks:
+      gewe_net:
+        ipv4_address: 192.168.200.100  # 自定义静态 IP
+
+networks:
+  gewe_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.200.0/24    # 专用子网
+          gateway: 192.168.200.1      # 网关（需在子网范围内）
