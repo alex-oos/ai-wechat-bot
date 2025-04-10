@@ -5,6 +5,7 @@ import com.wechat.ai.factory.AiServiceFactory;
 import com.wechat.ai.service.AIService;
 import com.wechat.bot.entity.BotConfig;
 import com.wechat.bot.entity.ChatMessage;
+import com.wechat.bot.enums.MsgTypeEnum;
 import com.wechat.bot.service.ReplyMsgService;
 import com.wechat.gewechat.service.MessageApi;
 import com.wechat.util.AudioFormatConversionSilk;
@@ -38,6 +39,49 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
 
     private AIService aiService;
 
+    private void handleGroupMessage(ChatMessage chatMessage, String replayMsg) {
+
+        this.replayAitMsg(chatMessage);
+        if (!chatMessage.getPrepared()) {
+            this.replayQuoteMsg(chatMessage);
+        }
+    }
+
+    private void sendTextMessage(ChatMessage chatMessage, String replayMsg) {
+
+        MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), replayMsg, chatMessage.getToUserId());
+        log.info("消息回复成功，回复人：{}，回复内容为：{}", chatMessage.getFromUserNickname(), replayMsg);
+    }
+
+    @Override
+    public AIService chooseAiService() {
+
+        AiEnum aiEnum = null;
+        if (botconfig != null) {
+            aiEnum = AiEnum.getByBotType(botconfig.getAiType());
+        }
+        return AiServiceFactory.getAiService(aiEnum);
+    }
+
+    @Override
+    public void replyTextMsg(ChatMessage chatMessage) {
+
+        String replayMsg = aiService.textToText(chatMessage.getSession());
+        chatMessage.setReplayContent(replayMsg);
+        if (chatMessage.getIsGroup()) {
+            handleGroupMessage(chatMessage, replayMsg);
+            return;
+        }
+
+        if (chatMessage.getCtype() == MsgTypeEnum.APPMSG) {
+            this.replayQuoteMsg(chatMessage);
+            return;
+        }
+
+        sendTextMessage(chatMessage, replayMsg);
+
+    }
+
     @Override
     public void replayMessage(ChatMessage chatMessage) {
 
@@ -69,25 +113,6 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
                 break;
         }
     }
-
-
-    @Override
-    public void replyTextMsg(ChatMessage chatMessage) {
-
-        String replayMsg = aiService.textToText(chatMessage.getSession());
-        chatMessage.setReplayContent(replayMsg);
-        if (chatMessage.getIsGroup()) {
-            this.replayAitMsg(chatMessage);
-            if (!chatMessage.getPrepared()) {
-                //this.replayQuoteMsg(chatMessage);
-                MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), replayMsg, chatMessage.getGroupId());
-            }
-            return;
-        }
-        MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), replayMsg, chatMessage.getToUserId());
-        log.info("消息回复成功，回复人：{}，回复内容为：{}", chatMessage.getFromUserNickname(), replayMsg);
-    }
-
 
     @Override
     public void replyImageMsg(ChatMessage chatMessage) {
@@ -123,35 +148,6 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
     }
 
     @Override
-    public void replyLocationMsg(ChatMessage chatMessage) {
-
-    }
-
-    @Override
-    public void replyLinkMsg(ChatMessage chatMessage) {
-
-    }
-
-    @Override
-    public void imageRecognition(ChatMessage chatMessage) {
-
-        String s = aiService.imageToText(chatMessage.getSession());
-        log.info("图片识别成功，图片内容：{}", s);
-        MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), s, chatMessage.getToUserId());
-        chatMessage.setPrepared(true);
-    }
-
-    @Override
-    public AIService chooseAiService() {
-
-        AiEnum aiEnum = null;
-        if (botconfig != null) {
-            aiEnum = AiEnum.getByBotType(botconfig.getAiType());
-        }
-        return AiServiceFactory.getAiService(aiEnum);
-    }
-
-    @Override
     public void replyAudioMsg(ChatMessage chatMessage) {
 
         String replayMsg = aiService.textToText(chatMessage.getSession());
@@ -177,6 +173,74 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
 
     }
 
+    @Override
+    public void replyLocationMsg(ChatMessage chatMessage) {
+
+    }
+
+    @Override
+    public void replyLinkMsg(ChatMessage chatMessage) {
+
+    }
+
+    @Override
+    public void imageRecognition(ChatMessage chatMessage) {
+
+        String s = aiService.imageToText(chatMessage.getSession());
+        log.info("图片识别成功，图片内容：{}", s);
+        MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), s, chatMessage.getToUserId());
+        chatMessage.setPrepared(true);
+    }
+
+    @Override
+    public void replayQuoteMsg(ChatMessage chatMessage) {
+
+        // 构建引用消息XML
+        String appMsg = String.format(
+                "<appmsg appid=\"\" sdkver=\"0\">" +
+                        " <title>%s</title>\n" +
+                        "    <des />\n" +
+                        "    <action />\n" +
+                        "    <type>57</type>\n" +
+                        "    <showtype>0</showtype>\n" +
+                        "    <soundtype>0</soundtype>\n" +
+                        "    <mediatagname />\n" +
+                        "    <messageext />\n" +
+                        "    <messageaction />\n" +
+                        "    <content />\n" +
+                        "    <contentattr>0</contentattr>\n" +
+                        "    <url />\n" +
+                        "    <lowurl />\n" +
+                        "    <dataurl />\n" +
+                        "    <lowdataurl />\n" +
+                        "    <songalbumurl />\n" +
+                        "    <songlyric />\n" +
+                        "    <appattach>\n" +
+                        "      <totallen>0</totallen>\n" +
+                        "      <attachid />\n" +
+                        "      <emoticonmd5 />\n" +
+                        "      <fileext />\n" +
+                        "      <aeskey />\n" +
+                        "    </appattach>\n" +
+                        "    <extinfo />\n" +
+                        "    <sourceusername />\n" +
+                        "    <sourcedisplayname />\n" +
+                        "    <thumburl />\n" +
+                        "    <md5 />\n" +
+                        "    <statextstr />\n" +
+                        "    <refermsg>\n" +
+                        "      <type>%d</type>\n" +
+                        "      <svrid>%s</svrid>\n" +
+                        "      <fromusr>%s</fromusr>\n" +
+                        "      <chatusr>%s</chatusr>\n" +
+                        "      <displayname />\n" +
+                        "      <content>%s</content>\n" +
+                        "    </refermsg>\n" +
+                        "  </appmsg>`", escapeHtml(chatMessage.getReplayContent()), chatMessage.getCtype().getMsgType(), chatMessage.getMsgId(), chatMessage.getFromUserId(), chatMessage.getFromUserId(), escapeHtml(chatMessage.getContent()));
+
+        MessageApi.postAppMsg(chatMessage.getAppId(), chatMessage.getFromUserId(), appMsg);
+        chatMessage.setPrepared(true);
+    }
 
     @Override
     public void replayAitMsg(ChatMessage chatMessage) {
@@ -194,37 +258,16 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
 
     }
 
-    @Override
-    public void replayQuoteMsg(ChatMessage chatMessage) {
+    public String escapeHtml(String input) {
 
-        // 构建引用消息XML
-        //String appMsg = String.format(
-        //        "<appmsg appid=\"\" sdkver=\"0\">" +
-        //                "<title>%s</title>" +
-        //                "<des /><action /><type>57</type>" +
-        //                "<showtype>0</showtype><soundtype>0</soundtype>" +
-        //                "<mediatagname /><messageext /><messageaction /><content />" +
-        //                "<contentattr>0</contentattr><url /><lowurl /><dataurl />" +
-        //                "<lowdataurl /><songalbumurl /><songlyric />" +
-        //                "<appattach>" +
-        //                "<totallen>0</totallen><attachid /><emoticonmd5 /><fileext /><aeskey />" +
-        //                "</appattach>" +
-        //                "<extinfo /><sourceusername /><sourcedisplayname />" +
-        //                "<thumburl /><md5 /><statextstr />" +
-        //                "<refermsg>" +
-        //                "<type>1</type>" +
-        //                "<svrid>%s</svrid>" +
-        //                "<chatusr>%s</chatusr>" +
-        //                "</refermsg>" +
-        //                "</appmsg>",
-        //        replayContent,
-        //        referMsgId,
-        //        toWxid
-        //);
-        String appMsg = String.format("<appmsg>\n" + "    <title>%s</title>\n" + "    <type>57</type>\n" + "    <refermsg>\n" + "        <type>49</type>\n" + "        <svrid>%s</svrid>\n" + "        <chatusr>%s</chatusr>\n" + "    </refermsg>\n" + "</appmsg>", chatMessage.getReplayContent(), chatMessage.getMsgId(), chatMessage.getFromUserId());
-
-        MessageApi.postAppMsg(chatMessage.getAppId(), chatMessage.getFromUserId(), appMsg);
-        chatMessage.setPrepared(true);
+        if (input == null) {
+            return "";
+        }
+        return input.replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;")
+                .replace("'", "&#39;");
     }
 
 }

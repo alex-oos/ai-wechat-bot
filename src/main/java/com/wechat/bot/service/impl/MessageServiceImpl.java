@@ -58,7 +58,19 @@ public class MessageServiceImpl implements MessageService {
         String msgSource = data.getString("MsgSource");
         String msgId = data.getString("NewMsgId");
         // 消息类型
-        ChatMessage chatMessage = ChatMessage.builder().appId(appid).msgId(msgId).createTime(data.getLong("CreateTime")).ctype(MsgTypeEnum.getMsgTypeEnum(data.getInteger("MsgType"))).content(receiveMsg).fromUserId(fromUserId).toUserId(toUserId).isMyMsg(wxid.equals(fromUserId)).isGroup(fromUserId.contains("@chatroom")).groupId(fromUserId).groupMembersUserId(wxid).isAt(false).rawMsg(requestBody).prepared(false).build();
+        ChatMessage chatMessage = ChatMessage.builder().appId(appid)
+                .msgId(msgId)
+                .createTime(data.getLong("CreateTime"))
+                .ctype(MsgTypeEnum.getMsgTypeEnum(data.getInteger("MsgType")))
+                .content(receiveMsg)
+                .fromUserId(fromUserId)
+                .toUserId(toUserId).isMyMsg(wxid.equals(fromUserId))
+                .isGroup(fromUserId.contains("@chatroom"))
+                .groupId(fromUserId).groupMembersUserId(wxid)
+                .isAt(false)
+                .rawMsg(requestBody)
+                .prepared(false)
+                .build();
 
         // 过滤掉非用户信息
         if (filterNotUserMessage(chatMessage, msgSource)) {
@@ -97,7 +109,7 @@ public class MessageServiceImpl implements MessageService {
         String groupMembersUserId = split[0];
         userInfoService.updateUserInfo(groupMembersUserId);
 
-        if (content.contains("@") && content.contains(chatMessage.getToUserNickname())) {
+        if (chatMessage.getCtype() == MsgTypeEnum.TEXT && content.contains("@") && content.contains(chatMessage.getToUserNickname())) {
             content = content.replace('@', ' ').strip().replace(chatMessage.getToUserNickname(), "");
             chatMessage.setIsAt(true);
         }
