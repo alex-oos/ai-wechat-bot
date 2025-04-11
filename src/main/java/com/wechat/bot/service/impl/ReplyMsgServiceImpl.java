@@ -8,9 +8,11 @@ import com.wechat.bot.entity.ChatMessage;
 import com.wechat.bot.enums.MsgTypeEnum;
 import com.wechat.bot.service.ReplyMsgService;
 import com.wechat.gewechat.service.MessageApi;
+import com.wechat.search.serivce.AliAiSearchService;
 import com.wechat.util.AudioFormatConversionSilk;
 import com.wechat.util.VideoScreenshotUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Service;
 
@@ -31,6 +33,9 @@ import java.util.UUID;
 public class ReplyMsgServiceImpl implements ReplyMsgService {
 
 
+    @Resource
+    AliAiSearchService aliAiSearchService;
+
     @Resource(name = "commonThreadPool")
     private TaskExecutor executor;
 
@@ -38,6 +43,9 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
     private BotConfig botconfig;
 
     private AIService aiService;
+
+    @Value("${search}")
+    private boolean isSearch;
 
     private void handleGroupMessage(ChatMessage chatMessage, String replayMsg) {
 
@@ -66,7 +74,13 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
     @Override
     public void replyTextMsg(ChatMessage chatMessage) {
 
-        String replayMsg = aiService.textToText(chatMessage.getSession());
+        String replayMsg = null;
+
+        if (isSearch) {
+            replayMsg = aliAiSearchService.searchAndAI(chatMessage.getSession().getTextMessages());
+        } else {
+            replayMsg = aiService.textToText(chatMessage.getSession());
+        }
         chatMessage.setReplayContent(replayMsg);
         if (chatMessage.getIsGroup()) {
             handleGroupMessage(chatMessage, replayMsg);
