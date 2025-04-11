@@ -11,8 +11,8 @@
     <groupId>com.wechat</groupId>
     <artifactId>ai-wechat-bot</artifactId>
     <version>1.0.0-SNAPSHOT</version>
-    <name>wechat-bot</name>
-    <description>wechat-bot</description>
+    <name>ai-wechat-bot</name>
+    <description>ai-wechat-bot</description>
     <url/>
     <licenses>
         <license/>
