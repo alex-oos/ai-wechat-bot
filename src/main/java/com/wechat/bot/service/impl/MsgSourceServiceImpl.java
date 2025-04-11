@@ -13,6 +13,7 @@ import com.wechat.bot.service.MsgSourceService;
 import com.wechat.bot.service.ReplyMsgService;
 import com.wechat.bot.service.SessionService;
 import com.wechat.gewechat.service.MessageApi;
+import com.wechat.util.WordParticipleMatch;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -150,6 +151,28 @@ public class MsgSourceServiceImpl implements MsgSourceService {
 
     }
 
+    private boolean groupNameFilter(String groupIdNickName) {
+
+        List<String> groupNameWhiteList = botconfig.getGroupNameWhiteList();
+        if (groupNameWhiteList.isEmpty()) {
+            return false;
+        }
+        return groupNameWhiteList.get(0).equals("ALL_GROUP") || groupNameWhiteList.contains(groupIdNickName);
+    }
+
+    private boolean prefixFilter(String content, List<String> prefixes) {
+        // 如何不包含，默认代表所有全部都打开了
+        if (prefixes.isEmpty()) {
+            log.error("聊天前缀过滤目前过滤失败");
+            return false;
+        }
+        if (prefixes.contains("ALL")) {
+            return true;
+        }
+        long count = prefixes.stream().filter(e -> content.contains(e)).count();
+
+        return count != 0;
+    }
 
     private Boolean handleTextMessage(ChatMessage chatMessage, Session session, SessionManager sessionManager, String userId) {
 
@@ -165,6 +188,18 @@ public class MsgSourceServiceImpl implements MsgSourceService {
         }
         // 查询所有角色列表
         if (queryALLRole(chatMessage)) {
+            return false;
+        }
+        boolean isActiveSearch = WordParticipleMatch.containsPartKeywords(content, List.of("打开", "开启", "搜索"), 2);
+        if (isActiveSearch) {
+            session.setIsActiveSearch(true);
+            MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), "搜索模式已打开！", chatMessage.getToUserId());
+            return false;
+        }
+        boolean closeActiveSearch = WordParticipleMatch.containsPartKeywords(content, List.of("关闭", "搜索", "功能"), 2);
+        if (closeActiveSearch) {
+            session.setIsActiveSearch(false);
+            MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), "搜索模式已关闭！", chatMessage.getToUserId());
             return false;
         }
         handleImageMessages(chatMessage, session);
@@ -184,6 +219,29 @@ public class MsgSourceServiceImpl implements MsgSourceService {
 
         session.addQuery(chatMessage.getContent());
         return session;
+    }
+
+    private boolean isClearMemoryCommand(String content) {
+
+        return content.equals("#清除记忆") || content.equals("#退出") || content.equals("#清除") || content.equals("#人工");
+    }
+
+    private void clearSessionAndReply(ChatMessage chatMessage, SessionManager sessionManager, String userId) {
+
+        sessionManager.deleteSession(userId);
+        MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), "恢复真人模式", chatMessage.getToUserId());
+    }
+
+    private boolean queryALLRole(ChatMessage chatMessage) {
+
+        if (chatMessage.getContent().equals("角色列表")) {
+            List<AiSystemPromptDTO> list = aiSystemPromptService.list();
+            String replayContent = list.stream().map(item -> "角色：" + item.getRoleName() + ",角色类型：" + item.getRoleType()).collect(Collectors.joining("\n"));
+            replayContent = replayContent.concat("\n").concat("请输入#角色名称，切换角色");
+            MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), replayContent, chatMessage.getToUserId());
+            return true;
+        }
+        return false;
     }
 
     private void handleImageMessages(ChatMessage chatMessage, Session session) {
@@ -206,59 +264,12 @@ public class MsgSourceServiceImpl implements MsgSourceService {
         }
     }
 
-    private boolean isClearMemoryCommand(String content) {
-
-        return content.equals("#清除记忆") || content.equals("#退出") || content.equals("#清除") || content.equals("#人工");
-    }
-
-    private void clearSessionAndReply(ChatMessage chatMessage, SessionManager sessionManager, String userId) {
-
-        sessionManager.deleteSession(userId);
-        MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), "恢复真人模式", chatMessage.getToUserId());
-    }
-
-    private boolean prefixFilter(String content, List<String> prefixes) {
-        // 如何不包含，默认代表所有全部都打开了
-        if (prefixes.isEmpty()) {
-            log.error("聊天前缀过滤目前过滤失败");
-            return false;
-        }
-        if (prefixes.contains("ALL")) {
-            return true;
-        }
-        long count = prefixes.stream().filter(e -> content.contains(e)).count();
-
-        return count != 0;
-    }
-
     private void adjustImagePath(ChatMessage chatMessage) {
 
         String osName = System.getProperty("os.name");
         if (osName.toLowerCase().startsWith("win")) {
             chatMessage.setContent("/" + chatMessage.getContent().replace('\\', '/'));
         }
-    }
-
-
-    private boolean groupNameFilter(String groupIdNickName) {
-
-        List<String> groupNameWhiteList = botconfig.getGroupNameWhiteList();
-        if (groupNameWhiteList.isEmpty()) {
-            return false;
-        }
-        return groupNameWhiteList.get(0).equals("ALL_GROUP") || groupNameWhiteList.contains(groupIdNickName);
-    }
-
-    private boolean queryALLRole(ChatMessage chatMessage) {
-
-        if (chatMessage.getContent().equals("角色列表")) {
-            List<AiSystemPromptDTO> list = aiSystemPromptService.list();
-            String replayContent = list.stream().map(item -> "角色：" + item.getRoleName() + ",角色类型：" + item.getRoleType()).collect(Collectors.joining("\n"));
-            replayContent = replayContent.concat("\n").concat("请输入#角色名称，切换角色");
-            MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), replayContent, chatMessage.getToUserId());
-            return true;
-        }
-        return false;
     }
 
 

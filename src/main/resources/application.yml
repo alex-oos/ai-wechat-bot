@@ -51,6 +51,7 @@ spring:
       matching-strategy: ANT_PATH_MATCHER
 
 
+
 # MyBatis-plus配置
 mybatis-plus:
   # 注意：一定要对应mapper映射xml文件的所在路径
@@ -82,3 +83,7 @@ logging:
   level:
     root: info
     com.wechat.ai: debug
+ali:
+  search:
+    host:
+    apiKey:

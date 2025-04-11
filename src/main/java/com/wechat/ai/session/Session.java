@@ -26,6 +26,7 @@ import java.util.Objects;
 @Data
 public class Session {
 
+    private Boolean isActiveSearch;
 
     private Instant createTime;
 
@@ -58,6 +59,7 @@ public class Session {
         this.systemPrompt = systemPrompt;
         this.textMessages = new ArrayList<>();
         this.imageMessages = new ArrayList<>();
+        this.isActiveSearch = false;
         initializeSystemMessage();
     }
 
@@ -72,17 +74,17 @@ public class Session {
         imageMessages.add(systemMessage);
     }
 
+    public void setSystemPrompt(String systemPrompt) {
+
+        this.systemPrompt = systemPrompt;
+        reset();
+    }
+
     public void reset() {
 
         this.textMessages.clear();
         Message sysMsg = Message.builder().role(Role.SYSTEM.getValue()).content(systemPrompt).build();
         this.textMessages.add(sysMsg);
-    }
-
-    public void setSystemPrompt(String systemPrompt) {
-
-        this.systemPrompt = systemPrompt;
-        reset();
     }
 
     public void addQuery(String queryText) {

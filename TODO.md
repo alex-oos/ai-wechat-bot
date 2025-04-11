@@ -39,3 +39,10 @@
 ## 八、角色切换
 
 - [X] 角色切换功能
+
+## 九、其他功能
+
+- [] 搜索功能
+  技术方案：
+- 千问搜索：https://opensearch.console.aliyun.com/cn-shanghai/rag/experience-center?serverType=document-analyze
+- seaxng 搜索：https://searchengine.searxng.org/ 搭建这个服务

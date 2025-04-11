@@ -12,7 +12,6 @@ import com.wechat.search.serivce.AliAiSearchService;
 import com.wechat.util.AudioFormatConversionSilk;
 import com.wechat.util.VideoScreenshotUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Service;
 
@@ -44,8 +43,6 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
 
     private AIService aiService;
 
-    @Value("${search}")
-    private boolean isSearch;
 
     private void handleGroupMessage(ChatMessage chatMessage, String replayMsg) {
 
@@ -75,8 +72,7 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
     public void replyTextMsg(ChatMessage chatMessage) {
 
         String replayMsg = null;
-
-        if (isSearch) {
+        if (chatMessage.getSession().getIsActiveSearch()) {
             replayMsg = aliAiSearchService.searchAndAI(chatMessage.getSession().getTextMessages());
         } else {
             replayMsg = aiService.textToText(chatMessage.getSession());

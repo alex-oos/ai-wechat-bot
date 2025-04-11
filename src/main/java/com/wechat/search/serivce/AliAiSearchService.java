@@ -7,7 +7,6 @@ import com.wechat.util.OkHttpUtil;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -24,13 +23,13 @@ public class AliAiSearchService {
     @Resource
     private AliSearchConfig aliSearchConfig;
 
-    public static void main(String[] args) {
-
-        AliAiSearchService aliAiSearchService = new AliAiSearchService();
-        ArrayList<Message> messages = new ArrayList<>();
-        messages.add(Message.builder().role("user").content("你好").build());
-        aliAiSearchService.searchAndAI(messages);
-    }
+    //public static void main(String[] args) {
+    //
+    //    AliAiSearchService aliAiSearchService = new AliAiSearchService();
+    //    ArrayList<Message> messages = new ArrayList<>();
+    //    messages.add(Message.builder().role("user").content("你好").build());
+    //    aliAiSearchService.searchAndAI(messages);
+    //}
 
     /**
      * 内容生成服务

@@ -93,14 +93,13 @@ public class OkHttpUtil {
      * 生成安全套接字工厂，用于https请求的证书跳过
      */
     private static SSLSocketFactory createSSLSocketFactory(TrustManager[] trustAllCerts) {
-
         SSLSocketFactory ssfFactory = null;
         try {
             SSLContext sc = SSLContext.getInstance("SSL");
             sc.init(null, trustAllCerts, new SecureRandom());
             ssfFactory = sc.getSocketFactory();
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("SSLContext initialization failed", e);
         }
         return ssfFactory;
     }
@@ -165,24 +164,22 @@ public class OkHttpUtil {
      * 初始化get方法
      */
     public OkHttpUtil get() {
-
         request = new Request.Builder().get();
         StringBuilder urlBuilder = new StringBuilder(url);
         if (paramMap != null) {
             urlBuilder.append("?");
             try {
                 for (Map.Entry<String, String> entry : paramMap.entrySet()) {
-                    urlBuilder.append(URLEncoder.encode(entry.getKey(), StandardCharsets.UTF_8)).
-                            append("=").
-                            append(URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8)).
-                            append("&");
+                    urlBuilder.append(URLEncoder.encode(entry.getKey(), StandardCharsets.UTF_8))
+                            .append("=")
+                            .append(URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8))
+                            .append("&");
                 }
+                urlBuilder.deleteCharAt(urlBuilder.length() - 1);
             } catch (Exception e) {
-                log.error("get error url {}, msg {}", url, e.getMessage(), e);
-                e.printStackTrace();
+                log.error("Error encoding URL parameters for URL: {}", url, e);
                 throw new RuntimeException(e);
             }
-            urlBuilder.deleteCharAt(urlBuilder.length() - 1);
         }
         request.url(urlBuilder.toString());
         return this;
@@ -259,15 +256,18 @@ public class OkHttpUtil {
      * 同步请求
      */
     public String sync() {
-
         setHeader(request);
         try {
             Response response = okHttpClient.newCall(request.build()).execute();
-            assert response.body() != null;
-            return response.body().string();
+            if (response.body() != null) {
+                return response.body().string();
+            } else {
+                log.error("Response body is null for URL: {}", url);
+                return "请求失败: Response body is null";
+            }
         } catch (IOException e) {
             log.error("请求发生异常", e);
-            return "请求失败" + e.getMessage();
+            return "请求失败: " + e.getMessage();
         }
     }
 
@@ -275,22 +275,23 @@ public class OkHttpUtil {
      * 异步请求，有返回值
      */
     public String async() {
-
         StringBuilder responseResult = new StringBuilder();
-        StringBuilder responseTraceId = new StringBuilder();
         setHeader(request);
         okHttpClient.newCall(request.build()).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-
                 responseResult.append("请求出错：").append(e.getMessage());
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
 
-                assert response.body() != null;
-                responseResult.append(response.body().string());
+                if (response.body() != null) {
+                    responseResult.append(response.body().string());
+                } else {
+                    log.error("Response body is null for URL: {}", url);
+                    responseResult.append("请求失败: Response body is null");
+                }
                 getSemaphoreInstance().release();
             }
         });
