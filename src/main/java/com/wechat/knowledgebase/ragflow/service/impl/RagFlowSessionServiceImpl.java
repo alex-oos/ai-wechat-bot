@@ -1,7 +1,7 @@
 package com.wechat.knowledgebase.ragflow.service.impl;
 
 
-import com.wechat.knowledgebase.ragflow.service.SessionService;
+import com.wechat.knowledgebase.ragflow.service.RagFlowSessionService;
 import org.springframework.stereotype.Service;
 
 /**
@@ -10,6 +10,6 @@ import org.springframework.stereotype.Service;
  * <p></p>
  */
 @Service
-public class SessionServiceImpl implements SessionService {
+public class RagFlowSessionServiceImpl implements RagFlowSessionService {
 
 }
