@@ -216,6 +216,7 @@ public class MessageServiceImpl implements MessageService {
                 // 图片下载可能会出现下载失败，而报错，请检查一下你的容器，容器内是否有问题
                 chatMessage.setContent(imagePath.toAbsolutePath().toString());
                 chatMessage.setCtype(MsgTypeEnum.IMAGERECOGNITION);
+                msgTypeManageService.add(chatMessage.getFromUserId(), MsgTypeEnum.IMAGERECOGNITION);
                 break;
             case VOICE:
                 isStop = true;
@@ -290,7 +291,13 @@ public class MessageServiceImpl implements MessageService {
         // 在判断是否是图片模式
         if (content.contains("图片模式")) {
             msgTypeManageService.add(userId, MsgTypeEnum.IMAGE);
-            MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), "图片模式已开启，发送想要生成的图片内容即可", chatMessage.getToUserId());
+            MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), "图片模式已开启，发送想要生成的图片描述即可", chatMessage.getToUserId());
+            return true;
+        }
+        // 在判断是否是图片模式
+        if (content.contains("图片识别模式")) {
+            msgTypeManageService.add(userId, MsgTypeEnum.IMAGERECOGNITION);
+            MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), "图片识别模式已开启，发送想要生成的图片内容即可", chatMessage.getToUserId());
             return true;
         }
         //再次判断是否是视频模式

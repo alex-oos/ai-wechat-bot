@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.io.File;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -93,6 +94,7 @@ public class MsgSourceServiceImpl implements MsgSourceService {
         }
 
         session.setCreateTime(Instant.now());
+        session.setMsgType(chatMessage.getCtype());
         chatMessage.setSession(session);
         replyMsgService.replayMessage(chatMessage);
     }
@@ -202,12 +204,14 @@ public class MsgSourceServiceImpl implements MsgSourceService {
             MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), "搜索模式已关闭！", chatMessage.getToUserId());
             return false;
         }
-        handleImageMessages(chatMessage, session);
+        session.addQuery(chatMessage.getContent());
+        //handleImageMessages(chatMessage, session);
         return true;
     }
 
     private void handleImageRecognitionMessage(ChatMessage chatMessage, Session session) {
 
+        handleImageMessages(chatMessage, session);
         adjustImagePath(chatMessage);
         List<Map<String, Object>> list = new ArrayList<>();
         list.add(Collections.singletonMap("image", "file://" + chatMessage.getContent()));
@@ -246,10 +250,10 @@ public class MsgSourceServiceImpl implements MsgSourceService {
 
     private void handleImageMessages(ChatMessage chatMessage, Session session) {
 
-        List<MultiModalMessage> imageMessages = session.getImageMessages();
-        if (imageMessages.size() == 1) {
-            session.addQuery(chatMessage.getContent());
+        if (chatMessage.getContent().contains(File.separator)) {
+            return;
         }
+        List<MultiModalMessage> imageMessages = session.getImageMessages();
         List<MultiModalMessage> multiModalMessages = imageMessages.stream().filter(e -> e.getRole().equals(Role.USER.getValue())).collect(Collectors.toList());
         for (MultiModalMessage imageMessage : multiModalMessages) {
             List<Map<String, Object>> contentList = imageMessage.getContent();

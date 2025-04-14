@@ -4,6 +4,7 @@ import com.alibaba.dashscope.aigc.multimodalconversation.MultiModalConversationP
 import com.alibaba.dashscope.common.Message;
 import com.alibaba.dashscope.common.MultiModalMessage;
 import com.alibaba.dashscope.common.Role;
+import com.wechat.bot.enums.MsgTypeEnum;
 import com.wechat.util.FileUtil;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -26,12 +27,29 @@ import java.util.Objects;
 @Data
 public class Session {
 
+    /**
+     * 聊天类型
+     */
+    private MsgTypeEnum msgType;
+
+    /**
+     * 是否开启搜索功能
+     */
     private Boolean isActiveSearch;
 
+    /**
+     * 创建时间
+     */
     private Instant createTime;
 
+    /**
+     * userid
+     */
     private String userId;
 
+    /**
+     * 提示词
+     */
     private String systemPrompt;
 
     /**
