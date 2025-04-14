@@ -85,5 +85,12 @@ logging:
     com.wechat.ai: debug
 ali:
   search:
-    host:
-    apiKey:
+
+knowledge:
+  ragflow:
+    config:
+      host: https://demo.ragflow.io/v1/
+      apiKey: 8b0d0e0f-d0d0-d0d0-d0d0-d0d0d0d0d0d0
+      knowledgeConfig:
+        name: demo
+        id: fa6fe23a191311f0ac9042010a8a0004
