@@ -28,16 +28,28 @@ public class chatServiceImpl implements ChatService {
         body.put("stream", false);
         body.put("session_id", sessionId);
         body.put("user_id", "1");
-        String responseStr = OkHttpUtil.builder().url(raptFlowConfig.getHost() + RagFlowURI.CHAT_ASSISTANT_URI)
+        JSONObject response = sendRequest(RagFlowURI.CHAT_ASSISTANT_URI, body);
+        JSONObject data = response.getJSONObject("data");
+        return data.getString("answer");
+    }
+
+    @Override
+    public String createSession(String url) {
+
+        return "";
+    }
+
+    public JSONObject sendRequest(String uri, JSONObject body) {
+
+        String responseStr = OkHttpUtil.builder().url(raptFlowConfig.getHost() + uri)
                 .addHeader("Content-Type", "application/json")
                 .addHeader("Authorization", "Bearer " + raptFlowConfig.getApiKey())
                 .post(body).async();
         JSONObject response = JSONObject.parseObject(responseStr);
-        JSONObject data = response.getJSONObject("data");
-        if (data.getInteger("code") != 0) {
-            throw new RuntimeException("获取答案失败" + response.toJSONString());
+        if (response.getInteger("code") != 0) {
+            throw new RuntimeException("请求ragflow 失败，请检查服务可用性！" + response.toJSONString());
         }
-        return data.getString("answer");
+        return response;
     }
 
 }

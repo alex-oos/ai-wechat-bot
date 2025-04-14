@@ -9,4 +9,6 @@ public interface ChatService {
 
     String chatWithAssistant(String content, String sessionId);
 
+    String createSession(String sessionId);
+
 }
