@@ -1,8 +1,9 @@
 package com.wechat.knowledgebase.ragflow.controller;
 
 import com.wechat.knowledgebase.ragflow.service.ChatService;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 
@@ -11,8 +12,9 @@ import javax.annotation.Resource;
  * @since 2025/4/14 18:18
  * <p></p>
  */
-@RestController
-public class TestController {
+//@RestController
+//@Component // 添加这个注解
+public class TestController implements ApplicationRunner {
 
     @Resource
     private ChatService chatService;
@@ -22,6 +24,14 @@ public class TestController {
 
         String result = chatService.chatWithAssistant("你好", "40271fd840b440c7bd05be8d804b432f");
         return result;
+    }
+
+    @Override
+    public void run(ApplicationArguments args) throws Exception {
+
+        String result = chatService.chatWithAssistant("你好", "40271fd840b440c7bd05be8d804b432f");
+        System.out.println(result);
+        //return result;
     }
 
 }
