@@ -52,12 +52,19 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     @Override
     public void updateUserInfo(ChatMessage chatMessage) {
+
         this.updateUserInfo(chatMessage.getFromUserId());
         this.updateUserInfo(chatMessage.getToUserId());
         chatMessage.setFromUserNickname(this.userInfo.get(chatMessage.getFromUserId()));
         chatMessage.setToUserNickname(this.userInfo.get(chatMessage.getToUserId()));
 
 
+    }
+
+    @Override
+    public String getUserId(String userName) {
+
+        return this.userInfo.entrySet().stream().filter(entry -> entry.getValue().equals(userName)).map(Map.Entry::getKey).findFirst().orElseThrow(() -> new RuntimeException("用户不存在"));
     }
 
     private String getNickname(String userId) {

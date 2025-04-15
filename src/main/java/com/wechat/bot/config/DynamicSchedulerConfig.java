@@ -127,28 +127,25 @@ public class DynamicSchedulerConfig implements SchedulingConfigurer {
             return;
         }
         log.info("执行任务：{}", task.getTaskName());
-        task.setLastExecuteTime(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
         try {
             // 定时去发送内容提醒
             sendMessage(task);
             timedTaskService.saveOrUpdate(task);
+            task.setLastExecuteTime(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
         } catch (Exception e) {
             task.setStatus(TimedTaskEnum.PAUSED.getStatus());
-            timedTaskService.saveOrUpdate(task);
+            //timedTaskService.saveOrUpdate(task);
             log.error("定时任务执行失败，错误原因为：{}", e.getMessage());
         }
     }
 
     private void sendMessage(TimedTaskDTO task) {
 
-        Map<String, String> contactMap = userInfoService.getUserInfo();
-        String toUserId = contactMap.entrySet().stream().filter(entry -> entry.getValue().equals("雪儿")).map(Map.Entry::getKey).findFirst().orElse(null);
-        if (toUserId == null) {
-            return;
-        }
+        String toUserId = userInfoService.getUserId("雪儿");
+
 
         ChatMessage chatMessage = ChatMessage.builder()
-                .fromUserId(task.getUserId())
+                .fromUserId(userInfoService.getUserId(task.getName()))
                 .isGroup(false)
                 .toUserId(toUserId)
                 .ctype(MsgTypeEnum.TEXT)
@@ -159,9 +156,9 @@ public class DynamicSchedulerConfig implements SchedulingConfigurer {
         Session session = new Session(UUID.randomUUID().toString(), null);
         session.addQuery(chatMessage.getContent());
         chatMessage.setSession(session);
-        replyMsgService.replyTextMsg(chatMessage);
+        replyMsgService.replayMessage(chatMessage);
 
-        log.info("{}执行成功", task.getTaskName());
+        log.info("任务：{}执行成功", task.getTaskName());
     }
 
     // 移除/关闭任务

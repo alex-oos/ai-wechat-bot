@@ -33,9 +33,15 @@ public class TimedTaskDTO {
 
     private String nextExecuteTime;
 
+    /**
+     * 状态
+     */
     private String status;
 
-    private String userId;
+    /**
+     * 如果是群，则需要记录群名，如果是个人，这里需要的是用户名
+     */
+    private String name;
 
     @TableField(value = "create_time", fill = FieldFill.INSERT, jdbcType = JdbcType.VARCHAR)
     private String createTime;

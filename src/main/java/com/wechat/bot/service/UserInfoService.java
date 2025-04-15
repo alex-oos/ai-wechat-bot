@@ -17,4 +17,6 @@ public interface UserInfoService {
 
     void updateUserInfo(ChatMessage chatMessage);
 
+    String getUserId(String userName);
+
 }
