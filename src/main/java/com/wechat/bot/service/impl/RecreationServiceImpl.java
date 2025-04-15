@@ -1,11 +1,11 @@
 package com.wechat.bot.service.impl;
 
+import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.wechat.bot.config.AlapiConfig;
 import com.wechat.bot.entity.ChatMessage;
 import com.wechat.bot.service.RecreationService;
 import com.wechat.bot.service.ReplyMsgService;
-import com.wechat.gewechat.service.MessageApi;
 import com.wechat.util.OkHttpUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -63,8 +63,19 @@ public class RecreationServiceImpl implements RecreationService {
             return;
         }
         JSONObject data = responseJsonObject.getJSONObject("data");
-        String imageUrl = data.getString("image");
-        MessageApi.postImage(chatMessage.getAppId(), chatMessage.getFromUserId(), imageUrl);
+        String date = data.getString("date");
+        JSONArray news = data.getJSONArray("news");
+        String weiyu = data.getString("weiyu");
+        StringBuilder sb = new StringBuilder();
+        sb.append("【今日早报】" + date).append("\n");
+        for (int i = 0; i < news.size(); i++) {
+            sb.append(news.getString(i)).append("\n");
+        }
+        sb.append(weiyu).append("\n");
+        sb.append("图片url:" + data.getString("image"));
+        chatMessage.setReplayContent(sb.toString());
+        replyMsgService.sendTextMessage(chatMessage);
+
 
     }
 

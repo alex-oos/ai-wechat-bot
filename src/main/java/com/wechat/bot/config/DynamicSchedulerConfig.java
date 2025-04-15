@@ -142,9 +142,6 @@ public class DynamicSchedulerConfig implements SchedulingConfigurer {
                     .appId(botConfig.getAppId())
                     .build();
 
-            Session session = new Session(UUID.randomUUID().toString(), null);
-            session.addQuery(chatMessage.getContent());
-            chatMessage.setSession(session);
             switch (task.getTaskName()) {
                 case "早报":
                     registrationService.morning(chatMessage);
@@ -154,6 +151,9 @@ public class DynamicSchedulerConfig implements SchedulingConfigurer {
                     registrationService.weatherReminder(chatMessage);
                     break;
                 default:
+                    Session session = new Session(UUID.randomUUID().toString(), null);
+                    session.addQuery(chatMessage.getContent());
+                    chatMessage.setSession(session);
                     // 调用AI发送消息
                     replyMsgService.replayMessage(chatMessage);
             }
@@ -161,7 +161,7 @@ public class DynamicSchedulerConfig implements SchedulingConfigurer {
             timedTaskService.saveOrUpdate(task);
         } catch (Exception e) {
             task.setStatus(TimedTaskEnum.PAUSED.getStatus());
-            timedTaskService.saveOrUpdate(task);
+            //timedTaskService.saveOrUpdate(task);
             log.error("定时任务执行失败，错误原因为：{}", e.getMessage());
         }
     }
