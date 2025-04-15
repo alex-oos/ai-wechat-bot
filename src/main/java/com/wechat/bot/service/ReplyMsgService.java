@@ -49,5 +49,6 @@ public interface ReplyMsgService {
      */
     void replayAitMsg(ChatMessage chatMessage);
 
+    void sendTextMessage(ChatMessage chatMessage);
 
 }

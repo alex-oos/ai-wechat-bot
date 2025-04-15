@@ -8,6 +8,7 @@ import com.wechat.bot.entity.ChatMessage;
 import com.wechat.bot.entity.dto.TimedTaskDTO;
 import com.wechat.bot.enums.MsgTypeEnum;
 import com.wechat.bot.enums.TimedTaskEnum;
+import com.wechat.bot.service.RecreationService;
 import com.wechat.bot.service.ReplyMsgService;
 import com.wechat.bot.service.TimedTaskService;
 import com.wechat.bot.service.UserInfoService;
@@ -58,6 +59,9 @@ public class DynamicSchedulerConfig implements SchedulingConfigurer {
 
     @Resource
     private ReplyMsgService replyMsgService;
+
+    @Resource
+    private RecreationService registrationService;
 
     @Override
     public void configureTasks(ScheduledTaskRegistrar registrar) {
@@ -128,38 +132,40 @@ public class DynamicSchedulerConfig implements SchedulingConfigurer {
         }
         log.info("执行任务：{}", task.getTaskName());
         try {
-            // 定时去发送内容提醒
-            sendMessage(task);
-            timedTaskService.saveOrUpdate(task);
+            String toUserId = userInfoService.getUserId("雪儿");
+            ChatMessage chatMessage = ChatMessage.builder()
+                    .fromUserId(userInfoService.getUserId(task.getName()))
+                    .isGroup(false)
+                    .toUserId(toUserId)
+                    .ctype(MsgTypeEnum.TEXT)
+                    .content(task.getTaskName())
+                    .appId(botConfig.getAppId())
+                    .build();
+
+            Session session = new Session(UUID.randomUUID().toString(), null);
+            session.addQuery(chatMessage.getContent());
+            chatMessage.setSession(session);
+            switch (task.getTaskName()) {
+                case "早报":
+                    registrationService.morning(chatMessage);
+                    break;
+                case "天气预报":
+                    // 定时去发送内容提醒
+                    registrationService.weatherReminder(chatMessage);
+                    break;
+                default:
+                    // 调用AI发送消息
+                    replyMsgService.replayMessage(chatMessage);
+            }
             task.setLastExecuteTime(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+            timedTaskService.saveOrUpdate(task);
         } catch (Exception e) {
             task.setStatus(TimedTaskEnum.PAUSED.getStatus());
-            //timedTaskService.saveOrUpdate(task);
+            timedTaskService.saveOrUpdate(task);
             log.error("定时任务执行失败，错误原因为：{}", e.getMessage());
         }
     }
 
-    private void sendMessage(TimedTaskDTO task) {
-
-        String toUserId = userInfoService.getUserId("雪儿");
-
-
-        ChatMessage chatMessage = ChatMessage.builder()
-                .fromUserId(userInfoService.getUserId(task.getName()))
-                .isGroup(false)
-                .toUserId(toUserId)
-                .ctype(MsgTypeEnum.TEXT)
-                .content(task.getTaskName())
-                .appId(botConfig.getAppId())
-                .build();
-
-        Session session = new Session(UUID.randomUUID().toString(), null);
-        session.addQuery(chatMessage.getContent());
-        chatMessage.setSession(session);
-        replyMsgService.replayMessage(chatMessage);
-
-        log.info("任务：{}执行成功", task.getTaskName());
-    }
 
     // 移除/关闭任务
     public void removeTask(Long taskId) {
@@ -171,7 +177,6 @@ public class DynamicSchedulerConfig implements SchedulingConfigurer {
         }
         timedTaskService.removeById(taskId);
     }
-
 
     public void removeAllTask() {
 

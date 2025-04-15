@@ -52,22 +52,6 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
         }
     }
 
-    private void sendTextMessage(ChatMessage chatMessage, String replayMsg) {
-
-        MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), replayMsg, chatMessage.getToUserId());
-        log.info("消息回复成功，回复人：{}，回复内容为：{}", chatMessage.getFromUserNickname(), replayMsg);
-    }
-
-    @Override
-    public AIService chooseAiService() {
-
-        AiEnum aiEnum = null;
-        if (botconfig != null) {
-            aiEnum = AiEnum.getByBotType(botconfig.getAiType());
-        }
-        return AiServiceFactory.getAiService(aiEnum);
-    }
-
     @Override
     public void replyTextMsg(ChatMessage chatMessage) {
 
@@ -88,8 +72,25 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
             return;
         }
 
-        sendTextMessage(chatMessage, replayMsg);
+        sendTextMessage(chatMessage);
 
+    }
+
+    @Override
+    public AIService chooseAiService() {
+
+        AiEnum aiEnum = null;
+        if (botconfig != null) {
+            aiEnum = AiEnum.getByBotType(botconfig.getAiType());
+        }
+        return AiServiceFactory.getAiService(aiEnum);
+    }
+
+    @Override
+    public void sendTextMessage(ChatMessage chatMessage) {
+
+        MessageApi.postText(chatMessage.getAppId(), chatMessage.getFromUserId(), chatMessage.getReplayContent(), chatMessage.getToUserId());
+        log.info("消息回复成功，回复人：{}，回复内容为：{}", chatMessage.getFromUserNickname(), chatMessage.getReplayContent());
     }
 
     @Override
