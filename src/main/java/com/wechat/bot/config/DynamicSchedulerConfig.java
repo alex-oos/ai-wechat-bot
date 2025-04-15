@@ -2,9 +2,15 @@ package com.wechat.bot.config;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.wechat.ai.session.Session;
+import com.wechat.bot.entity.BotConfig;
+import com.wechat.bot.entity.ChatMessage;
 import com.wechat.bot.entity.dto.TimedTaskDTO;
+import com.wechat.bot.enums.MsgTypeEnum;
 import com.wechat.bot.enums.TimedTaskEnum;
+import com.wechat.bot.service.ReplyMsgService;
 import com.wechat.bot.service.TimedTaskService;
+import com.wechat.bot.service.UserInfoService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,6 +21,7 @@ import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import org.springframework.scheduling.support.CronTrigger;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
@@ -22,6 +29,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
 
@@ -38,9 +46,27 @@ public class DynamicSchedulerConfig implements SchedulingConfigurer {
     private final Map<Long, ScheduledFuture<?>> taskMap = new ConcurrentHashMap<>();
 
     @Resource
+    private UserInfoService userInfoService;
+
+    @Resource
     private TimedTaskService timedTaskService;
 
     private ScheduledTaskRegistrar taskRegistrar;
+
+    @Resource
+    private BotConfig botConfig;
+
+    @Resource
+    private ReplyMsgService replyMsgService;
+
+    @Override
+    public void configureTasks(ScheduledTaskRegistrar registrar) {
+
+        this.taskRegistrar = registrar;
+        this.taskRegistrar.setScheduler(taskScheduler()); // 自定义线程池
+        refreshTasks(); // 初始化加载任务
+
+    }
 
     /**
      * 线程池任务调度器
@@ -56,17 +82,6 @@ public class DynamicSchedulerConfig implements SchedulingConfigurer {
         scheduler.setThreadNamePrefix("DynamicTask-");
         return scheduler;
     }
-
-
-    @Override
-    public void configureTasks(ScheduledTaskRegistrar registrar) {
-
-        this.taskRegistrar = registrar;
-        this.taskRegistrar.setScheduler(taskScheduler()); // 自定义线程池
-        refreshTasks(); // 初始化加载任务
-
-    }
-
 
     // 刷新任务列表（从数据库加载）
     public void refreshTasks() {
@@ -102,26 +117,8 @@ public class DynamicSchedulerConfig implements SchedulingConfigurer {
         taskMap.put(task.getId(), future);
     }
 
-    // 移除/关闭任务
-    public void removeTask(String taskId) {
-
-        ScheduledFuture<?> future = taskMap.get(taskId);
-        if (future != null) {
-            future.cancel(true); // 终止任务执行
-            taskMap.remove(taskId);
-        }
-        timedTaskService.removeById(taskId);
-    }
-
-    public void removeAllTask() {
-
-        taskMap.clear();
-        timedTaskService.remove(null);
-
-
-    }
-
-    private void executeTaskLogic(Long taskId) {
+    @Transactional(rollbackFor = Exception.class)
+    public void executeTaskLogic(Long taskId) {
         // 执行 SQL 或调用脚本（需实现具体逻辑）
         // 更新 last_execute_time 和 next_execute_time
         // 校验一下定时任务的状态，如果状态修改了，那么就不在执行
@@ -132,15 +129,59 @@ public class DynamicSchedulerConfig implements SchedulingConfigurer {
         log.info("执行任务：{}", task.getTaskName());
         task.setLastExecuteTime(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
         try {
-            // TODO（定时任务执行
             // 定时去发送内容提醒
-            log.info("定时任务执行成功");
+            sendMessage(task);
             timedTaskService.saveOrUpdate(task);
         } catch (Exception e) {
             task.setStatus(TimedTaskEnum.PAUSED.getStatus());
             timedTaskService.saveOrUpdate(task);
             log.error("定时任务执行失败，错误原因为：{}", e.getMessage());
         }
+    }
+
+    private void sendMessage(TimedTaskDTO task) {
+
+        Map<String, String> contactMap = userInfoService.getUserInfo();
+        String toUserId = contactMap.entrySet().stream().filter(entry -> entry.getValue().equals("雪儿")).map(Map.Entry::getKey).findFirst().orElse(null);
+        if (toUserId == null) {
+            return;
+        }
+
+        ChatMessage chatMessage = ChatMessage.builder()
+                .fromUserId(task.getUserId())
+                .isGroup(false)
+                .toUserId(toUserId)
+                .ctype(MsgTypeEnum.TEXT)
+                .content(task.getTaskName())
+                .appId(botConfig.getAppId())
+                .build();
+
+        Session session = new Session(UUID.randomUUID().toString(), null);
+        session.addQuery(chatMessage.getContent());
+        chatMessage.setSession(session);
+        replyMsgService.replyTextMsg(chatMessage);
+
+        log.info("{}执行成功", task.getTaskName());
+    }
+
+    // 移除/关闭任务
+    public void removeTask(Long taskId) {
+
+        ScheduledFuture<?> future = taskMap.get(taskId);
+        if (future != null) {
+            future.cancel(true); // 终止任务执行
+            taskMap.remove(taskId);
+        }
+        timedTaskService.removeById(taskId);
+    }
+
+
+    public void removeAllTask() {
+
+        taskMap.clear();
+        timedTaskService.remove(null);
+
+
     }
 
 

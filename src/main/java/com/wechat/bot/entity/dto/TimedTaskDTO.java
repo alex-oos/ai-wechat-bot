@@ -35,6 +35,8 @@ public class TimedTaskDTO {
 
     private String status;
 
+    private String userId;
+
     @TableField(value = "create_time", fill = FieldFill.INSERT, jdbcType = JdbcType.VARCHAR)
     private String createTime;
 
