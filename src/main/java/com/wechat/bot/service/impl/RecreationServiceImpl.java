@@ -71,8 +71,8 @@ public class RecreationServiceImpl implements RecreationService {
         for (int i = 0; i < news.size(); i++) {
             sb.append(news.getString(i)).append("\n");
         }
-        sb.append(weiyu).append("\n");
-        sb.append("图片url:" + data.getString("image"));
+        sb.append(weiyu).append("\n")
+                .append("图片url:" + data.getString("image"));
         chatMessage.setReplayContent(sb.toString());
         replyMsgService.sendTextMessage(chatMessage);
 
