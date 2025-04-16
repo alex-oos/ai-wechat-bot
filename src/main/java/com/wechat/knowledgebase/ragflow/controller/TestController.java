@@ -1,8 +1,11 @@
 package com.wechat.knowledgebase.ragflow.controller;
 
-import com.wechat.knowledgebase.ragflow.service.ChatService;
+import com.alibaba.fastjson2.JSONObject;
+import com.wechat.knowledgebase.ragflow.entity.ReplyEntity;
+import com.wechat.knowledgebase.ragflow.service.RagFlowService;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import javax.annotation.Resource;
@@ -17,20 +20,20 @@ import javax.annotation.Resource;
 public class TestController implements ApplicationRunner {
 
     @Resource
-    private ChatService chatService;
+    private RagFlowService chatService;
 
     @GetMapping("/test")
     public String test() {
 
-        String result = chatService.chatWithAssistant("你好", "40271fd840b440c7bd05be8d804b432f");
+        String result = String.valueOf(chatService.chatWithAssistant("你好", "40271fd840b440c7bd05be8d804b432f"));
         return result;
     }
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
 
-        String result = chatService.chatWithAssistant("你好", "40271fd840b440c7bd05be8d804b432f");
-        System.out.println(result);
+        ReplyEntity replyEntity = chatService.chatWithAssistant("你好", null);
+        System.out.println(JSONObject.toJSONString(replyEntity));
         //return result;
     }
 

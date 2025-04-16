@@ -8,10 +8,12 @@ import com.wechat.bot.entity.ChatMessage;
 import com.wechat.bot.enums.MsgTypeEnum;
 import com.wechat.bot.service.ReplyMsgService;
 import com.wechat.gewechat.service.MessageApi;
+import com.wechat.knowledgebase.ragflow.service.RagFlowService;
 import com.wechat.search.serivce.AliAiSearchService;
 import com.wechat.util.AudioFormatConversionSilk;
 import com.wechat.util.VideoScreenshotUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Service;
 
@@ -43,6 +45,11 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
 
     private AIService aiService;
 
+    @Value("knowledge.isActive")
+    private String isActive;
+
+    @Resource
+    private RagFlowService ragFlowService;
 
     private void handleGroupMessage(ChatMessage chatMessage, String replayMsg) {
 
@@ -56,11 +63,20 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
     public void replyTextMsg(ChatMessage chatMessage) {
 
         String replayMsg = null;
+        // 是否激活知识库
+        if (isActive.equalsIgnoreCase("true")) {
+            // 调用知识库
+            replayMsg = ragFlowService.createRagflowChat(chatMessage.getSession());
+        }
+        //是否打开搜索引擎
         if (chatMessage.getSession().getIsActiveSearch()) {
             replayMsg = aliAiSearchService.searchAndAI(chatMessage.getSession().getTextMessages());
-        } else {
+        }
+        // 是否都没有打开，走默认AI 调用
+        if (!chatMessage.getSession().getIsActiveSearch() && !isActive.equalsIgnoreCase("true")) {
             replayMsg = aiService.textToText(chatMessage.getSession());
         }
+
         chatMessage.setReplayContent(replayMsg);
         if (chatMessage.getIsGroup()) {
             handleGroupMessage(chatMessage, replayMsg);
@@ -207,47 +223,7 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
     public void replayQuoteMsg(ChatMessage chatMessage) {
 
         // 构建引用消息XML
-        String appMsg = String.format(
-                "<appmsg appid=\"\" sdkver=\"0\">" +
-                        " <title>%s</title>\n" +
-                        "    <des />\n" +
-                        "    <action />\n" +
-                        "    <type>57</type>\n" +
-                        "    <showtype>0</showtype>\n" +
-                        "    <soundtype>0</soundtype>\n" +
-                        "    <mediatagname />\n" +
-                        "    <messageext />\n" +
-                        "    <messageaction />\n" +
-                        "    <content />\n" +
-                        "    <contentattr>0</contentattr>\n" +
-                        "    <url />\n" +
-                        "    <lowurl />\n" +
-                        "    <dataurl />\n" +
-                        "    <lowdataurl />\n" +
-                        "    <songalbumurl />\n" +
-                        "    <songlyric />\n" +
-                        "    <appattach>\n" +
-                        "      <totallen>0</totallen>\n" +
-                        "      <attachid />\n" +
-                        "      <emoticonmd5 />\n" +
-                        "      <fileext />\n" +
-                        "      <aeskey />\n" +
-                        "    </appattach>\n" +
-                        "    <extinfo />\n" +
-                        "    <sourceusername />\n" +
-                        "    <sourcedisplayname />\n" +
-                        "    <thumburl />\n" +
-                        "    <md5 />\n" +
-                        "    <statextstr />\n" +
-                        "    <refermsg>\n" +
-                        "      <type>%d</type>\n" +
-                        "      <svrid>%s</svrid>\n" +
-                        "      <fromusr>%s</fromusr>\n" +
-                        "      <chatusr>%s</chatusr>\n" +
-                        "      <displayname />\n" +
-                        "      <content>%s</content>\n" +
-                        "    </refermsg>\n" +
-                        "  </appmsg>`", escapeHtml(chatMessage.getReplayContent()), chatMessage.getCtype().getMsgType(), chatMessage.getMsgId(), chatMessage.getFromUserId(), chatMessage.getFromUserId(), escapeHtml(chatMessage.getContent()));
+        String appMsg = String.format("<appmsg appid=\"\" sdkver=\"0\">" + " <title>%s</title>\n" + "    <des />\n" + "    <action />\n" + "    <type>57</type>\n" + "    <showtype>0</showtype>\n" + "    <soundtype>0</soundtype>\n" + "    <mediatagname />\n" + "    <messageext />\n" + "    <messageaction />\n" + "    <content />\n" + "    <contentattr>0</contentattr>\n" + "    <url />\n" + "    <lowurl />\n" + "    <dataurl />\n" + "    <lowdataurl />\n" + "    <songalbumurl />\n" + "    <songlyric />\n" + "    <appattach>\n" + "      <totallen>0</totallen>\n" + "      <attachid />\n" + "      <emoticonmd5 />\n" + "      <fileext />\n" + "      <aeskey />\n" + "    </appattach>\n" + "    <extinfo />\n" + "    <sourceusername />\n" + "    <sourcedisplayname />\n" + "    <thumburl />\n" + "    <md5 />\n" + "    <statextstr />\n" + "    <refermsg>\n" + "      <type>%d</type>\n" + "      <svrid>%s</svrid>\n" + "      <fromusr>%s</fromusr>\n" + "      <chatusr>%s</chatusr>\n" + "      <displayname />\n" + "      <content>%s</content>\n" + "    </refermsg>\n" + "  </appmsg>`", escapeHtml(chatMessage.getReplayContent()), chatMessage.getCtype().getMsgType(), chatMessage.getMsgId(), chatMessage.getFromUserId(), chatMessage.getFromUserId(), escapeHtml(chatMessage.getContent()));
 
         MessageApi.postAppMsg(chatMessage.getAppId(), chatMessage.getFromUserId(), appMsg);
         chatMessage.setPrepared(true);
@@ -274,11 +250,7 @@ public class ReplyMsgServiceImpl implements ReplyMsgService {
         if (input == null) {
             return "";
         }
-        return input.replace("&", "&amp;")
-                .replace("<", "&lt;")
-                .replace(">", "&gt;")
-                .replace("\"", "&quot;")
-                .replace("'", "&#39;");
+        return input.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;").replace("'", "&#39;");
     }
 
 }

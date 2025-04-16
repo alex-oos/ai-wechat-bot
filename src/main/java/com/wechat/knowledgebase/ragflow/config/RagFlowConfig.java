@@ -20,5 +20,7 @@ public class RagFlowConfig {
 
     private String apiKey;
 
+    private String rebootId;
+
 
 }
