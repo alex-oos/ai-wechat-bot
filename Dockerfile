@@ -26,7 +26,7 @@ RUN apt install -y language-pack-zh-hans \
 ENV LANG=zh_CN.UTF-8
 
 # 步骤5: 安装Java开发工具包（JDK）
-RUN apt install -y openjdk-17-jdk \
+RUN apt install -y openjdk-11-jdk \
     && apt install -y maven \
     && apt install -y vim
 
