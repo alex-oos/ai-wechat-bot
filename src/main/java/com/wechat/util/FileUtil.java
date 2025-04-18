@@ -55,7 +55,7 @@ public class FileUtil {
     public static Path getConfigFilePath() {
 
         Path externalPath = Paths.get(EXTERNAL_CONFIG_PATH);
-        String env = "exe";
+        String env = "local";
 
         // 如果外部文件已存在，直接返回
         if (Files.exists(externalPath)) {
@@ -79,6 +79,7 @@ public class FileUtil {
             return configFilePath;
 
         }
+
     }
 
 
