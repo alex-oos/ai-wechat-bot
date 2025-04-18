@@ -6,7 +6,7 @@ spring:
     name: webchat-bot-server
   #  激活指定环境
   profiles:
-    active: sqlite
+    active: @profiles.active@
   jackson: # 返回JSON的全局时间格式
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: GMT+8
