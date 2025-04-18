@@ -1,7 +1,8 @@
 spring:
   datasource:
     name: sqlite
-    url: jdbc:sqlite:src/main/resources/db/sqlite/sqlite.db
+    # 使用相对路径
+    url: jdbc:sqlite::resource:db/sqlite/sqlite.db
     username:
     password:
     driver-class-name: org.sqlite.JDBC

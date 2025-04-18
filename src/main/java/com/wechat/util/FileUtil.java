@@ -5,11 +5,13 @@ import com.alibaba.fastjson2.JSONWriter;
 import com.wechat.bot.entity.BotConfig;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 
 /**
  * @author Alex
@@ -50,49 +52,35 @@ public class FileUtil {
         }
     }
 
-    //public static Path getConfigFilePath() {
-    //
-    //    Path externalPath = Paths.get(EXTERNAL_CONFIG_PATH);
-    //    String env = "local";
-    //
-    //    // 如果外部文件已存在，直接返回
-    //    if (Files.exists(externalPath)) {
-    //        return externalPath;
-    //    }
-    //
-    //    // 仅在 Windows 环境下自动生成默认配置
-    //    if (env.equals("exe")) {
-    //        try (InputStream is = FileUtil.class.getClassLoader().getResourceAsStream(DEFAULT_CONFIG_RESOURCE)) {
-    //            if (is == null) {
-    //                throw new FileNotFoundException("默认配置文件未找到: " + DEFAULT_CONFIG_RESOURCE);
-    //            }
-    //            // 复制到外部路径
-    //            Files.copy(is, externalPath, StandardCopyOption.REPLACE_EXISTING);
-    //            //System.out.println("已生成默认配置文件: " + externalPath.toAbsolutePath());
-    //            return externalPath;
-    //        } catch (IOException e) {
-    //            throw new RuntimeException(e);
-    //        }
-    //    } else {
-    //        // 非 Windows 系统直接返回路径（不自动创建文件）
-    //        URL url = FileUtil.class.getClassLoader().getResource(DEFAULT_CONFIG_RESOURCE);
-    //        try {
-    //            return Path.of(url.toURI());
-    //        } catch (URISyntaxException e) {
-    //            throw new RuntimeException(e);
-    //        }
-    //    }
-    //}
-
     public static Path getConfigFilePath() {
 
-        URL url = FileUtil.class.getClassLoader().getResource(DEFAULT_CONFIG_RESOURCE);
-        try {
-            return Path.of(url.toURI());
-        } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
+        Path externalPath = Paths.get(EXTERNAL_CONFIG_PATH);
+        String env = "exe";
+
+        // 如果外部文件已存在，直接返回
+        if (Files.exists(externalPath)) {
+            return externalPath;
+        }
+        // 如果是需要打包成exe 文件
+        if (env.equals("exe")) {
+            try (InputStream is = FileUtil.class.getClassLoader().getResourceAsStream(DEFAULT_CONFIG_RESOURCE)) {
+                if (is == null) {
+                    throw new FileNotFoundException("默认配置文件未找到: " + DEFAULT_CONFIG_RESOURCE);
+                }
+                // 复制到外部路径
+                Files.copy(is, externalPath, StandardCopyOption.REPLACE_EXISTING);
+                //System.out.println("已生成默认配置文件: " + externalPath.toAbsolutePath());
+                return externalPath;
+            } catch (IOException e) {
+                throw new RuntimeException("复制config.json配置文件失败");
+            }
+        } else {
+            // 非 exe 系统直接返回路径（不自动创建文件）
+            return configFilePath;
+
         }
     }
+
 
     public static void writeFile(BotConfig systemConfig) {
 
