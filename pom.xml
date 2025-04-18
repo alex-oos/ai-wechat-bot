@@ -196,6 +196,30 @@
             <version>1.2.0</version>
         </dependency>
     </dependencies>
+    <!--多环境配置优先级，默认配置local -->
+    <profiles>
+        <profile>
+            <id>local-sqlite</id>
+            <properties>
+                <profiles.active>sqlite</profiles.active>
+            </properties>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+        </profile>
+        <profile>
+            <id>exe</id>
+            <properties>
+                <profiles.active>exe</profiles.active>
+            </properties>
+        </profile>
+        <profile>
+            <id>mysql</id>
+            <properties>
+                <profiles.active>mysql</profiles.active>
+            </properties>
+        </profile>
+    </profiles>
 
     <build>
         <finalName>${project.artifactId}</finalName>

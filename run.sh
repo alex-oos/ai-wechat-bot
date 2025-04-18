@@ -24,7 +24,8 @@ else
 fi
 # 执行mvn package命令
 echo "开始执行mvn package..."
-mvn clean package
+# 默认打包为local-sqlite环境
+mvn clean package -DskipTests  -P local-sqlite
 
 # 检查mvn package是否成功
 if [ $? -ne 0 ]; then

@@ -1,0 +1,20 @@
+spring:
+  datasource:
+    #    sqlite数据源
+    name: sqlite
+    #  打包成msi文件的时候，需要使用以下路径，平时，还是使用上面路径即可
+    url: jdbc:sqlite:app/classes/db/sqlite.db
+    username:
+    password:
+    driver-class-name: org.sqlite.JDBC
+  # 关闭springboot 启动图标
+  main:
+    banner-mode: off
+# 关闭所有日志，Alibaba 的日志 spring 日志，以及服务器日志
+logging:
+  level:
+    com.nuclear.info: off
+    org.springframework: off
+    org.apache: off
+    com.alibaba: off
+    com.wechat.bot: info
