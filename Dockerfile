@@ -34,7 +34,7 @@ WORKDIR /app
 COPY . /app
 
 RUN cd /app  \
-    && mvn  -B clean install  -Dmaven.test.skip=true -Dautoconfig.skip
+    && mvn  -B clean install -P local-sqlite -Dmaven.test.skip=true -Dautoconfig.skip
 
 EXPOSE 9919
 CMD ["java","-jar","/app/target/ai-wechat-bot.jar"]
