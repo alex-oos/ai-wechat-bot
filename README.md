@@ -17,8 +17,6 @@ gewechat 服务需要自行部署，[ai-wechat-bot](https://github.com/alex-oos/
 
 ## 2.1 下载镜像
 
-感谢gewechat交流群中的大佬 `@1H` 重构了镜像,让gewe镜像不依赖cgroup和docker --privilege,可以在更高版本的ubuntu、debian以及macos系统上运行。
-
 ```bash
 # 从阿里云镜像仓库拉取(国内)
  docker pull registry.cn-hangzhou.aliyuncs.com/gewe/gewe:latest
