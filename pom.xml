@@ -195,6 +195,23 @@
             <artifactId>jaxen</artifactId>
             <version>1.2.0</version>
         </dependency>
+        <dependency>
+            <groupId>dev.langchain4j</groupId>
+            <artifactId>langchain4j-open-ai</artifactId>
+            <version>0.29.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mapdb</groupId>
+            <artifactId>mapdb</artifactId>
+            <version>3.0.9</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.jetbrains.kotlin</groupId>
+                    <artifactId>kotlin-stdlib</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
     </dependencies>
     <!--多环境配置优先级，默认配置local -->
     <profiles>
@@ -237,6 +254,37 @@
                 </configuration>
             </plugin>
         </plugins>
+        <!--        引入扫描制定的目录下面的xml文件，如果xml文件放在resources下面则不需配置-->
+        <resources>
+            <resource>
+                <directory>src/main/java</directory>
+                <includes>
+                    <include>**/*.xml</include>
+                </includes>
+                <filtering>false</filtering>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <!--  filtering 为true的时候，不能使用通配符*，仅仅支持字符匹配      -->
+                <filtering>true</filtering>
+                <includes>
+                    <include>application.yml</include>
+                    <include>application-${profiles.active}.yml</include>
+                </includes>
+            </resource>
+            <!--指定将resources中配置文件加载到target-->
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>**/*.xml</include>
+                    <include>**/*.db</include>
+                    <include>static/**</include>
+                    <include>static/assets/**</include>
+                </includes>
+                <filtering>false</filtering>
+
+            </resource>
+        </resources>
     </build>
 
 </project>
