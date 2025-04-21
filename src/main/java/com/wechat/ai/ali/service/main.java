@@ -1,5 +1,6 @@
 package com.wechat.ai.ali.service;
 
+import com.wechat.ai.config.AiConfig;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.data.message.SystemMessage;
@@ -30,7 +31,7 @@ public class main {
         //UserMessage userMessage = UserMessage.from(me);
         //list.add(userMessage);
         OpenAiChatModel demo = OpenAiChatModel.builder()
-                .apiKey("sk-83493f6b46b248c5a3a008dca639ac55")
+                .apiKey(AiConfig.botConfig.getDashscopeApiKey())
                 .modelName("qwen-plus")
                 .temperature(0.7)
                 .baseUrl("https://dashscope.aliyuncs.com/compatible-mode/v1")
