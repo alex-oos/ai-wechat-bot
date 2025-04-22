@@ -1,7 +1,12 @@
 package com.wechat.ai.ali.service;
 
 import dev.langchain4j.data.message.ChatMessage;
+import dev.langchain4j.memory.chat.ChatMemoryProvider;
+import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.model.openai.OpenAiChatModel;
+import dev.langchain4j.service.AiServices;
+import dev.langchain4j.service.MemoryId;
+import dev.langchain4j.service.UserMessage;
 import dev.langchain4j.store.memory.chat.ChatMemoryStore;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
@@ -11,6 +16,8 @@ import java.util.Map;
 
 import static dev.langchain4j.data.message.ChatMessageDeserializer.messagesFromJson;
 import static dev.langchain4j.data.message.ChatMessageSerializer.messagesToJson;
+import static org.mapdb.Serializer.INTEGER;
+import static org.mapdb.Serializer.STRING;
 
 /**
  * @author Alex
@@ -80,3 +87,5 @@ public class ServiceWithPersistentMemoryForEachUserExample {
 
 
     }
+
+}

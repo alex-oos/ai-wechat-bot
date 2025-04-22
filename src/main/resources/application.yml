@@ -85,8 +85,8 @@ logging:
     com.wechat.ai: debug
 ali:
   search:
-    api-key:
-    host:
+  host: http://default-r53.platform-cn-beijing.opensearch.aliyuncs.com
+  apiKey: OS-r12prvd6s3x20j66
 knowledge:
   isActive: true
   ragflow:
@@ -94,3 +94,16 @@ knowledge:
       host: http://192.168.1.18:8081
       apiKey: ragflow-lhMGNiNzI0MWFiYzExZjBhOTAwMTYzZm
       rebootId: 3c86af0e1abe11f0860d163ff67159b2
+
+happy:
+  alapi:
+    host: https://v3.alapi.cn
+    token: e8sv56k9jym88c8papmxfk1n0a5f7l
+langchain4j:
+  open-ai:
+    chat-model:
+      # 课程测试 KEY，需要更换为实际可用 KEY
+      api-key: sk-xx
+      model-name: qwen-turbo
+      # 百炼兼容OpenAI接口规范，base_url为https://dashscope.aliyuncs.com/compatible-mode/v1
+      base-url: https://dashscope.aliyuncs.com/compatible-mode/v1
