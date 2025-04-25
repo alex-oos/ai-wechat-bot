@@ -1,5 +1,6 @@
 package com.wechat.bot.entity.dto;
 
+import com.alibaba.fastjson2.annotation.JSONField;
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -43,6 +44,7 @@ public class FriendDTO implements Serializable {
 
     private String signature;
 
+    @JSONField(name = "alias") // 静态注解配置别名
     private String alias;
 
     private String snsBgImg;

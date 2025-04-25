@@ -2,9 +2,10 @@ package com.wechat.bot.service.impl;
 
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wechat.bot.entity.BotConfig;
-import com.wechat.bot.entity.dto.ChatRoomsDTO;
 import com.wechat.bot.entity.dto.FriendDTO;
 import com.wechat.bot.mapper.FriendMapper;
 import com.wechat.bot.service.ChatRoomService;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -31,7 +33,6 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, FriendDTO> impl
 
     @Resource
     private ChatRoomService chatRoomService;
-
 
     @Override
     public void syncContacts() {
@@ -60,64 +61,56 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, FriendDTO> impl
 
         }
         if (!chatroomIds.isEmpty()) {
-            syncChatRooms(chatroomIds);
+            chatRoomService.syncChatRooms(chatroomIds);
         }
 
 
     }
 
-
-    private void syncChatRooms(List<String> chatroomIds) {
-
-        chatRoomService.remove(null);
-        List<List<String>> lists = splitIntoGroups(chatroomIds, 20);
-        List<ChatRoomsDTO> chatRoomsDTOList = new ArrayList<>();
-        for (List<String> list : lists) {
-            JSONObject detailInfo = ContactApi.getDetailInfo(botConfig.getAppId(), list);
-            if (detailInfo.getInteger("ret") != 200) {
-                log.error("获取群聊列表失败");
-                return;
-            }
-            JSONArray data2 = detailInfo.getJSONArray("data");
-            for (Object o : data2) {
-                JSONObject jsonObject = (JSONObject) o;
-                ChatRoomsDTO chatRoomsDTO = ChatRoomsDTO.builder()
-                        .chatRoomId(jsonObject.getString("userName"))
-                        .nickName(jsonObject.getString("nickName"))
-                        .pyInitial(jsonObject.getString("pyInitial"))
-                        .quanPin(jsonObject.getString("quanPin"))
-                        .sex(jsonObject.getString("sex"))
-                        .remark(jsonObject.getString("remark"))
-                        .remarkPyInitial(jsonObject.getString("remarkPyInitial"))
-                        .remarkQuanPin(jsonObject.getString("remarkQuanPin"))
-                        .signature(jsonObject.getString("signature"))
-                        .build();
-                chatRoomsDTOList.add(chatRoomsDTO);
-            }
-        }
-
-
-        chatRoomService.saveOrUpdateBatch(chatRoomsDTOList);
-    }
-
-    private void syncFriends(List<String> friendIds) {
+    @Override
+    public void syncFriends(List<String> friendIds) {
 
         this.remove(null);
         List<List<String>> lists = splitIntoGroups(friendIds, 20);
         List<FriendDTO> friends = new ArrayList<>();
         for (List<String> list : lists) {
-            JSONObject response1 = ContactApi.getDetailInfo(botConfig.getAppId(), list);
-            if (response1.getInteger("ret") != 200) {
-                log.error("获取好友列表失败");
-                return;
-            }
-            JSONArray data1 = response1.getJSONArray("data");
-
-            List<FriendDTO> friendDTOList = data1.toList(FriendDTO.class);
-            friends.addAll(friendDTOList);
+            List<FriendDTO> friendInfo = getFriendInfo(list);
+            friends.addAll(friendInfo);
         }
 
-        this.saveOrUpdateBatch(friends);
+        boolean b = this.saveOrUpdateBatch(friends);
+        if (!b) {
+            log.error("保存好友列表失败");
+        }
+    }
+
+    @Override
+    public String getFriendName(String userId) {
+        /**
+         * 先去查询看看是否存在，如果不存在，再调用接口获取，然后保存到数据库中，再返回
+         *
+         */
+        LambdaQueryWrapper<FriendDTO> queryWrapper = new QueryWrapper<FriendDTO>().lambda();
+        queryWrapper.eq(FriendDTO::getUserName, userId);
+        FriendDTO friendDTO = this.getOne(queryWrapper);
+        if (friendDTO != null) {
+            return friendDTO.getNickName();
+        }
+        FriendDTO friendDTO1 = this.getFriendInfo(Collections.singletonList(userId)).stream().findFirst().orElseThrow(() -> new RuntimeException("获取好友信息失败"));
+        return friendDTO1.getNickName();
+    }
+
+    public List<FriendDTO> getFriendInfo(List<String> list) {
+
+        JSONObject response1 = ContactApi.getDetailInfo(botConfig.getAppId(), list);
+        if (response1.getInteger("ret") != 200) {
+            log.error("获取好友列表失败");
+        }
+        JSONArray data1 = response1.getJSONArray("data");
+
+        List<FriendDTO> friendDTOList = data1.toList(FriendDTO.class);
+        //this.saveOrUpdateBatch(friendDTOList);
+        return friendDTOList;
     }
 
     public <T> List<List<T>> splitIntoGroups(List<T> originalList, int groupSize) {
@@ -133,5 +126,6 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, FriendDTO> impl
         }
         return result;
     }
+
 
 }
