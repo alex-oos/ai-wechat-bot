@@ -13,11 +13,13 @@ import com.wechat.bot.service.FriendService;
 import com.wechat.gewechat.service.ContactApi;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Alex
@@ -70,18 +72,19 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, FriendDTO> impl
     @Override
     public void syncFriends(List<String> friendIds) {
 
+
         this.remove(null);
+
         List<List<String>> lists = splitIntoGroups(friendIds, 20);
-        List<FriendDTO> friends = new ArrayList<>();
         for (List<String> list : lists) {
-            List<FriendDTO> friendInfo = getFriendInfo(list);
-            friends.addAll(friendInfo);
+            getFriendInfo(list);
+            try {
+                TimeUnit.SECONDS.sleep(10);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
         }
 
-        boolean b = this.saveOrUpdateBatch(friends);
-        if (!b) {
-            log.error("保存好友列表失败");
-        }
     }
 
     @Override
@@ -100,16 +103,24 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, FriendDTO> impl
         return friendDTO1.getNickName();
     }
 
+    @Transactional
     public List<FriendDTO> getFriendInfo(List<String> list) {
 
-        JSONObject response1 = ContactApi.getDetailInfo(botConfig.getAppId(), list);
-        if (response1.getInteger("ret") != 200) {
+        JSONObject response = ContactApi.getDetailInfo(botConfig.getAppId(), list);
+        if (response.getInteger("ret") != 200) {
             log.error("获取好友列表失败");
         }
-        JSONArray data1 = response1.getJSONArray("data");
+        JSONArray data = response.getJSONArray("data");
 
-        List<FriendDTO> friendDTOList = data1.toList(FriendDTO.class);
-        //this.saveOrUpdateBatch(friendDTOList);
+        List<FriendDTO> friendDTOList = null;
+
+        friendDTOList = data.toList(FriendDTO.class);
+
+        boolean saveOrUpdateBatch = this.saveBatch(friendDTOList);
+        if (!saveOrUpdateBatch) {
+            log.error("保存好友列表失败");
+            throw new RuntimeException("保存好友列表失败");
+        }
         return friendDTOList;
     }
 

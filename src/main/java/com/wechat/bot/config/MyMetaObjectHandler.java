@@ -20,14 +20,14 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
     @Override
     public void insertFill(MetaObject metaObject) {
 
-        //log.info("开始插入填充...");
+        log.info("开始插入填充...");
         this.strictInsertFill(metaObject, "createTime", String.class, LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
     }
 
     @Override
     public void updateFill(MetaObject metaObject) {
 
-        //log.info("开始更新填充...");
+        log.info("开始更新填充...");
         this.strictUpdateFill(metaObject, "updateTime", String.class, LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
 
     }
