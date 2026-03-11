@@ -1,0 +1,33 @@
+version: "3.8"
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ai-wechat-backend
+    ports:
+      - "9919:9919"
+    environment:
+      - SPRING_PROFILES_ACTIVE=sqlite
+      - TZ=Asia/Shanghai
+      - ADMIN_AUTH_USERNAME=admin
+      - ADMIN_AUTH_PASSWORD=123456
+    volumes:
+      - ./data:/app/data
+      - ./config.json:/app/config.json
+      - ./logs:/app/logs
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE: ""
+    container_name: ai-wechat-frontend
+    ports:
+      - "8081:80"
+    depends_on:
+      - backend
+    restart: unless-stopped

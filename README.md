@@ -33,3 +33,17 @@ npm run dev
 
 - 前端已配置 Vite 代理：`/api -> http://localhost:9919`
 
+## Docker 部署（前后端一体）
+
+使用 Docker Compose 一键启动前后端：
+
+```bash
+docker compose up -d --build
+```
+
+默认访问：
+
+- 管理台：`http://localhost:8081/`
+- 后端 API：`http://localhost:9919/`
+
+完整教程见：`docs/DEPLOY_DOCKER.md`
