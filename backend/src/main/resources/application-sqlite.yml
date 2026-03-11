@@ -1,0 +1,10 @@
+spring:
+  datasource:
+    name: sqlite
+    # 使用相对路径，避免只读的 classpath 资源数据库
+    url: jdbc:sqlite:./db/sqlite.db
+    username:
+    password:
+    driver-class-name: org.sqlite.JDBC
+    druid:
+      filters: slf4j

@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ai-wechat-bot 管理台</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <div class="title">ai-wechat-bot 管理台</div>
+      <div class="subtitle">账号密码登录 → 获取二维码 → 扫码登录</div>
+    </header>
+
+    <main class="card">
+      <section id="loginView">
+        <div class="sectionTitle">登录</div>
+        <div class="row">
+          <label class="label" for="username">账号</label>
+          <input id="username" class="input" placeholder="admin" autocomplete="username" />
+        </div>
+        <div class="row">
+          <label class="label" for="password">密码</label>
+          <input id="password" type="password" class="input" placeholder="admin" autocomplete="current-password" />
+        </div>
+        <div class="row actions">
+          <button id="loginBtn" class="btn primary">登录</button>
+        </div>
+        <div id="loginMsg" class="msg"></div>
+      </section>
+
+      <section id="qrView" class="hidden">
+        <div class="sectionTitle">扫码登录</div>
+        <div class="qrWrap">
+          <div class="qrBox">
+            <img id="qrImg" alt="二维码" />
+          </div>
+          <div class="qrInfo">
+            <div class="kv"><div class="k">AppId</div><div id="appId" class="v">-</div></div>
+            <div class="kv"><div class="k">UUID</div><div id="uuid" class="v">-</div></div>
+            <div class="kv"><div class="k">状态</div><div id="status" class="v">-</div></div>
+            <div class="kv"><div class="k">剩余秒数</div><div id="expired" class="v">-</div></div>
+            <div class="kv"><div class="k">昵称</div><div id="nick" class="v">-</div></div>
+            <div class="row actions">
+              <button id="refreshQrBtn" class="btn">刷新二维码</button>
+              <button id="logoutBtn" class="btn danger">退出管理台</button>
+            </div>
+            <div id="qrMsg" class="msg"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span>提示：`admin.auth.username/password` 可在 `application.yml` 或环境变量覆盖。</span>
+    </footer>
+  </div>
+
+  <script src="./app.js"></script>
+</body>
+</html>
+
